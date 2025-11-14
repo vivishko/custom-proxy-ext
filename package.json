@@ -1,0 +1,25 @@
+{
+  "name": "browser-custom-proxy",
+  "version": "1.0.0",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vivishko/custom-proxy-ext.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/vivishko/custom-proxy-ext/issues"
+  },
+  "homepage": "https://github.com/vivishko/custom-proxy-ext#readme",
+  "description": "",
+  "devDependencies": {
+    "eslint": "^9.36.0"
+  }
+}
