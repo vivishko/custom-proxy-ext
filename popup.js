@@ -1,10 +1,4 @@
-const STORAGE_KEYS = {
-  proxies: "proxies",
-  siteRules: "siteRules",
-  globalProxyEnabled: "globalProxyEnabled",
-  lastSelectedProxy: "lastSelectedProxy", // Stores the name of the last selected proxy
-  temporaryDirectSites: "temporaryDirectSites", // New key for temporary direct access
-};
+import { STORAGE_KEYS, createLogger, findMostSpecificRule } from "./utils.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const proxyToggle = document.getElementById("proxyToggle");
@@ -12,44 +6,28 @@ document.addEventListener("DOMContentLoaded", async () => {
   const pageProxyToggle = document.getElementById("pageProxyToggle");
   const addRuleButton = document.getElementById("addRuleButton");
   const proxyStatusDisplay = document.getElementById("proxyStatusDisplay");
+  const loggingToggleButton = document.getElementById("loggingToggle");
 
   let currentTabUrl = "";
   let currentTabDomain = "";
 
+  const logger = createLogger(false);
+  let loggingEnabled = false;
+
+  const logDebug = (...args) => logger.debug(...args);
+  const logError = (...args) => logger.error(...args);
+
   // --- Helper Functions ---
-  const endsWithDomain = (host, domain) => {
-    if (!host || !domain) return false;
-    if (host === domain) return true;
-    return (
-      host.length > domain.length &&
-      host.substr(host.length - domain.length - 1) === "." + domain
-    );
-  };
-
-  const findMatchingRule = (hostname, siteRules) => {
-    let matchedDomain = null;
-    let matchingRule = null;
-    for (const domain in siteRules) {
-      if (endsWithDomain(hostname, domain)) {
-        if (!matchedDomain || domain.length > matchedDomain.length) {
-          matchedDomain = domain;
-          matchingRule = siteRules[domain];
-        }
-      }
-    }
-    return { rule: matchingRule, matchedDomain };
-  };
-
   const getCurrentTabInfo = async () => {
     return new Promise((resolve) => {
       let attempts = 0;
-      const maxAttempts = 10; // Retry up to 1 second (100ms intervals)
+      const maxAttempts = 10;
       const retryInterval = 100;
 
       const tryGetTab = () => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           if (tabs.length === 0) {
-            console.log("No active tab found.");
+            logDebug("No active tab found.");
             currentTabDomain = "";
             resolve();
             return;
@@ -61,22 +39,22 @@ document.addEventListener("DOMContentLoaded", async () => {
             try {
               const urlObj = new URL(currentTabUrl);
               currentTabDomain = urlObj.hostname;
-              console.log("Current Tab URL:", currentTabUrl);
-              console.log("Current Tab Domain:", currentTabDomain);
+              logDebug("Current Tab URL:", currentTabUrl);
+              logDebug("Current Tab Domain:", currentTabDomain);
             } catch (e) {
-              console.error("Invalid URL:", currentTabUrl, e);
+              logError("Invalid URL:", currentTabUrl, e);
               currentTabDomain = "";
             }
             resolve();
           } else {
             attempts++;
             if (attempts < maxAttempts) {
-              console.log(
+              logDebug(
                 `Tab URL not ready, retrying... (${attempts}/${maxAttempts})`
               );
               setTimeout(tryGetTab, retryInterval);
             } else {
-              console.log("Max retries reached, no URL available.");
+              logDebug("Max retries reached, no URL available.");
               currentTabDomain = "";
               resolve();
             }
@@ -102,17 +80,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (temporaryDirectSites[currentTabDomain]) {
       proxyStatusDisplay.textContent = `Proxy temporarily disabled for ${currentTabDomain}.`;
-      // pageProxyToggle.checked is already set correctly in loadMainControls
       return;
     }
 
-    const { rule, matchedDomain } = findMatchingRule(
+    const { rule, matchedDomain } = findMostSpecificRule(
       currentTabDomain,
       siteRules
     );
+
     if (rule) {
       let statusMsg = "";
       const displayDomain = matchedDomain || currentTabDomain;
+
       if (rule.type === "NO_PROXY") {
         statusMsg = globalProxyEnabled
           ? `Proxy: DIRECT (Global proxy exception for ${displayDomain})`
@@ -125,15 +104,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         statusMsg = globalProxyEnabled
           ? `Proxy: ${rule.proxyName} (Overrides global for ${displayDomain})`
           : `Proxy: ${rule.proxyName} (Rule for ${displayDomain})`;
+      } else if (rule.type === "DIRECT_TEMPORARY") {
+        statusMsg = `Proxy: DIRECT (Temporary rule for ${displayDomain})`;
       }
+
       proxyStatusDisplay.textContent = statusMsg;
-      // Do not set pageProxyToggle.checked here; it's for temporary only, set in loadMainControls
       return;
     }
 
     if (globalProxyEnabled && lastSelectedProxyName) {
       proxyStatusDisplay.textContent = `Proxy: ${lastSelectedProxyName} (Global)`;
-      pageProxyToggle.checked = false; // Global proxy is not "only on this page"
+      pageProxyToggle.checked = false;
       return;
     }
 
@@ -150,7 +131,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const temporaryDirectSites = settings.temporaryDirectSites || {};
     const siteRules = settings.siteRules || {};
 
-    // Populate proxy dropdown
     proxySelect.innerHTML = "";
     if (proxies.length === 0) {
       const option = document.createElement("option");
@@ -171,24 +151,22 @@ document.addEventListener("DOMContentLoaded", async () => {
       proxySelect.appendChild(option);
     });
 
-    // Set initial state of toggles and dropdown
     proxyToggle.checked = globalProxyEnabled;
     proxySelect.disabled = !globalProxyEnabled;
     if (lastSelectedProxy) {
       proxySelect.value = lastSelectedProxy;
     } else if (proxies.length > 0) {
-      proxySelect.value = proxies[proxies.length - 1].name; // Select last added proxy by default
+      proxySelect.value = proxies[proxies.length - 1].name;
     }
 
-    // pageProxyToggle reflects temporary override state
     pageProxyToggle.checked = !!temporaryDirectSites[currentTabDomain];
-    const { rule: matchingRule } = findMatchingRule(
+    const { rule: matchingRule } = findMostSpecificRule(
       currentTabDomain,
       siteRules
     );
-    pageProxyToggle.disabled = !globalProxyEnabled && !matchingRule; // Disable if no global proxy and no site rule
+    pageProxyToggle.disabled = !globalProxyEnabled && !matchingRule;
 
-    addRuleButton.disabled = !currentTabDomain; // Enable if a valid domain is found
+    addRuleButton.disabled = !currentTabDomain;
 
     updateProxyStatusDisplay();
   };
@@ -208,7 +186,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         proxyName: selectedProxyName,
       });
     } else {
-      // If global proxy is turned off, clear temporary overrides
       await chrome.storage.sync.set({ temporaryDirectSites: {} });
       pageProxyToggle.checked = false;
       chrome.runtime.sendMessage({ action: "clearProxy" });
@@ -229,29 +206,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   pageProxyToggle.addEventListener("change", async () => {
-    const isEnabled = pageProxyToggle.checked; // true means temporary DIRECT, false means remove temporary DIRECT
+    const isEnabled = pageProxyToggle.checked;
     const settings = await chrome.storage.sync.get(Object.values(STORAGE_KEYS));
     let temporaryDirectSites = settings.temporaryDirectSites || {};
 
     if (currentTabDomain) {
       if (isEnabled) {
-        temporaryDirectSites[currentTabDomain] = true; // Mark for temporary direct
+        temporaryDirectSites[currentTabDomain] = true;
       } else {
-        delete temporaryDirectSites[currentTabDomain]; // Remove temporary direct
+        delete temporaryDirectSites[currentTabDomain];
       }
       await chrome.storage.sync.set({ temporaryDirectSites });
-      chrome.runtime.sendMessage({ action: "updateProxySettings" }); // Notify background script
+      chrome.runtime.sendMessage({ action: "updateProxySettings" });
     }
     updateProxyStatusDisplay();
   });
 
   addRuleButton.addEventListener("click", async () => {
     if (currentTabDomain) {
-      // Switch to Site Rules tab and pre-fill the domain
       document.querySelector('.tab-button[data-tab="siteRulesTab"]').click();
       siteDomainInput.value = currentTabDomain;
       siteProxySelect.value = proxySelect.value || "RANDOM_PROXY";
-      // Automatically add the rule
       addSiteRuleButtonOptions.click();
     }
   });
@@ -268,7 +243,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       button.classList.add("active");
       document.getElementById(button.dataset.tab).classList.add("active");
 
-      // Re-render content when tab is switched
       if (button.dataset.tab === "siteRulesTab") {
         renderSiteRules();
       } else if (button.dataset.tab === "addProxyTab") {
@@ -277,7 +251,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // --- Site Rules Tab (Page 2) ---
+  // --- Site Rules Tab ---
   const siteDomainInput = document.getElementById("siteDomainInput");
   const siteProxySelect = document.getElementById("siteProxySelect");
   const addSiteRuleButtonOptions = document.getElementById(
@@ -292,17 +266,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     "importSiteRulesButton"
   );
 
-  let allProxies = []; // To store available proxies for dropdowns
+  let allProxies = [];
 
   const loadProxiesForDropdown = async () => {
     const settings = await chrome.storage.sync.get("proxies");
     allProxies = settings.proxies || [];
 
     siteProxySelect.innerHTML = `
-            <option value="NO_PROXY">NO_PROXY</option>
-            <option value="RANDOM_PROXY">RANDOM_PROXY</option>
-            <option value="DIRECT_TEMPORARY">DIRECT (Temporary)</option>
-        `;
+      <option value="NO_PROXY">NO_PROXY</option>
+      <option value="RANDOM_PROXY">RANDOM_PROXY</option>
+      <option value="DIRECT_TEMPORARY">DIRECT (Temporary)</option>
+    `;
     allProxies.forEach((proxy) => {
       const option = document.createElement("option");
       option.value = proxy.name;
@@ -326,17 +300,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       const proxyCell = row.insertCell();
       const select = document.createElement("select");
       select.innerHTML = `
-                <option value="NO_PROXY">NO_PROXY</option>
-                <option value="RANDOM_PROXY">RANDOM_PROXY</option>
-                <option value="DIRECT_TEMPORARY">DIRECT (Temporary)</option>
-            `;
+        <option value="NO_PROXY">NO_PROXY</option>
+        <option value="RANDOM_PROXY">RANDOM_PROXY</option>
+        <option value="DIRECT_TEMPORARY">DIRECT (Temporary)</option>
+      `;
       allProxies.forEach((proxy) => {
         const option = document.createElement("option");
         option.value = proxy.name;
         option.textContent = proxy.name;
         select.appendChild(option);
       });
+
       select.value = rule.type === "PROXY_BY_RULE" ? rule.proxyName : rule.type;
+
       select.addEventListener("change", async (event) => {
         const newSetting = event.target.value;
         if (
@@ -345,7 +321,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           newSetting === "DIRECT_TEMPORARY"
         ) {
           siteRules[domain].type = newSetting;
-          delete siteRules[domain].proxyName; // Clear specific proxy if not PROXY_BY_RULE
+          delete siteRules[domain].proxyName;
         } else {
           siteRules[domain].type = "PROXY_BY_RULE";
           siteRules[domain].proxyName = newSetting;
@@ -354,6 +330,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         chrome.runtime.sendMessage({ action: "updateProxySettings" });
         updateProxyStatusDisplay();
       });
+
       proxyCell.appendChild(select);
 
       const actionsCell = row.insertCell();
@@ -405,10 +382,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const dataStr = JSON.stringify(settings.siteRules, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    chrome.downloads.download({
-      url: url,
-      filename: "site_rules.json",
-    });
+    chrome.downloads.download({ url, filename: "site_rules.json" });
   });
 
   importSiteRulesButton.addEventListener("click", () => {
@@ -435,7 +409,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  // --- Add Proxy Tab (Page 3) ---
+  // --- Add Proxy Tab ---
   const addProxyForm = document.getElementById("addProxyForm");
   const proxyNameInput = document.getElementById("proxyName");
   const proxyHostInput = document.getElementById("proxyHost");
@@ -471,7 +445,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       deleteButton.textContent = "Delete";
       deleteButton.classList.add("delete-button");
       deleteButton.addEventListener("click", async () => {
-        // Show warning before deleting
         const confirmDelete = confirm(
           `Are you sure you want to delete proxy "${proxy.name}"? All site rules using this proxy will be removed.`
         );
@@ -479,7 +452,6 @@ document.addEventListener("DOMContentLoaded", async () => {
           const updatedProxies = proxies.filter((p) => p.name !== proxy.name);
           await chrome.storage.sync.set({ proxies: updatedProxies });
 
-          // Remove site rules associated with this proxy
           const siteSettings = await chrome.storage.sync.get("siteRules");
           let siteRules = siteSettings.siteRules || {};
           for (const domain in siteRules) {
@@ -493,8 +465,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           await chrome.storage.sync.set({ siteRules });
 
           renderProxies();
-          loadProxiesForDropdown(); // Update dropdowns in site rules tab
-          renderSiteRules(); // Re-render site rules to reflect changes
+          loadProxiesForDropdown();
+          renderSiteRules();
           chrome.runtime.sendMessage({ action: "updateProxySettings" });
           updateProxyStatusDisplay();
         }
@@ -513,7 +485,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       username: proxyUsernameInput.value.trim(),
       password: proxyPasswordInput.value.trim(),
       country: proxyCountryInput.value.trim(),
-      protocol: proxyProtocolInput.value || "http", // Добавляем protocol
+      protocol: proxyProtocolInput.value || "http",
     };
 
     if (
@@ -528,7 +500,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    // Валидация порта
     if (isNaN(newProxy.port) || newProxy.port < 1 || newProxy.port > 65535) {
       alert("Please enter a valid port number (1-65535).");
       return;
@@ -544,7 +515,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    console.log("Adding new proxy:", newProxy);
+    logDebug("Adding new proxy:", newProxy);
 
     proxies.push(newProxy);
     await chrome.storage.sync.set({ proxies });
@@ -556,7 +527,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     chrome.runtime.sendMessage({ action: "updateProxySettings" });
     updateProxyStatusDisplay();
 
-    console.log("Proxy added successfully");
+    logDebug("Proxy added successfully");
   });
 
   exportProxiesButton.addEventListener("click", async () => {
@@ -564,10 +535,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const dataStr = JSON.stringify(settings.proxies, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    chrome.downloads.download({
-      url: url,
-      filename: "proxies.json",
-    });
+    chrome.downloads.download({ url, filename: "proxies.json" });
   });
 
   importProxiesButton.addEventListener("click", () => {
@@ -581,7 +549,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       reader.onload = async (e) => {
         try {
           const importedProxies = JSON.parse(e.target.result);
-          // Basic validation for imported proxies
           if (
             !Array.isArray(importedProxies) ||
             !importedProxies.every(
@@ -592,7 +559,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           }
           await chrome.storage.sync.set({ proxies: importedProxies });
           renderProxies();
-          loadProxiesForDropdown(); // Update dropdowns in site rules tab
+          loadProxiesForDropdown();
           chrome.runtime.sendMessage({ action: "updateProxySettings" });
           updateProxyStatusDisplay();
           alert("Proxies imported successfully!");
@@ -604,9 +571,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // --- Logging toggle button ---
+  loggingToggleButton.addEventListener("click", () => {
+    loggingEnabled = !loggingEnabled;
+    logger.setEnabled(loggingEnabled);
+
+    if (loggingEnabled) loggingToggleButton.classList.add("enabled");
+    else loggingToggleButton.classList.remove("enabled");
+
+    chrome.storage.sync.set(
+      { [STORAGE_KEYS.loggingEnabled]: loggingEnabled },
+      () => {
+        chrome.runtime.sendMessage({
+          action: "setLoggingEnabled",
+          enabled: loggingEnabled,
+        });
+      }
+    );
+  });
+
   // --- Initialization ---
   const initializePopup = async () => {
     await getCurrentTabInfo();
+
+    const loggingSettings = await chrome.storage.sync.get(
+      STORAGE_KEYS.loggingEnabled
+    );
+    loggingEnabled = !!loggingSettings[STORAGE_KEYS.loggingEnabled];
+    logger.setEnabled(loggingEnabled);
+    console.info("[ProxyExt] Requested logging:", loggingEnabled);
+    if (loggingEnabled) loggingToggleButton.classList.add("enabled");
+    else loggingToggleButton.classList.remove("enabled");
+
     await loadProxiesForDropdown();
     await loadMainControls();
     await renderSiteRules();
