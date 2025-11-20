@@ -11,8 +11,7 @@
     "tabs",
     "webRequest",
     "webRequestAuthProvider",
-    "downloads",
-    "declarativeNetRequest"
+    "downloads"
   ],
   "host_permissions": ["<all_urls>"],
   "background": {
