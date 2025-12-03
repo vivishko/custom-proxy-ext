@@ -37,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Возможность включения функционала логирования для дебаггинга проблем
+- Ability to enable logging functionality for debugging issues
 
 ---
 
@@ -45,24 +45,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-Прокси
-
-- Добавление и удаление настроек прокси вручную
-- Экспорт и импорт данных списка прокси
-
-Глобальное поведение
-
-- Включить глобальное проксирование для всех запросов в браузере + выбор конкретного варианта прокси
-- Включить проксирование запросов только на одном конкретном сайте
-
-Правила
-
-- Фиксирование определенного поведения за доменом
-  - _\<proxy-name\>_ - при подключении к сайту всегда используется конкретный заданный прокси из списка
-  - _DIRECT_ - прямое подключение
-  - _RANDOM_PROXY_ - при подключении к сайту всегда используется рандомный прокси из списка существующих
-- Добавить, изменить и удалить правило
-- Задать из глобального поведения
+- Proxy
+  - Manually add and remove proxy settings
+  - Export and import proxy list data
+- Global behavior
+  - Enable global proxying for all browser requests and select a specific proxy option
+  - Enable proxying only for requests on a single specific site
+- Rules
+  - Assign specific behavior to a domain
+    - _\<proxy-name\>_ – always use the specified proxy from the list when connecting to the site
+    - _DIRECT_ – direct connection
+    - _RANDOM_PROXY_ – always use a random proxy from the existing list when connecting to the site
+  - Add, edit, and delete a rule
+  - Set from global behavior
 
 [unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.1...HEAD
 [1.1.1]: https://github.com/olivierlacan/keep-a-changelog/compare/v1.1.0...v1.1.1

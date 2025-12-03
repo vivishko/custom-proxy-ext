@@ -1,5 +1,9 @@
 # Proxy Manager Extension
 
+<p align="center">
+  <img src="./icon48.png" width="120" alt="icon"/>
+</p>
+
 A lightweight browser extension for flexible proxy control. It lets you manage global proxy settings, define per-site behavior, and maintain your own list of proxies with authentication support. The popup UI gives instant visibility into which proxy rule applies to the current page.
 
 ---
