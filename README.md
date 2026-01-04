@@ -8,7 +8,7 @@ A lightweight browser extension for flexible proxy control. It lets you manage g
 
 ---
 
-## Features
+## ✨ Features
 
 ### Global Proxy Mode
 
@@ -41,7 +41,7 @@ Toggle detailed debugging output for background proxy logic.
 
 ---
 
-## Technical Stack
+## 💻 Technical Stack
 
 - Manifest V3
 - JavaScript ES Modules
@@ -53,7 +53,7 @@ Toggle detailed debugging output for background proxy logic.
 
 ---
 
-## Installation
+## 🔧 Installation
 
 1. Download or clone the project.
 2. Open **chrome://extensions/**.
@@ -62,7 +62,7 @@ Toggle detailed debugging output for background proxy logic.
 
 ---
 
-## Usage Overview
+## 🔩 Usage Overview
 
 1. **Add proxies** in the _Proxies_ tab.
 2. **Enable global mode** and select your preferred proxy.
@@ -72,7 +72,7 @@ Toggle detailed debugging output for background proxy logic.
 
 ---
 
-## How Decisions Are Made
+## 🧩 How Decisions Are Made
 
 Proxy behavior follows this priority:
 
