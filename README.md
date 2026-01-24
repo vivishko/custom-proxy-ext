@@ -34,6 +34,7 @@ Add and store your proxies, including optional credentials, protocol, and countr
 ### Import/Export
 
 Backup or restore proxy lists and site rules in JSON format.
+See `examples/README.md` for example files and import guidance.
 
 ### Debug Logging
 
