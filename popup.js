@@ -396,7 +396,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       reader.onload = async (e) => {
         try {
           const importedRules = JSON.parse(e.target.result);
-          await chrome.storage.sync.set({ siteRules: importedRules });
+          if (
+            !importedRules ||
+            typeof importedRules !== "object" ||
+            Array.isArray(importedRules)
+          ) {
+            throw new Error("Invalid site rules file format.");
+          }
+          const existingSettings = await chrome.storage.sync.get("siteRules");
+          const existingRules = existingSettings.siteRules || {};
+          const mergedRules = { ...existingRules, ...importedRules };
+          await chrome.storage.sync.set({ siteRules: mergedRules });
           renderSiteRules();
           chrome.runtime.sendMessage({ action: "updateProxySettings" });
           updateProxyStatusDisplay();
@@ -404,6 +414,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         } catch (error) {
           alert("Error importing site rules: " + error.message);
         }
+        importSiteRulesFile.value = "";
       };
       reader.readAsText(file);
     }
@@ -549,15 +560,35 @@ document.addEventListener("DOMContentLoaded", async () => {
       reader.onload = async (e) => {
         try {
           const importedProxies = JSON.parse(e.target.result);
-          if (
-            !Array.isArray(importedProxies) ||
-            !importedProxies.every(
-              (p) => p.name && p.host && p.port && p.country
-            )
-          ) {
+          if (!Array.isArray(importedProxies)) {
             throw new Error("Invalid proxies file format.");
           }
-          await chrome.storage.sync.set({ proxies: importedProxies });
+          const seenNames = new Set();
+          for (const p of importedProxies) {
+            if (!p || !p.name || !p.host || !p.port || !p.country) {
+              throw new Error("Invalid proxies file format.");
+            }
+            if (seenNames.has(p.name)) {
+              throw new Error(`Duplicate proxy name in import: ${p.name}`);
+            }
+            seenNames.add(p.name);
+          }
+          const existingSettings = await chrome.storage.sync.get("proxies");
+          const existingProxies = existingSettings.proxies || [];
+          const mergedProxies = [...existingProxies];
+          const indexByName = new Map(
+            mergedProxies.map((p, idx) => [p.name, idx])
+          );
+          importedProxies.forEach((p) => {
+            const idx = indexByName.get(p.name);
+            if (idx === undefined) {
+              indexByName.set(p.name, mergedProxies.length);
+              mergedProxies.push(p);
+            } else {
+              mergedProxies[idx] = p;
+            }
+          });
+          await chrome.storage.sync.set({ proxies: mergedProxies });
           renderProxies();
           loadProxiesForDropdown();
           chrome.runtime.sendMessage({ action: "updateProxySettings" });
@@ -566,6 +597,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         } catch (error) {
           alert("Error importing proxies: " + error.message);
         }
+        importProxiesFile.value = "";
       };
       reader.readAsText(file);
     }
