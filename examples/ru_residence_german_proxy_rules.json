@@ -1,0 +1,162 @@
+{
+  "amazon.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "amnezia.org": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "anthropic.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "apple.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "booking.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "browsec.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "chatgpt.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "claude.ai": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "deepl.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "discord.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "docker.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "dynalist.io": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "facebook.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "flibusta.is": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "google.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "grok.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "jetbrains.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "kino.pub": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "linkedin.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "medium.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "meduza.io": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "miro.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "ngrok.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "notion.so": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "openai.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "openstreetmap.org": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "patreon.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "perplexity.ai": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "protonvpn.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "reddit.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "redshieldvpn.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "rutracker.org": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "soundcloud.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "spotify.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "stripe.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "substack.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "tiktok.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "twitch.tv": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "x.ai": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  },
+  "youtube.com": {
+    "proxyName": "test_proxy_germany",
+    "type": "PROXY_BY_RULE"
+  }
+}

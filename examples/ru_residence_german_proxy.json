@@ -1,0 +1,11 @@
+[
+  {
+    "country": "Germany",
+    "host": "<your_ip>",
+    "name": "test_proxy_germany",
+    "password": "",
+    "port": 8080,
+    "protocol": "http",
+    "username": ""
+  }
+]

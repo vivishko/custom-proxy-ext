@@ -1,0 +1,20 @@
+{
+  "aeroflot.ru": {
+    "type": "NO_PROXY"
+  },
+  "goldapple.ru": {
+    "type": "NO_PROXY"
+  },
+  "hh.ru": {
+    "type": "NO_PROXY"
+  },
+  "ozon.ru": {
+    "type": "NO_PROXY"
+  },
+  "vk.com": {
+    "type": "NO_PROXY"
+  },
+  "yandex.ru": {
+    "type": "NO_PROXY"
+  }
+}
