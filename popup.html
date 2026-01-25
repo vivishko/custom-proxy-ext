@@ -92,30 +92,44 @@
         </button>
       </div>
 
-      <div class="status-display" id="proxyStatusDisplay"></div>
+      <div id="mainScreen" class="screen active">
+        <div class="status-display" id="proxyStatusDisplay"></div>
 
-      <div class="control-group">
-        <label for="proxyToggle">Enable Proxy:</label>
-        <input type="checkbox" id="proxyToggle" />
-        <select id="proxySelect" disabled></select>
-      </div>
+        <div class="control-group">
+          <label for="proxyToggle">Enable Proxy:</label>
+          <input type="checkbox" id="proxyToggle" />
+          <select id="proxySelect" disabled></select>
+        </div>
 
-      <div class="control-group">
-        <label for="pageProxyToggle">Enable only on this page:</label>
-        <input type="checkbox" id="pageProxyToggle" disabled />
-      </div>
+        <div class="control-group">
+          <label for="pageProxyToggle">Enable only on this page:</label>
+          <input type="checkbox" id="pageProxyToggle" disabled />
+        </div>
 
-      <button id="addRuleButton">Add rule for this site</button>
-
-      <div class="tabs">
-        <button class="tab-button active" data-tab="siteRulesTab">
-          Site Rules
+        <button id="addRuleButtonMain" data-add-rule>
+          Add rule for this site
         </button>
-        <button class="tab-button" data-tab="addProxyTab">Proxies</button>
+
+        <div class="screen-actions">
+          <button class="nav-button" data-screen-target="rulesScreen">
+            Rules
+          </button>
+          <button class="nav-button" data-screen-target="proxiesScreen">
+            Proxies
+          </button>
+        </div>
       </div>
 
-      <div id="siteRulesTab" class="tab-content active">
-        <h2>Site Rules</h2>
+      <div id="rulesScreen" class="screen">
+        <div class="screen-header">
+          <button class="back-button" data-screen-target="mainScreen">
+            Back
+          </button>
+          <h2>Rules</h2>
+          <span class="screen-header-spacer"></span>
+        </div>
+
+
         <div class="site-rule-form">
           <input
             type="text"
@@ -151,8 +165,56 @@
         </div>
       </div>
 
-      <div id="addProxyTab" class="tab-content">
-        <h2>Proxies</h2>
+      <div id="proxiesScreen" class="screen">
+        <div class="screen-header">
+          <button class="back-button" data-screen-target="mainScreen">
+            Back
+          </button>
+          <h2>Proxies</h2>
+          <span class="screen-header-spacer"></span>
+        </div>
+
+        <button
+          id="openAddProxyScreen"
+          class="primary-action"
+          data-screen-target="addProxyScreen"
+        >
+          + Add Proxy
+        </button>
+
+        <h3>Available Proxies</h3>
+        <table id="proxiesTable">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Host:Port</th>
+              <th>Country</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="export-import">
+          <button id="exportProxiesButton">Export Proxies</button>
+          <input
+            type="file"
+            id="importProxiesFile"
+            accept=".json"
+            style="display: none"
+          />
+          <button id="importProxiesButton">Import Proxies</button>
+        </div>
+      </div>
+
+      <div id="addProxyScreen" class="screen">
+        <div class="screen-header">
+          <button class="back-button" data-screen-target="proxiesScreen">
+            Back
+          </button>
+          <h2>Add Proxy</h2>
+          <span class="screen-header-spacer"></span>
+        </div>
+
         <form id="addProxyForm">
           <div class="form-group">
             <label for="proxyName">Proxy Name:</label>
@@ -199,28 +261,6 @@
           </div>
           <button type="submit">Save Proxy</button>
         </form>
-        <h3>Available Proxies</h3>
-        <table id="proxiesTable">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Host:Port</th>
-              <th>Country</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-        <div class="export-import">
-          <button id="exportProxiesButton">Export Proxies</button>
-          <input
-            type="file"
-            id="importProxiesFile"
-            accept=".json"
-            style="display: none"
-          />
-          <button id="importProxiesButton">Import Proxies</button>
-        </div>
       </div>
     </div>
     <script type="module" src="popup.js"></script>

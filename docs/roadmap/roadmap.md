@@ -4,7 +4,7 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 01 | 01. Separate main screens | H1 | P0 | L | idea | docs/specs/01-separate-main-screens.md | Simplify main screen and split views | - |
+| 01 | 01. Separate main screens | H1 | P0 | L | done | docs/specs/01-separate-main-screens.md | Simplify main screen and split views | - |
 | 02 | 02. Warn on duplicate rule | L3 | P0 | S | idea | docs/roadmap/02-warn-duplicate-rule-manual.md | Prevent accidental duplicate rules | - |
 | 03 | 03. Rule editing + duplicate warning | M4 | P0 | M | idea | docs/roadmap/03-rule-editing-duplicate-warning.md | Enable edits while preventing duplicates | 02 |
 | 04 | 04. Import rules duplicate handling | H3 | P0 | L | idea | docs/roadmap/04-import-rules-duplicate-handling.md | Prevent duplicate rule imports | 02, 03 |

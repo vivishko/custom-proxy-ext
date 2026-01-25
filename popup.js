@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const proxyToggle = document.getElementById("proxyToggle");
   const proxySelect = document.getElementById("proxySelect");
   const pageProxyToggle = document.getElementById("pageProxyToggle");
-  const addRuleButton = document.getElementById("addRuleButton");
+  const addRuleButtons = document.querySelectorAll("[data-add-rule]");
   const proxyStatusDisplay = document.getElementById("proxyStatusDisplay");
   const loggingToggleButton = document.getElementById("loggingToggle");
 
@@ -166,9 +166,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
     pageProxyToggle.disabled = !globalProxyEnabled && !matchingRule;
 
-    addRuleButton.disabled = !currentTabDomain;
+    addRuleButtons.forEach((button) => {
+      button.disabled = !currentTabDomain;
+    });
 
     updateProxyStatusDisplay();
+  };
+
+  const refreshActiveScreen = () => {
+    const activeScreen = document.querySelector(".screen.active");
+    if (!activeScreen) {
+      return;
+    }
+
+    if (activeScreen.id === "rulesScreen") {
+      renderSiteRules();
+    } else if (activeScreen.id === "proxiesScreen") {
+      renderProxies();
+    }
   };
 
   proxyToggle.addEventListener("change", async () => {
@@ -222,31 +237,42 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateProxyStatusDisplay();
   });
 
-  addRuleButton.addEventListener("click", async () => {
+  const handleAddRuleClick = async () => {
     if (currentTabDomain) {
-      document.querySelector('.tab-button[data-tab="siteRulesTab"]').click();
+      setActiveScreen("rulesScreen");
       siteDomainInput.value = currentTabDomain;
       siteProxySelect.value = proxySelect.value || "RANDOM_PROXY";
       addSiteRuleButtonOptions.click();
     }
+  };
+
+  addRuleButtons.forEach((button) => {
+    button.addEventListener("click", handleAddRuleClick);
   });
 
-  // --- Tab Functionality ---
-  const tabButtons = document.querySelectorAll(".tab-button");
-  const tabContents = document.querySelectorAll(".tab-content");
+  // --- Screen Navigation ---
+  const screens = document.querySelectorAll(".screen");
+  const screenNavButtons = document.querySelectorAll("[data-screen-target]");
 
-  tabButtons.forEach((button) => {
+  const setActiveScreen = (screenId) => {
+    screens.forEach((screen) => screen.classList.remove("active"));
+    const nextScreen = document.getElementById(screenId);
+    if (nextScreen) {
+      nextScreen.classList.add("active");
+    }
+
+    if (screenId === "rulesScreen") {
+      renderSiteRules();
+    } else if (screenId === "proxiesScreen") {
+      renderProxies();
+    }
+  };
+
+  screenNavButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      tabButtons.forEach((btn) => btn.classList.remove("active"));
-      tabContents.forEach((content) => content.classList.remove("active"));
-
-      button.classList.add("active");
-      document.getElementById(button.dataset.tab).classList.add("active");
-
-      if (button.dataset.tab === "siteRulesTab") {
-        renderSiteRules();
-      } else if (button.dataset.tab === "addProxyTab") {
-        renderProxies();
+      const target = button.dataset.screenTarget;
+      if (target) {
+        setActiveScreen(target);
       }
     });
   });
@@ -637,8 +663,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     await loadProxiesForDropdown();
     await loadMainControls();
-    await renderSiteRules();
-    await renderProxies();
+    refreshActiveScreen();
   };
 
   initializePopup();
