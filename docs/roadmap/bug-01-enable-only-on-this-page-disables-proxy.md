@@ -1,11 +1,12 @@
 # Bug-01. Enable only on this page disables proxy
 
-- Goal: When user selects "Enable only on this page", keep proxy enabled for current domain and disable elsewhere.
-- Value: Matches intended UX and prevents misleading "temporarily disabled" state for the active page.
+- Goal: Separate global and per-page toggles so "Enable only on this page" can override global mode with its own proxy choice.
+- Value: Keeps current-domain proxying intact, allows both toggles on, and removes misleading "temporarily disabled" status.
 - Priority: P0
 - Complexity: M
 - Dependencies: -
 - Tag: B1
 - Notes / questions:
-  - Confirm whether current rule is inverted (disable current domain vs enable current domain).
-  - Define expected status text when per-page enable is active.
+  - Ensure per-page toggle is never blocked by global toggle.
+  - Define expected status text when per-page enable is active and global is also on.
+  - Confirm per-page mode keeps only one active domain.

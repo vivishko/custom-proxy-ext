@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   globalProxyEnabled: "globalProxyEnabled",
   lastSelectedProxy: "lastSelectedProxy",
   temporaryDirectSites: "temporaryDirectSites",
+  temporaryProxySites: "temporaryProxySites",
   loggingEnabled: "loggingEnabled",
 };
 

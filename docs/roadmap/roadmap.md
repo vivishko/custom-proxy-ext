@@ -20,4 +20,4 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 | 14 | 14. UI style refresh | H5 | P2 | L | idea | docs/roadmap/14-ui-style-refresh.md | Explore a new visual style | 01, 13 |
 | 15 | 15. Dark/light theme | N3 | P2 | S | idea | docs/roadmap/15-dark-light-theme.md | Add theme toggle for comfort | 14 |
 | 16 | 16. Onboarding | N2 | P2 | S | idea | docs/roadmap/16-onboarding.md | Guide new users through setup | 01, 14 |
-| B01 | Bug-01. Enable only on this page disables proxy | B1 | P0 | M | idea | docs/specs/bug-01-enable-only-on-this-page-disables-proxy.md | Fix per-page enable mode so current domain stays enabled | 11 |
+| B01 | Bug-01. Enable only on this page disables proxy | B1 | P0 | M | in progress | docs/specs/bug-01-enable-only-on-this-page-disables-proxy.md | Separate global/per-page enable, add per-page proxy choice | 11 |

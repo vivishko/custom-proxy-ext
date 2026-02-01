@@ -8,6 +8,7 @@ import {
 const logger = createLogger(false);
 
 let loggingEnabled = false;
+const tabDomainById = new Map();
 
 // Load initial logging state from storage
 chrome.storage.sync.get(STORAGE_KEYS.loggingEnabled, (data) => {
@@ -35,6 +36,7 @@ async function buildPacScript() {
     const globalProxyEnabled = !!settings.globalProxyEnabled;
     const lastSelectedProxyName = settings.lastSelectedProxy || null;
     const temporaryDirectSites = settings.temporaryDirectSites || {};
+    const temporaryProxySites = settings.temporaryProxySites || {};
 
     logDebug("Storage data:", {
       proxies: proxies.length,
@@ -56,9 +58,15 @@ var proxies = ${JSON.stringify(pacProxies)};
 var rules = ${JSON.stringify(siteRules)};
 var globalProxyEnabled = ${globalProxyEnabled};
 var lastSelectedProxyName = ${JSON.stringify(lastSelectedProxyName)};
-var temporaryDirectSites = ${JSON.stringify(temporaryDirectSites)};
+ var temporaryDirectSites = ${JSON.stringify(temporaryDirectSites)};
+ var temporaryProxySites = ${JSON.stringify(temporaryProxySites)};
+ var hasTemporaryProxySites = false;
+ for (var t in temporaryProxySites) {
+   if (temporaryProxySites.hasOwnProperty(t)) { hasTemporaryProxySites = true; break; }
+ }
+ 
+ function findProxyByName(name) {
 
-function findProxyByName(name) {
   for (var i = 0; i < proxies.length; i++) {
     if (proxies[i].name === name) return proxies[i].pacString;
   }
@@ -93,10 +101,17 @@ for (var domain in rules) {
   }
 }
 
-// 1. Check for temporary direct override
+// 1. Temporary per-site proxy override
+if (temporaryProxySites[host]) {
+  var tempProxyName = temporaryProxySites[host];
+  if (tempProxyName === true) tempProxyName = lastSelectedProxyName;
+  return findProxyByName(tempProxyName);
+}
+
+// 2. Temporary direct override
 if (temporaryDirectSites[host]) { return "DIRECT"; }
 
-// 2. Site-specific rules
+// 3. Site-specific rules
 if (matchingRule && matchingRule.type) {
   if (matchingRule.type === "NO_PROXY" || matchingRule.type === "DIRECT_TEMPORARY") return "DIRECT";
   if (matchingRule.type === "RANDOM_PROXY") return chooseRandomProxy(host);
@@ -105,7 +120,12 @@ if (matchingRule && matchingRule.type) {
   }
 }
 
-// 3. Global proxy handling
+// 4. If per-site proxy mode active, default to DIRECT
+if (hasTemporaryProxySites) {
+  return "DIRECT";
+}
+
+// 5. Global proxy handling
 if (globalProxyEnabled) {
   return findProxyByName(lastSelectedProxyName);
 }
@@ -127,8 +147,27 @@ async function applyProxySettings() {
   const globalProxyEnabled = !!settings.globalProxyEnabled;
   const siteRules = settings.siteRules || {};
   const temporaryDirectSites = settings.temporaryDirectSites || {};
+  let temporaryProxySites = settings.temporaryProxySites || {};
   const proxies = settings.proxies || [];
   const lastSelectedProxyName = settings.lastSelectedProxy || null;
+
+  if (!lastSelectedProxyName && Object.keys(temporaryProxySites).length > 0) {
+    const cleanedTemporaryProxySites = { ...temporaryProxySites };
+    let removed = false;
+    for (const domain in cleanedTemporaryProxySites) {
+      if (cleanedTemporaryProxySites[domain] === true) {
+        delete cleanedTemporaryProxySites[domain];
+        removed = true;
+      }
+    }
+    if (removed) {
+      logWarn("Clearing legacy temporary proxy sites without selected proxy");
+      await chrome.storage.sync.set({
+        [STORAGE_KEYS.temporaryProxySites]: cleanedTemporaryProxySites,
+      });
+      temporaryProxySites = cleanedTemporaryProxySites;
+    }
+  }
 
   logDebug("Applying proxy settings:", {
     globalProxyEnabled,
@@ -136,6 +175,12 @@ async function applyProxySettings() {
   });
 
   const bypassList = [...Object.keys(temporaryDirectSites)];
+  const onlyProxyDomains = Object.keys(temporaryProxySites).filter((domain) => {
+    const value = temporaryProxySites[domain];
+    if (typeof value === "string" && value.trim()) return true;
+    if (value === true) return !!lastSelectedProxyName;
+    return false;
+  });
   for (const domain in siteRules) {
     if (
       siteRules[domain].type === "NO_PROXY" ||
@@ -151,7 +196,30 @@ async function applyProxySettings() {
       (rule.type === "PROXY_BY_RULE" && rule.proxyName)
   );
 
-  // 1. Global proxy enabled -> fixed_servers
+  const hasOnlyProxyDomains = onlyProxyDomains.length > 0 && lastSelectedProxyName;
+  if (onlyProxyDomains.length > 0 && !lastSelectedProxyName) {
+    logWarn("Per-site proxy requested without selected proxy");
+  }
+
+  // 1. Per-site proxy only -> PAC (overrides global)
+  if (hasOnlyProxyDomains) {
+    const pacData = await buildPacScript();
+    logDebug("Applying PAC script for per-site proxy only...");
+    chrome.proxy.settings.set(
+      {
+        value: { mode: "pac_script", pacScript: { data: pacData } },
+        scope: "regular",
+      },
+      () => {
+        if (chrome.runtime.lastError)
+          logError("PAC mode error:", chrome.runtime.lastError.message);
+        else logDebug("PAC script applied successfully.");
+      }
+    );
+    return;
+  }
+
+  // 2. Global proxy enabled -> fixed_servers
   if (globalProxyEnabled) {
     const selectedProxy = proxies.find((p) => p.name === lastSelectedProxyName);
     if (!selectedProxy) {
@@ -217,7 +285,7 @@ async function applyProxySettings() {
     return;
   }
 
-  // 2. No global proxy, but complex rules -> PAC
+  // 3. No global proxy, but complex rules -> PAC
   if (hasComplexRulesRequiringPac) {
     const pacData = await buildPacScript();
     logDebug("Applying PAC script for complex rules (no global proxy)...");
@@ -235,7 +303,7 @@ async function applyProxySettings() {
     return;
   }
 
-  // 3. Nothing active -> direct
+  // 4. Nothing active -> direct
   logDebug("No proxying active, setting direct mode.");
   chrome.proxy.settings.set(
     { value: { mode: "direct" }, scope: "regular" },
@@ -269,6 +337,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
     STORAGE_KEYS.globalProxyEnabled,
     STORAGE_KEYS.lastSelectedProxy,
     STORAGE_KEYS.temporaryDirectSites,
+    STORAGE_KEYS.temporaryProxySites,
     STORAGE_KEYS.loggingEnabled,
   ];
 
@@ -298,18 +367,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         setTimeout(checkCurrentProxySettings, 1000);
       }
     );
-  } else if (request.action === "clearProxy") {
-    chrome.storage.sync.set(
-      {
-        [STORAGE_KEYS.globalProxyEnabled]: false,
-        [STORAGE_KEYS.temporaryDirectSites]: {},
-      },
-      () => {
-        applyProxySettings();
-        setTimeout(checkCurrentProxySettings, 1000);
-      }
-    );
-  } else if (request.action === "updateProxySettings") {
+    } else if (request.action === "clearProxy") {
+      chrome.storage.sync.set(
+        {
+          [STORAGE_KEYS.globalProxyEnabled]: false,
+          [STORAGE_KEYS.temporaryDirectSites]: {},
+          [STORAGE_KEYS.temporaryProxySites]: {},
+        },
+        () => {
+          applyProxySettings();
+          setTimeout(checkCurrentProxySettings, 1000);
+        }
+      );
+    } else if (request.action === "updateProxySettings") {
+
     applyProxySettings();
     setTimeout(checkCurrentProxySettings, 1000);
   } else if (request.action === "setTemporaryDirect") {
@@ -338,6 +409,39 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (loggingEnabled) applyProxySettings();
     });
   }
+});
+
+const rememberTabDomain = (tabId, url) => {
+  if (!url) return;
+  try {
+    const hostname = new URL(url).hostname;
+    if (hostname) tabDomainById.set(tabId, hostname);
+  } catch (error) {
+    logDebug("Failed to parse tab URL", url, error);
+  }
+};
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  const nextUrl = changeInfo.url || tab.url;
+  rememberTabDomain(tabId, nextUrl);
+});
+
+chrome.tabs.onRemoved.addListener((tabId) => {
+  const domain = tabDomainById.get(tabId);
+  tabDomainById.delete(tabId);
+  if (!domain) return;
+  chrome.storage.sync.get(STORAGE_KEYS.temporaryProxySites, (data) => {
+    const temporaryProxySites = data[STORAGE_KEYS.temporaryProxySites] || {};
+    if (!temporaryProxySites[domain]) return;
+    delete temporaryProxySites[domain];
+    chrome.storage.sync.set(
+      { [STORAGE_KEYS.temporaryProxySites]: temporaryProxySites },
+      () => {
+        applyProxySettings();
+        setTimeout(checkCurrentProxySettings, 1000);
+      }
+    );
+  });
 });
 
 // Handle proxy authentication asynchronously
@@ -377,9 +481,11 @@ chrome.webRequest.onAuthRequired.addListener(
         const globalProxyEnabled = !!settings.globalProxyEnabled;
         const lastSelectedProxyName = settings.lastSelectedProxy || null;
         const temporaryDirectSites = settings.temporaryDirectSites || {};
+        const temporaryProxySites = settings.temporaryProxySites || {};
 
         const challengerHost = details.challenger?.host;
         const challengerPort = details.challenger?.port;
+
 
         logDebug(
           "Auth lookup for challenger",
@@ -408,6 +514,16 @@ chrome.webRequest.onAuthRequired.addListener(
               parseInt(p.port, 10) === challengerPort
           ) || null;
 
+        if (temporaryProxySites[targetHost]) {
+          const tempProxyName =
+            temporaryProxySites[targetHost] === true
+              ? lastSelectedProxyName
+              : temporaryProxySites[targetHost];
+          if (tempProxyName) {
+            selectedProxy = proxies.find((p) => p.name === tempProxyName);
+          }
+        }
+
         if (!selectedProxy) {
           // Infer from rules / global settings
           let matchedDomain = null;
@@ -434,6 +550,10 @@ chrome.webRequest.onAuthRequired.addListener(
             selectedProxy = proxies.find(
               (p) => p.name === lastSelectedProxyName
             );
+          }
+
+          if (!selectedProxy && temporaryProxySites[targetHost]) {
+            logDebug("Temporary proxy enabled but no proxy found");
           }
         }
 
