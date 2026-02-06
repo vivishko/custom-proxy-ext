@@ -1,39 +1,39 @@
 # 02. Warn on duplicate rule (manual)
 
 ## Context / why
-Сейчас при ручном добавлении или редактировании правила можно незаметно создать дубликат для того же домена, что приводит к путанице и лишним записям в списке правил.
+Manual rule creation or editing can silently create duplicates for the same domain, which leads to confusion and redundant entries in the rules list.
 
 ## Goals
-- Предупреждать пользователя о дубликате доменного правила при ручном добавлении или редактировании.
-- Снизить вероятность случайных дубликатов в списке правил.
+- Warn the user about a duplicate domain rule during manual add or edit.
+- Reduce accidental duplicates in the rules list.
 
 ## Non-goals
-- Обработка дубликатов при импорте правил.
-- Автоматические изменения без выбора пользователя.
+- Handling duplicates on import.
+- Automatic changes without user choice.
 
 ## User scenarios
-- Пользователь вводит домен, который уже есть в правилах, видит предупреждение и выбирает «Заменить правило».
-- Пользователь редактирует существующее правило и меняет домен на уже занятый — получает предупреждение и выбирает отмену или замену.
+- User enters a domain that already exists, sees a warning, and chooses "Replace rule".
+- User edits an existing rule and changes its domain to one that already exists, gets a warning and chooses cancel or replace.
 
 ## Requirements
-- Must: При ручном добавлении правила показывать предупреждение, если домен уже существует в правилах.
-- Must: При ручном редактировании правила показывать предупреждение, если новый домен уже существует в правилах (кроме текущего правила).
-- Must: Предупреждение предлагает выбор: отменить или заменить существующее правило.
-- Must: При выборе замены новое правило перезаписывает существующее для домена.
-- Should: Текст предупреждения четко указывает, что найдено дублирующее правило для домена.
-- Should: Предупреждение отображается до сохранения, чтобы избежать лишней записи.
-- Could: Показывать ссылку/краткую подсказку на уже существующее правило (например, имя правила или домен).
+- Must: On manual rule add, show a warning if the domain already exists.
+- Must: On manual rule edit, show a warning if the new domain already exists (excluding the current rule).
+- Must: The warning offers a choice: cancel or replace the existing rule.
+- Must: If replacing, the new rule overwrites the existing one for that domain.
+- Should: Warning text clearly states a duplicate domain rule was found.
+- Should: Warning is shown before saving to avoid unnecessary writes.
+- Could: Show a link/short hint to the existing rule (for example, the rule name or domain).
 
 ## Risks / questions
-- Какой точный текст предупреждения использовать.
-- Должен ли список правил считать домен регистронезависимым (обычно да).
-- Как обрабатывать домены с поддоменами (строгое совпадение или нормализация).
+- What exact warning text should be used.
+- Should the rule list treat domains case-insensitively (usually yes).
+- How to handle subdomains (strict match or normalization).
 
 ## Plan (steps)
-- Определить логику проверки дубликатов при вводе домена.
-- Добавить предупреждение в форму добавления правила.
-- Добавить предупреждение в форму редактирования правила.
-- Проверить сценарии подтверждения и отмены.
+- Define duplicate check logic for domain input.
+- Add a warning to the rule creation form.
+- Add a warning to the rule editing form.
+- Validate confirm/cancel flows.
 
 ## Instruction for AI
-Сформулируй текст предупреждения (RU/EN) и предложи UX-поведение выбора (кнопки «Отмена» / «Заменить правило», модальное окно или inline-алерт).
+Draft warning text (English) and propose the UX choice pattern (Cancel/Replace buttons, modal vs inline alert).

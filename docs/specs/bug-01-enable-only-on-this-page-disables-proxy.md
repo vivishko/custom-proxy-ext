@@ -1,47 +1,50 @@
 # Bug-01. Enable only on this page disables proxy
 
 ## Context / why
-Кнопка "Enable only on this page" должна работать независимо от "Enable Proxy": прокси активен только для текущего домена, а для остальных — выключен. Сейчас логика связана с глобальным тумблером, из-за чего вторая кнопка блокируется, а статус отображается как "Proxy temporarily disabled for ...", что выглядит как отключение именно на текущем домене и конфликтует с ожидаемым поведением.
+"Enable only on this page" should work independently of "Enable Proxy": the proxy is active only for the current domain and disabled for all others. The previous logic was tied to the global toggle, which disabled the per-page control and showed status text like "Proxy temporarily disabled for ...", implying the proxy was disabled for the current domain. This conflicted with expected behavior.
 
 ## Goals
-- Разделить логику "Enable Proxy" и "Enable only on this page".
-- Разрешить включение обеих кнопок одновременно.
-- При активной "Enable only on this page" прокси работает только на текущем домене и перекрывает глобальный режим.
-- Добавить выбор прокси для режима "Enable only on this page".
-- Обновить статус/текст объяснения, чтобы он совпадал с фактическим режимом.
+- Separate logic for "Enable Proxy" and "Enable only on this page".
+- Allow both controls to be enabled at the same time.
+- When "Enable only on this page" is active, proxy applies only to the current domain and overrides global mode.
+- Add proxy selection for the "Enable only on this page" mode.
+- Update status/explanatory text to match the actual mode.
 
 ## Non-goals
-- Редизайн UI статуса прокси.
-- Новые режимы переключения помимо "global" и "only on this page".
+- Full redesign of the proxy status UI.
+- New switching modes beyond "global" and "only on this page".
 
 ## User scenarios
-- Пользователь включает "Enable Proxy" и "Enable only on this page" — прокси активен только на текущем домене, на остальных выключен.
-- Пользователь включает только "Enable only on this page" — прокси активен на текущем домене, глобально выключен для остальных.
-- Пользователь выбирает отдельный прокси для режима "Enable only on this page".
-- Пользователь видит статус, который явно указывает "Enabled for текущий домен, disabled elsewhere".
+- User enables "Enable Proxy" and "Enable only on this page": proxy is active only on the current domain and disabled elsewhere.
+- User enables only "Enable only on this page": proxy is active on the current domain and globally off for others.
+- User selects a dedicated proxy for "Enable only on this page".
+- User sees a status that explicitly states "Enabled for current domain, disabled elsewhere".
 
 ## Requirements
-- Must: "Enable only on this page" работает независимо от "Enable Proxy".
-- Must: Обе кнопки могут быть включены одновременно.
-- Must: При активной "Enable only on this page" текущий домен получает активный прокси.
-- Must: При активной "Enable only on this page" остальные домены получают DIRECT даже если глобальный режим включен.
-- Must: Пользователь может выбрать прокси, который применяется только для текущей страницы.
-- Should: "Enable only on this page" сохраняет один активный домен и очищает предыдущий.
-- Should: При закрытии вкладки активный per-page домен автоматически очищается.
-- Must: Строка статуса не должна говорить, что прокси отключен для текущего домена.
-- Should: Текст статуса явно показывает домен, для которого прокси активен.
-- Could: Показать краткое пояснение, как вернуть глобальный режим.
+- Must: "Enable only on this page" works independently of "Enable Proxy".
+- Must: Both controls can be enabled simultaneously.
+- Must: When "Enable only on this page" is active, the current domain receives an active proxy.
+- Must: When "Enable only on this page" is active, all other domains get DIRECT even if global mode is enabled.
+- Must: User can choose a proxy that applies only to the current page.
+- Should: "Enable only on this page" keeps a single active domain and clears the previous one.
+- Should: When the tab closes, the active per-page domain is cleared automatically.
+- Must: The status line must not claim proxy is disabled for the current domain.
+- Should: Status text clearly shows the domain for which the proxy is active.
+- Could: Provide a short hint on how to return to global mode.
 
 ## Risks / questions
-- Где именно формируется логика “temporarily disabled”: в правиле, UI или сервисе.
-- Нужно ли учитывать текущие правила пользователя (например, если уже есть правило для домена).
+- Where exactly is the "temporarily disabled" logic formed: rule, UI, or service worker?
+- Should existing user rules be respected (for example, when a rule already exists for the domain)?
 
 ## Plan (steps)
-- Найти места, где "Enable Proxy" блокирует "Enable only on this page".
-- Исправить применение глобального прокси, чтобы per-page режим перекрывал его.
-- Добавить выбор прокси для per-page режима.
-- Обновить статусный текст.
-- Проверить на нескольких доменах.
+- Find where "Enable Proxy" blocks "Enable only on this page".
+- Fix global proxy application so per-page mode overrides it.
+- Add proxy selection for per-page mode.
+- Update the status text.
+- Test on several domains.
 
 ## Instruction for AI
-Опиши ожидаемый статусный текст (RU/EN) и укажи, где логика должна быть исправлена (правила, UI, или сервис).
+Describe expected status text (English) and where logic should be fixed (rules, UI, or service worker).
+
+## Changelog / Decisions
+- 2026-02-06: Core per-page proxy logic implemented (including proxy selection and global override). Remaining UX note: the current checkbox combination is not user-friendly and needs a dedicated UI/status redesign.

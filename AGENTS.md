@@ -136,6 +136,7 @@ Continuous spec maintenance (do this DURING work)
 - Whenever requirements are clarified, decisions are made, edge cases found,
   or scope changes, update the spec immediately (same session).
 - Keep a short "Changelog / Decisions" section in each spec (append-only).
+- Write specs in English.
 
 ---
 
@@ -166,7 +167,7 @@ When the user says "brainstorm ideas" (ideas -> roadmap):
 2. Generate candidate tasks, each must become:
    - a new row in docs/roadmap/roadmap.md
    - a detail file in docs/roadmap/<id>-<slug>.md
-3. Set initial status = idea (or planned if explicitly agreed).
+3. Set initial status = idea.
 4. Re-sort roadmap table by status order.
 
 When the user says "create a spec" (roadmap -> spec):
@@ -176,7 +177,7 @@ When the user says "create a spec" (roadmap -> spec):
    using docs/spec/spec-template.md (or repository template).
 3. Update the "Spec" link in the roadmap row to point to the spec.
 4. If you are actively working on it now:
-   - set status to in_progress
+   - set status to planned
    - re-sort the table.
 
 When the user says "do this task / implement / fix bug" (spec + implementation):
