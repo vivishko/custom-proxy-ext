@@ -1,134 +1,208 @@
 # AGENTS.md
-# Guidance for agentic coding in this repository.
-# Keep this file updated as workflows or conventions change.
+
+Guidance for agentic work in this repository.
+Keep this file updated as workflows or conventions change.
+
+---
 
 # Project overview
-# - Browser extension (Manifest V3) with background worker and popup UI.
-# - Plain JavaScript ES modules (no TypeScript, no build step).
-# - Core files: background.js, popup.js, utils.js, manifest.json.
 
-# ----------------------------------------------------------------------------
+- Browser extension (Manifest V3) with background worker and popup UI.
+- Plain JavaScript ES modules (no TypeScript, no build step).
+- Core files: background.js, popup.js, utils.js, manifest.json.
+
+---
+
 # Build / lint / test commands
-# ----------------------------------------------------------------------------
-# This repo is intentionally minimal and does not have a build step.
 
-# Install dependencies
-#   npm install
+This repo is intentionally minimal and does not have a build step.
 
-# Lint (repo-wide)
-#   npm run lint
-#   - Uses ESLint with eslint:recommended and minimal custom rules.
-#   - No autofix script is defined.
+- npm install
+- npm run lint
+- npm test (currently no test runner)
 
-# Tests
-#   npm test
-#   - Currently prints "Error: no test specified" and exits 1.
-#   - There is no configured test runner.
+Manual testing (extension)
 
-# Running a single test
-#   Not applicable yet (no test framework).
-#   If you add one, update this section with exact per-file/per-test commands.
+- Load unpacked in chrome://extensions/.
+- Verify background/popup behavior after changes.
 
-# Manual testing (extension)
-# - Load unpacked in chrome://extensions/.
-# - Verify background/popup behavior after changes.
+---
 
-# ----------------------------------------------------------------------------
 # Code style and conventions
-# ----------------------------------------------------------------------------
-# Language & modules
-# - Use JavaScript ES modules (import/export) with "type": "commonjs" in
-#   package.json, but files already use ESM syntax in the extension context.
-# - Keep all files as .js, do not introduce TypeScript unless requested.
 
-# Formatting
-# - Indentation: 2 spaces.
-# - Strings: double quotes.
-# - Semicolons: required.
-# - Trailing commas where the existing style uses them (mostly objects/arrays).
-# - Keep line length reasonable; match surrounding formatting.
+Language & modules
 
-# Imports
-# - Use relative imports with explicit file extensions: "./utils.js".
-# - Group imports at the top of the file.
-# - Prefer named exports (see utils.js).
+- Use JavaScript ES modules (import/export).
+- Keep all files as .js, do not introduce TypeScript unless requested.
 
-# Naming
-# - camelCase for variables/functions.
-# - PascalCase for classes (rare).
-# - UPPER_SNAKE_CASE for constants (e.g., STORAGE_KEYS).
-# - Use descriptive names for DOM elements (proxyToggle, siteRulesTableBody).
+Formatting
 
-# State & storage
-# - chrome.storage.sync is the source of truth for settings.
-# - Use STORAGE_KEYS in utils.js for storage key names.
-# - Prefer retrieving with Object.values(STORAGE_KEYS) when multiple keys needed.
+- Indentation: 2 spaces.
+- Strings: double quotes.
+- Semicolons: required.
 
-# Error handling
-# - Guard early for missing data (null/undefined checks).
-# - Use try/catch around JSON parsing and URL parsing.
-# - Log errors via createLogger (logError/logWarn) where appropriate.
-# - Avoid throwing in UI event handlers; show user-facing alerts instead.
+Imports
 
-# Logging
-# - Use createLogger from utils.js; do not call console.* directly unless
-#   consistent with existing usage.
-# - Respect the loggingEnabled flag and storage toggle.
+- Use relative imports with explicit file extensions: "./utils.js".
+- Group imports at the top of the file.
+- Prefer named exports (see utils.js).
 
-# DOM / UI
-# - Use DOM APIs directly (no framework).
-# - Keep screen navigation via .screen and [data-screen-target] conventions.
-# - Keep button handlers small; delegate to helper functions when needed.
+State & storage
 
-# Data structures
-# - Proxies are objects with name/host/port/username/password/country/protocol.
-# - Site rules are keyed by domain, values of { type, proxyName? }.
-# - Temporary toggles live in temporaryDirectSites / temporaryProxySites.
+- chrome.storage.sync is the source of truth for settings.
+- Use STORAGE_KEYS in utils.js for storage key names.
 
-# ----------------------------------------------------------------------------
-# Lint rules (from .eslintrc.js)
-# ----------------------------------------------------------------------------
-# - env: browser, es2021, webextensions
-# - extends: eslint:recommended
-# - no-undef: error
-# - no-unused-vars: warn, ignore args starting with _
-# - no-console: off (console is allowed)
+Logging
 
-# ----------------------------------------------------------------------------
-# Specs and roadmap process (docs/roadmap)
-# ----------------------------------------------------------------------------
-# Roadmap is the single source of truth:
-# - Table lives in docs/roadmap/roadmap.md.
-# - Each row links to a detail file in docs/roadmap/.
-# - Specs live in docs/specs/ and use docs/specs/spec-template.md.
+- Use createLogger from utils.js; avoid direct console.\* unless consistent.
+- Respect the loggingEnabled flag and storage toggle.
 
-# Required workflow when writing a spec + implementing it
-# - If asked to write a spec and implement it, always update the roadmap table:
-#   1) Update the Status for the relevant row.
-#   2) Sort the table rows by the required status order (see below).
-# - This is a hard requirement for agentic work in this repo.
+---
 
-# Status order for roadmap sorting
-# - in_progress
-# - planned
-# - idea
-# - blocked
-# - done
-# Notes:
-# - Keep the table header unchanged.
-# - Preserve IDs and links.
-# - When multiple rows share a status, keep existing numeric ID order.
+# Docs workflow: Ideas -> Roadmap -> Spec -> Implementation
 
-# ----------------------------------------------------------------------------
+This section is a HARD REQUIREMENT for all agentic work.
+
+Canonical docs structure (single source of truth)
+
+- Docs root: docs/
+  - docs/ideas/ : raw brainstorm snapshots (1 file per time unit)
+  - docs/roadmap/ : roadmap.md table + one detail file per task
+  - docs/spec/ : one spec per roadmap task
+
+If the repo currently differs, align paths in this file FIRST.
+Agents must follow the paths defined here.
+
+Roadmap table (single source of truth)
+
+- File: docs/roadmap/roadmap.md
+- Each row links to:
+  - a detail file in docs/roadmap/
+  - optionally a spec file in docs/spec/ (preferred when implementation-ready)
+
+Statuses (allowed values)
+
+- idea
+- planned
+- in_progress
+- blocked
+- done
+
+Status sort order (flow order)
+
+1. idea
+2. planned
+3. in_progress
+4. blocked
+5. done
+
+Sorting rules
+
+- Keep the table header unchanged.
+- After ANY status change, re-sort rows by the order above.
+- For rows with the same status, keep existing numeric ID order.
+
+Definitions (must follow)
+
+- "Task started" means: the agent begins analysis, spec writing, implementation,
+  or any non-trivial action related to the task.
+  => Immediately set the task status to in_progress and re-sort the table.
+
+- "Task done" means:
+  1. Implementation completed
+  2. Manual verification performed (extension loaded & behavior checked)
+  3. Spec updated to match reality (requirements, decisions, edge cases)
+  4. Roadmap updated (status done + sorted)
+     => Then set status to done and re-sort.
+  5. When complete:
+     - Update spec to reflect final behavior.
+     - Set status = done, unlock dependent blocked tasks (rule above), and re-sort.
+
+Unblocking dependent tasks when a task is completed
+
+- When a task is moved to status = done:
+  1. Scan docs/roadmap/roadmap.md for rows where:
+     - Status = blocked
+     - Dependencies contains the completed task ID
+  2. Re-evaluate remaining dependencies:
+     - If ALL remaining dependencies are already done (or Dependencies becomes "-" / empty),
+       set Status = idea (unblocked).
+     - Otherwise keep Status = blocked (still blocked by other not-done dependencies).
+  3. After any changes, re-sort the roadmap table by the status flow order.
+
+Continuous spec maintenance (do this DURING work)
+
+- Specs are living documents.
+- Whenever requirements are clarified, decisions are made, edge cases found,
+  or scope changes, update the spec immediately (same session).
+- Keep a short "Changelog / Decisions" section in each spec (append-only).
+
+---
+
+# Refactoring and documentation sync
+
+When the user asks for refactoring, documentation updates are part of "done".
+
+- After completing a refactor, update documentation so it matches the codebase:
+  - AGENTS.md
+  - docs/roadmap/\* (task details if the refactor impacts tasks/scopes)
+  - docs/spec/\* (any specs affected by the refactor)
+  - any other docs that mention file structure, responsibilities, or entry points (e.g., README.md if present)
+- If a refactor changes filenames, module boundaries, or responsibilities (e.g., background.js, popup.js, utils.js):
+  - update all references across the repo so they remain accurate (docs and code comments included).
+- If refactoring introduces new files or folders:
+  - document each new file and its purpose in AGENTS.md (and any relevant specs/roadmap docs).
+  - ensure the "Files to know" section stays current and remains a reliable map of the codebase.
+- If a refactor removes or merges files:
+  - remove or adjust documentation references accordingly (avoid stale pointers).
+
+---
+
+# Agent commands: what to do when user asks
+
+When the user says "brainstorm ideas" (ideas -> roadmap):
+
+1. Read the latest file in docs/ideas/.
+2. Generate candidate tasks, each must become:
+   - a new row in docs/roadmap/roadmap.md
+   - a detail file in docs/roadmap/<id>-<slug>.md
+3. Set initial status = idea (or planned if explicitly agreed).
+4. Re-sort roadmap table by status order.
+
+When the user says "create a spec" (roadmap -> spec):
+
+1. Locate the task row in docs/roadmap/roadmap.md.
+2. If spec file does not exist, create docs/spec/<id>-<slug>.md
+   using docs/spec/spec-template.md (or repository template).
+3. Update the "Spec" link in the roadmap row to point to the spec.
+4. If you are actively working on it now:
+   - set status to in_progress
+   - re-sort the table.
+
+When the user says "do this task / implement / fix bug" (spec + implementation):
+
+1. Locate the task row in docs/roadmap/roadmap.md.
+2. Set status to in_progress IMMEDIATELY and re-sort.
+3. Ensure a spec exists (create from template if missing).
+4. Work iteratively:
+   - Update spec as you learn (requirements, decisions, risks, plan).
+   - Implement changes in code.
+   - Manually verify.
+5. When complete:
+   - Update spec to reflect final behavior.
+   - Set status = done and re-sort.
+
+When the user says "pause / not now" or work cannot proceed:
+
+- Set status = blocked with a short reason in the detail file/spec.
+- Re-sort roadmap table.
+
+---
+
 # Files to know
-# ----------------------------------------------------------------------------
-# - background.js: proxy routing, PAC script creation, auth, logging.
-# - popup.js: UI controls, storage edits, import/export.
-# - utils.js: shared helpers and logging.
-# - docs/roadmap/roadmap.md: feature tracking table.
 
-# ----------------------------------------------------------------------------
-# Cursor / Copilot rules
-# ----------------------------------------------------------------------------
-# - No .cursor/rules/, .cursorrules, or .github/copilot-instructions.md found.
-# - If added later, copy the rules here verbatim and follow them.
+- background.js: proxy routing, PAC script creation, auth, logging.
+- popup.js: UI controls, storage edits, import/export.
+- utils.js: shared helpers and logging.
+- docs/roadmap/roadmap.md: tracking table (single source of truth).
+- docs/spec/: specs (one per task).
