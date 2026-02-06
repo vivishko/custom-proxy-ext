@@ -90,9 +90,9 @@ Statuses (allowed values)
 
 Status sort order (flow order)
 
-1. idea
+1. in_progress
 2. planned
-3. in_progress
+3. idea
 4. blocked
 5. done
 
@@ -101,6 +101,14 @@ Sorting rules
 - Keep the table header unchanged.
 - After ANY status change, re-sort rows by the order above.
 - For rows with the same status, keep existing numeric ID order.
+
+Status emoji colors (prefix Status with emoji)
+
+- 🟣 idea (#8B5CF6)
+- 🔵 planned (#3B82F6)
+- 🟠 in_progress (#F59E0B)
+- 🔴 blocked (#EF4444)
+- 🟢 done (#22C55E)
 
 Definitions (must follow)
 
