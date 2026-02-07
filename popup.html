@@ -95,17 +95,37 @@
       <div id="mainScreen" class="screen active">
         <div class="status-display" id="proxyStatusDisplay"></div>
 
-        <div class="control-group">
-          <label for="proxyToggle">Enable Proxy:</label>
-          <input type="checkbox" id="proxyToggle" />
+        <div class="control-group" data-control-group="global">
+          <label id="proxyToggleLabel" for="proxyToggle">Global proxy</label>
+          <label class="toggle-switch" for="proxyToggle">
+            <input type="checkbox" id="proxyToggle" />
+            <span class="toggle-slider" aria-hidden="true"></span>
+          </label>
           <select id="proxySelect" disabled></select>
         </div>
 
-        <div class="control-group">
-          <label for="pageProxyToggle">Enable only on this page:</label>
-          <input type="checkbox" id="pageProxyToggle" disabled />
+        <div class="control-group" data-control-group="page">
+          <div class="control-label-with-info">
+            <label id="pageProxyToggleLabel" for="pageProxyToggle"
+              >Only this page</label
+            >
+            <span
+              id="pageProxyInfoIcon"
+              class="info-icon"
+              role="img"
+              tabindex="0"
+              aria-label="Only this page info"
+              title="Only this page applies only to this domain; Global still applies elsewhere."
+              >i</span
+            >
+          </div>
+          <label class="toggle-switch" for="pageProxyToggle">
+            <input type="checkbox" id="pageProxyToggle" disabled />
+            <span class="toggle-slider" aria-hidden="true"></span>
+          </label>
           <select id="pageProxySelect" disabled></select>
         </div>
+        <div id="proxyModeHint" class="control-hint" aria-live="polite"></div>
 
         <button id="addRuleButtonMain" data-add-rule>
           Add rule for this site

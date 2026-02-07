@@ -60,10 +60,6 @@ var globalProxyEnabled = ${globalProxyEnabled};
 var lastSelectedProxyName = ${JSON.stringify(lastSelectedProxyName)};
  var temporaryDirectSites = ${JSON.stringify(temporaryDirectSites)};
  var temporaryProxySites = ${JSON.stringify(temporaryProxySites)};
- var hasTemporaryProxySites = false;
- for (var t in temporaryProxySites) {
-   if (temporaryProxySites.hasOwnProperty(t)) { hasTemporaryProxySites = true; break; }
- }
  
  function findProxyByName(name) {
 
@@ -101,17 +97,10 @@ for (var domain in rules) {
   }
 }
 
-// 1. Temporary per-site proxy override
-if (temporaryProxySites[host]) {
-  var tempProxyName = temporaryProxySites[host];
-  if (tempProxyName === true) tempProxyName = lastSelectedProxyName;
-  return findProxyByName(tempProxyName);
-}
-
-// 2. Temporary direct override
+// 1. Temporary direct override
 if (temporaryDirectSites[host]) { return "DIRECT"; }
 
-// 3. Site-specific rules
+// 2. Site-specific rules
 if (matchingRule && matchingRule.type) {
   if (matchingRule.type === "NO_PROXY" || matchingRule.type === "DIRECT_TEMPORARY") return "DIRECT";
   if (matchingRule.type === "RANDOM_PROXY") return chooseRandomProxy(host);
@@ -120,12 +109,14 @@ if (matchingRule && matchingRule.type) {
   }
 }
 
-// 4. If per-site proxy mode active, default to DIRECT
-if (hasTemporaryProxySites) {
-  return "DIRECT";
+// 3. Temporary per-site proxy override
+if (temporaryProxySites[host]) {
+  var tempProxyName = temporaryProxySites[host];
+  if (tempProxyName === true) tempProxyName = lastSelectedProxyName;
+  return findProxyByName(tempProxyName);
 }
 
-// 5. Global proxy handling
+// 4. Global proxy handling
 if (globalProxyEnabled) {
   return findProxyByName(lastSelectedProxyName);
 }
@@ -196,7 +187,7 @@ async function applyProxySettings() {
       (rule.type === "PROXY_BY_RULE" && rule.proxyName)
   );
 
-  const hasOnlyProxyDomains = onlyProxyDomains.length > 0 && lastSelectedProxyName;
+  const hasOnlyProxyDomains = onlyProxyDomains.length > 0;
   if (onlyProxyDomains.length > 0 && !lastSelectedProxyName) {
     logWarn("Per-site proxy requested without selected proxy");
   }
@@ -514,16 +505,6 @@ chrome.webRequest.onAuthRequired.addListener(
               parseInt(p.port, 10) === challengerPort
           ) || null;
 
-        if (temporaryProxySites[targetHost]) {
-          const tempProxyName =
-            temporaryProxySites[targetHost] === true
-              ? lastSelectedProxyName
-              : temporaryProxySites[targetHost];
-          if (tempProxyName) {
-            selectedProxy = proxies.find((p) => p.name === tempProxyName);
-          }
-        }
-
         if (!selectedProxy) {
           // Infer from rules / global settings
           let matchedDomain = null;
@@ -545,6 +526,14 @@ chrome.webRequest.onAuthRequired.addListener(
               logDebug("Challenger:", challengerHost, challengerPort);
               logDebug("Target host:", targetHost);
               logDebug("=======================");
+            }
+          } else if (temporaryProxySites[targetHost]) {
+            const tempProxyName =
+              temporaryProxySites[targetHost] === true
+                ? lastSelectedProxyName
+                : temporaryProxySites[targetHost];
+            if (tempProxyName) {
+              selectedProxy = proxies.find((p) => p.name === tempProxyName);
             }
           } else if (globalProxyEnabled && lastSelectedProxyName) {
             selectedProxy = proxies.find(

@@ -4,7 +4,7 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 11 | 11. UX: Enable Proxy controls | H0 | P0 | M | 🔵 planned | docs/specs/11-ux-enable-proxy-controls.md | Make proxy mode controls clear and user-friendly | - |
+| 11 | 11. UX: Enable Proxy controls | H0 | P0 | M | 🟠 in_progress | docs/specs/11-ux-enable-proxy-controls.md | Make proxy mode controls clear and user-friendly | - |
 | 02 | 02. Warn on duplicate rule | L3 | P0 | S | 🟣 idea | docs/roadmap/02-warn-duplicate-rule-manual.md | Prevent accidental duplicate rules | - |
 | 07 | 07. Rules table pagination | M1 | P1 | M | 🟣 idea | docs/roadmap/07-rules-table-pagination.md | Limit rules table to 10 rows | - |
 | 09 | 09. Proxies table pagination | M2 | P1 | M | 🟣 idea | docs/roadmap/09-proxies-table-pagination.md | Limit proxies table to 10 rows | - |

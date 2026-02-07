@@ -1,16 +1,22 @@
 import { STORAGE_KEYS, createLogger, findMostSpecificRule } from "./utils.js";
+import { DEFAULT_LOCALE, STRINGS, formatString } from "./strings.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
   const proxyToggle = document.getElementById("proxyToggle");
   const proxySelect = document.getElementById("proxySelect");
   const pageProxyToggle = document.getElementById("pageProxyToggle");
   const pageProxySelect = document.getElementById("pageProxySelect");
+  const proxyToggleLabel = document.getElementById("proxyToggleLabel");
+  const pageProxyToggleLabel = document.getElementById("pageProxyToggleLabel");
+  const pageProxyInfoIcon = document.getElementById("pageProxyInfoIcon");
+  const proxyModeHint = document.getElementById("proxyModeHint");
   const addRuleButtons = document.querySelectorAll("[data-add-rule]");
   const proxyStatusDisplay = document.getElementById("proxyStatusDisplay");
   const loggingToggleButton = document.getElementById("loggingToggle");
 
   let currentTabUrl = "";
   let currentTabDomain = "";
+  const strings = STRINGS[DEFAULT_LOCALE];
 
   const logger = createLogger(false);
   let loggingEnabled = false;
@@ -22,6 +28,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (typeof value === "string" && value.trim()) return value;
     if (value === true && fallback) return fallback;
     return null;
+  };
+
+  const setModeHint = (message = "") => {
+    proxyModeHint.textContent = message;
+  };
+
+  const updateOnlyThisPageLabel = () => {
+    pageProxyToggleLabel.textContent = strings.toggles.onlyThisPage;
+  };
+
+  const showModeInteractionHint = (message) => {
+    setModeHint(message);
+    window.setTimeout(() => {
+      if (proxyModeHint.textContent === message) {
+        setModeHint("");
+      }
+    }, 2200);
   };
 
   // --- Helper Functions ---
@@ -75,7 +98,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const updateProxyStatusDisplay = async () => {
     if (!currentTabDomain) {
-      proxyStatusDisplay.textContent = "No active tab or domain.";
+      proxyStatusDisplay.textContent = strings.status.noDomain;
       return;
     }
 
@@ -97,58 +120,62 @@ document.addEventListener("DOMContentLoaded", async () => {
         )
     );
 
-    if (currentDomainProxyName) {
-      proxyStatusDisplay.textContent = `Proxy: ${currentDomainProxyName} (Only for ${currentTabDomain})`;
-      return;
-    }
-
-    if (temporaryDirectSites[currentTabDomain]) {
-      proxyStatusDisplay.textContent = `Proxy temporarily disabled for ${currentTabDomain}.`;
-      return;
-    }
-
     const { rule, matchedDomain } = findMostSpecificRule(
       currentTabDomain,
       siteRules
     );
 
     if (rule) {
-      let statusMsg = "";
+      let statusMsg = strings.status.direct;
       const displayDomain = matchedDomain || currentTabDomain;
 
       if (rule.type === "NO_PROXY") {
-        statusMsg = globalProxyEnabled
-          ? `Proxy: DIRECT (Global proxy exception for ${displayDomain})`
-          : `Proxy: DIRECT (Rule for ${displayDomain})`;
+        statusMsg = formatString(strings.status.ruleNoProxy, {
+          domain: displayDomain,
+        });
       } else if (rule.type === "RANDOM_PROXY") {
-        statusMsg = globalProxyEnabled
-          ? `Proxy: RANDOM (Overrides global for ${displayDomain})`
-          : `Proxy: RANDOM (Rule for ${displayDomain})`;
+        statusMsg = formatString(strings.status.ruleRandom, {
+          domain: displayDomain,
+        });
       } else if (rule.type === "PROXY_BY_RULE" && rule.proxyName) {
-        statusMsg = globalProxyEnabled
-          ? `Proxy: ${rule.proxyName} (Overrides global for ${displayDomain})`
-          : `Proxy: ${rule.proxyName} (Rule for ${displayDomain})`;
+        statusMsg = formatString(strings.status.ruleProxy, {
+          proxyName: rule.proxyName,
+          domain: displayDomain,
+        });
       } else if (rule.type === "DIRECT_TEMPORARY") {
-        statusMsg = `Proxy: DIRECT (Temporary rule for ${displayDomain})`;
+        statusMsg = formatString(strings.status.ruleDirectTemporary, {
+          domain: displayDomain,
+        });
       }
 
       proxyStatusDisplay.textContent = statusMsg;
       return;
     }
 
-    if (activeTemporaryDomains.length > 0) {
-      proxyStatusDisplay.textContent =
-        "Proxy: DIRECT (Per-page proxy enabled elsewhere)";
+    if (temporaryDirectSites[currentTabDomain]) {
+      proxyStatusDisplay.textContent = strings.status.direct;
+      return;
+    }
+
+    if (currentDomainProxyName) {
+      proxyStatusDisplay.textContent = formatString(strings.status.onlyThisPage, {
+        proxyName: currentDomainProxyName,
+        domain: currentTabDomain,
+      });
       return;
     }
 
     if (globalProxyEnabled && lastSelectedProxyName) {
-      proxyStatusDisplay.textContent = `Proxy: ${lastSelectedProxyName} (Global)`;
+      proxyStatusDisplay.textContent = formatString(strings.status.global, {
+        proxyName: lastSelectedProxyName,
+      });
       return;
     }
 
-    proxyStatusDisplay.textContent = "Proxy: DIRECT (No rules or global proxy)";
-    pageProxyToggle.checked = false;
+    proxyStatusDisplay.textContent = strings.status.direct;
+    if (activeTemporaryDomains.length > 0) {
+      pageProxyToggle.checked = false;
+    }
   };
 
   // --- Proxy Management (Main Popup Controls) ---
@@ -157,25 +184,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     const proxies = settings.proxies || [];
     const globalProxyEnabled = settings.globalProxyEnabled || false;
     const lastSelectedProxy = settings.lastSelectedProxy || null;
-    const temporaryDirectSites = settings.temporaryDirectSites || {};
     const temporaryProxySites = settings.temporaryProxySites || {};
-    const siteRules = settings.siteRules || {};
+    proxyToggleLabel.textContent = strings.toggles.global;
+    updateOnlyThisPageLabel();
 
     proxySelect.innerHTML = "";
     pageProxySelect.innerHTML = "";
+    setModeHint("");
+
     if (proxies.length === 0) {
       const option = document.createElement("option");
       option.value = "";
-      option.textContent = "No proxies available";
+      option.textContent = strings.hints.noProxiesAvailable;
       proxySelect.appendChild(option);
       pageProxySelect.appendChild(option.cloneNode(true));
       proxySelect.disabled = true;
       proxyToggle.disabled = true;
       pageProxyToggle.disabled = true;
       pageProxySelect.disabled = true;
+      proxyToggle.checked = false;
+      pageProxyToggle.checked = false;
       addRuleButtons.forEach((button) => {
         button.disabled = true;
       });
+      updateProxyStatusDisplay();
       return;
     }
 
@@ -200,8 +232,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       lastSelectedProxy
     );
     pageProxyToggle.checked = !!currentDomainProxyName;
-    pageProxyToggle.disabled = !currentTabDomain || proxies.length === 0;
-    pageProxySelect.disabled = !currentTabDomain || proxies.length === 0;
+    pageProxyToggle.disabled = !currentTabDomain;
+    pageProxySelect.disabled = !currentTabDomain;
     if (currentDomainProxyName) {
       pageProxySelect.value = currentDomainProxyName;
     } else if (lastSelectedProxy) {
@@ -232,20 +264,26 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   proxyToggle.addEventListener("change", async () => {
     const isEnabled = proxyToggle.checked;
-    proxySelect.disabled = proxySelect.options.length === 0;
-    pageProxyToggle.disabled = !currentTabDomain || proxySelect.options.length === 0;
-    pageProxySelect.disabled = !currentTabDomain || proxySelect.options.length === 0;
-
-    await chrome.storage.sync.set({ globalProxyEnabled: isEnabled });
+    const hasProxies = proxySelect.options.length > 0 && !!proxySelect.value;
+    proxySelect.disabled = !hasProxies;
+    pageProxyToggle.disabled = !currentTabDomain || !hasProxies;
+    pageProxySelect.disabled = !currentTabDomain || !hasProxies;
 
     if (isEnabled) {
       const selectedProxyName = proxySelect.value;
-      await chrome.storage.sync.set({ lastSelectedProxy: selectedProxyName });
+      await chrome.storage.sync.set({
+        globalProxyEnabled: true,
+        lastSelectedProxy: selectedProxyName,
+        temporaryProxySites: {},
+        temporaryDirectSites: {},
+      });
+      pageProxyToggle.checked = false;
       chrome.runtime.sendMessage({
         action: "applyProxy",
         proxyName: selectedProxyName,
       });
     } else {
+      await chrome.storage.sync.set({ globalProxyEnabled: false });
       chrome.runtime.sendMessage({ action: "updateProxySettings" });
     }
     updateProxyStatusDisplay();
@@ -254,6 +292,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   proxySelect.addEventListener("change", async () => {
     const selectedProxyName = proxySelect.value;
     await chrome.storage.sync.set({ lastSelectedProxy: selectedProxyName });
+    if (!pageProxyToggle.checked) {
+      pageProxySelect.value = selectedProxyName;
+    }
     if (proxyToggle.checked) {
       chrome.runtime.sendMessage({
         action: "applyProxy",
@@ -269,37 +310,56 @@ document.addEventListener("DOMContentLoaded", async () => {
     const isEnabled = pageProxyToggle.checked;
     const settings = await chrome.storage.sync.get(Object.values(STORAGE_KEYS));
     let temporaryProxySites = settings.temporaryProxySites || {};
+    const temporaryDirectSites = settings.temporaryDirectSites || {};
     const selectedProxyName = pageProxySelect.value || proxySelect.value;
 
     if (!selectedProxyName) {
       pageProxyToggle.checked = false;
+      showModeInteractionHint(strings.hints.noProxies);
       return;
     }
 
     if (currentTabDomain) {
       if (isEnabled) {
         temporaryProxySites = { [currentTabDomain]: selectedProxyName };
+        delete temporaryDirectSites[currentTabDomain];
+        await chrome.storage.sync.set({
+          temporaryProxySites,
+          temporaryDirectSites,
+          lastSelectedProxy: selectedProxyName,
+        });
       } else {
         delete temporaryProxySites[currentTabDomain];
+        await chrome.storage.sync.set({ temporaryProxySites });
       }
-      await chrome.storage.sync.set({ temporaryProxySites });
       chrome.runtime.sendMessage({ action: "updateProxySettings" });
     }
     updateProxyStatusDisplay();
   });
 
   pageProxySelect.addEventListener("change", async () => {
-    if (!pageProxyToggle.checked || !currentTabDomain) {
+    if (!currentTabDomain) {
       return;
     }
     const selectedProxyName = pageProxySelect.value || proxySelect.value;
     if (!selectedProxyName) {
       return;
     }
+    await chrome.storage.sync.set({ lastSelectedProxy: selectedProxyName });
+    if (!pageProxyToggle.checked) {
+      updateProxyStatusDisplay();
+      return;
+    }
     const settings = await chrome.storage.sync.get(Object.values(STORAGE_KEYS));
     const temporaryProxySites = settings.temporaryProxySites || {};
     temporaryProxySites[currentTabDomain] = selectedProxyName;
-    await chrome.storage.sync.set({ temporaryProxySites });
+    await chrome.storage.sync.set({
+      temporaryProxySites,
+      lastSelectedProxy: selectedProxyName,
+    });
+    if (proxyToggle.checked) {
+      proxySelect.value = selectedProxyName;
+    }
     chrome.runtime.sendMessage({ action: "updateProxySettings" });
     updateProxyStatusDisplay();
   });
@@ -315,6 +375,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   addRuleButtons.forEach((button) => {
     button.addEventListener("click", handleAddRuleClick);
+  });
+
+  const controlGroups = document.querySelectorAll("[data-control-group]");
+  controlGroups.forEach((group) => {
+    group.addEventListener("click", () => {
+      if (proxyToggle.disabled || pageProxyToggle.disabled) {
+        if (proxyToggle.disabled && pageProxyToggle.disabled) {
+          showModeInteractionHint(strings.hints.noProxies);
+          return;
+        }
+        if (!currentTabDomain && group.dataset.controlGroup === "page") {
+          showModeInteractionHint(strings.hints.noDomain);
+        }
+      }
+    });
   });
 
   // --- Screen Navigation ---
@@ -734,6 +809,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // --- Initialization ---
   const initializePopup = async () => {
     await getCurrentTabInfo();
+    updateOnlyThisPageLabel();
+    pageProxyInfoIcon.title = strings.hints.onlyThisPageInfo;
+    pageProxyInfoIcon.setAttribute("aria-label", strings.hints.onlyThisPageInfo);
 
     const loggingSettings = await chrome.storage.sync.get(
       STORAGE_KEYS.loggingEnabled

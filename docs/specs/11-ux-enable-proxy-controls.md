@@ -24,6 +24,7 @@ Current proxy mode control uses two checkboxes: "Enable Proxy" and "Enable only 
 - Must: Only this page overrides Global for the current domain.
 - Must: Rules still have higher priority than Only this page.
 - Must: The status line explicitly shows the active mode and domain.
+- Must: Enabling "Only this page" must not auto-enable Global; Global state is preserved.
 - Should: Mode switching does not hide controls, it only disables them.
 - Should: If there are no proxies, Global/Only this page modes are disabled and show a small error hint on interaction.
 - Should: Only this page is disabled for tabs without a valid domain.
@@ -33,7 +34,7 @@ Current proxy mode control uses two checkboxes: "Enable Proxy" and "Enable only 
 ## Proposed UX
 - Two toggles: Global and Only this page.
 - Two proxy selectors: one for Global and one for Only this page.
-- For Only this page, show the domain next to the toggle (for example, "Only this page: example.com").
+- Keep the toggle label short ("Only this page"); do not append domain in the label.
 - If there are no proxies, show "No proxies" and disable both toggles.
 
 ## Copy (EN)
@@ -65,9 +66,9 @@ No-domain hint:
   - lastSelectedProxy = selected proxy
   - temporaryProxySites = {} (avoid per-page overrides)
 - Only this page:
-  - globalProxyEnabled = true (global stays on for other domains)
+  - globalProxyEnabled = unchanged (preserve user-selected Global state)
   - temporaryProxySites = { [currentDomain]: selectedProxyName }
-  - lastSelectedProxy = selected proxy (for returning to Global)
+  - lastSelectedProxy = selected proxy (for optional reuse in Global)
   - temporaryDirectSites cleared for current domain
 
 ## UI state rules
@@ -108,6 +109,10 @@ Notes:
 - Store the active locale in a simple constant (for now, DEFAULT_LOCALE = "en").
 - Keep one language key (en) for now, but structure supports new locales.
 
+## UX naming decision
+- For task 11, keep existing control labels ("Global proxy" / "Only this page").
+- No copy rebranding is included in this task scope.
+
 ## Risks / questions
 - Should the last selected toggle states persist across sessions?
 
@@ -123,3 +128,12 @@ Describe the recommended UI option (English copy) and map it to storage keys.
 ## Changelog / Decisions
 - 2026-02-06: Spec created; UX exploration needed for mode selection (Global / Only this page).
 - 2026-02-06: Added toggle-based UX, English copy, and storage mapping.
+- 2026-02-07: Started implementation: popup labels/hints/status moved to `strings.js`, status priority set to Rules -> Only this page -> Global, and PAC evaluation updated so Only this page no longer disables Global for other domains.
+- 2026-02-07: Updated UX copy placement: removed domain from the "Only this page" label and moved explanatory text into an info icon tooltip next to the toggle.
+- 2026-02-07: Updated info icon cursor from `help` to `default` to avoid the question-mark cursor while keeping tooltip behavior.
+- 2026-02-07: Fixed bug where enabling "Only this page" auto-enabled Global in popup state/storage writes.
+- 2026-02-07: Added naming recommendation to rebrand controls around scope language ("All sites" / "This site only").
+- 2026-02-07: Replaced checkbox visuals with toggle-style controls for Global and Only-this-page modes (same storage behavior, improved affordance).
+- 2026-02-07: Naming rebrand recommendation was deferred; task 11 keeps current labels without copy rewrite.
+- 2026-02-07: Fixed toggle layout alignment in popup (toggle track width and selector alignment for both control rows).
+- 2026-02-07: Switched control rows to a 3-column grid layout (label / toggle / selector) to prevent toggle stretching and keep both selectors perfectly aligned.
