@@ -310,7 +310,8 @@ Goal: create a release notes file in releases/ that reflects a specific release 
    - Must include a "Tasks" section listing task IDs included in the release.
    - Keep it user-facing: what changed, why it matters, any breaking changes, any upgrade notes.
    - Avoid promising future work; only describe what is shipped.
-4. Do NOT create git tags or GitHub Releases in this step unless the user asked for it.
+4. Bump extension version in `manifest.json` to match the release version (`X.Y.Z` without `v`).
+5. Do NOT create git tags or GitHub Releases in this step unless the user asked for it.
 
 Recommended release notes structure:
 
