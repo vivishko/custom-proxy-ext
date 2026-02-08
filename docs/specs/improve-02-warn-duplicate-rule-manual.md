@@ -1,4 +1,4 @@
-# 02. Warn on duplicate rule (manual)
+# IMPROVE-02. Warn on duplicate rule (manual)
 
 ## Context / why
 Manual rule creation or editing can silently create duplicates for the same domain, which leads to confusion and redundant entries in the rules list.

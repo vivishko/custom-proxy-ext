@@ -1,4 +1,4 @@
-# 11. UX: Enable Proxy controls
+# IMPROVE-11. UX: Enable Proxy controls
 
 ## Context / why
 Current proxy mode control uses two checkboxes: "Enable Proxy" and "Enable only on this page". The relationship between these modes is unclear, and users cannot easily see where the proxy is active. We need a more explicit UX that shows the active mode and scope.
@@ -110,7 +110,7 @@ Notes:
 - Keep one language key (en) for now, but structure supports new locales.
 
 ## UX naming decision
-- For task 11, keep existing control labels ("Global proxy" / "Only this page").
+- For task IMPROVE-11, keep existing control labels ("Global proxy" / "Only this page").
 - No copy rebranding is included in this task scope.
 
 ## Risks / questions
@@ -134,6 +134,6 @@ Describe the recommended UI option (English copy) and map it to storage keys.
 - 2026-02-07: Fixed bug where enabling "Only this page" auto-enabled Global in popup state/storage writes.
 - 2026-02-07: Added naming recommendation to rebrand controls around scope language ("All sites" / "This site only").
 - 2026-02-07: Replaced checkbox visuals with toggle-style controls for Global and Only-this-page modes (same storage behavior, improved affordance).
-- 2026-02-07: Naming rebrand recommendation was deferred; task 11 keeps current labels without copy rewrite.
+- 2026-02-07: Naming rebrand recommendation was deferred; task IMPROVE-11 keeps current labels without copy rewrite.
 - 2026-02-07: Fixed toggle layout alignment in popup (toggle track width and selector alignment for both control rows).
 - 2026-02-07: Switched control rows to a 3-column grid layout (label / toggle / selector) to prevent toggle stretching and keep both selectors perfectly aligned.

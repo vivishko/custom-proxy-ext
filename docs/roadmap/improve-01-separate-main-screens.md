@@ -1,4 +1,4 @@
-# 01. Separate main screens (H1)
+# IMPROVE-01. Separate main screens (H1)
 
 - Goal: Main window only shows a single enable/disable button; move rules and proxies to separate screens; move proxy creation to a separate screen with a big "+" button.
 - Value: Simplifies main experience and clarifies navigation.

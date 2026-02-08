@@ -1,4 +1,4 @@
-# Bug-01. Enable only on this page disables proxy
+# BUG-01. Enable only on this page disables proxy
 
 ## Context / why
 "Enable only on this page" should work independently of "Enable Proxy": the proxy is active only for the current domain and disabled for all others. The previous logic was tied to the global toggle, which disabled the per-page control and showed status text like "Proxy temporarily disabled for ...", implying the proxy was disabled for the current domain. This conflicted with expected behavior.

@@ -10,21 +10,24 @@ This folder keeps the single source of truth for feature tracking.
 
 ## Table columns
 
-- ID (short numeric in roadmap order)
+- ID (typed task ID, e.g. `IMPROVE-11`, `BUG-01`)
 - Title
 - Tag (L/M/H/N + original item number)
 - Priority (P0/P1/P2)
 - Complexity (S/M/L)
 - Status (`idea` / `planned` / `in_progress` / `done` / `blocked`)
-- Spec (link to roadmap detail or `docs/specs/feature.md`)
+- created_date (YYYY-MM-DD)
+- started_date (YYYY-MM-DD or `-`)
+- done_date (YYYY-MM-DD or `-`)
+- Spec (link to roadmap detail or `docs/specs/<type>-<nn>-<slug>.md`)
 - Goal/Value
 - Dependencies (IDs)
 
 ## Detail files
 
-Naming options (pick one and stick to it):
-- YYYY-MM-task_id.md
-- task_id-short-description.md
+Use typed filename format:
+- `docs/roadmap/improve-11-ux-enable-proxy-controls.md`
+- `docs/roadmap/bug-01-enable-only-on-this-page-disables-proxy.md`
 
 Each detail file should include:
 - Goal
@@ -37,3 +40,4 @@ Each detail file should include:
 ## Spec files
 
 When a feature is ready for implementation, create a spec file in `docs/specs/` using `docs/specs/spec-template.md` and update the table link.
+Use typed filename format: `docs/specs/<type>-<nn>-<slug>.md`.

@@ -1,4 +1,4 @@
-# 01. Separate main screens
+# IMPROVE-01. Separate main screens
 
 ## Context / why
 The main screen currently mixes the primary on/off action with rules and proxies tables, which makes the entry point feel crowded and distracts from the core toggle.

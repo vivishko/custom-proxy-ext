@@ -80,6 +80,99 @@ Roadmap table (single source of truth)
   - a detail file in docs/roadmap/
   - optionally a spec file in docs/spec/ (preferred when implementation-ready)
 
+## Task IDs and file naming
+
+### Task ID format
+
+All tasks use an ID based on conventional-commit type + numeric sequence:
+
+- FEAT-<NN> (new feature)
+- BUG-<NN> (bug fix)
+- IMPROVE-<NN> (improvement / UX / refactor / polish)
+- CHORE-<NN> (maintenance, tooling, docs; use sparingly)
+
+Rules:
+
+- The numeric part is zero-padded to 2 digits when < 10 (e.g. BUG-01, FEAT-02).
+- IDs are UPPERCASE in tables and release notes (BUG-01), but lowercase in filenames (bug-01).
+
+### Slugs and filenames
+
+Spec/detail filenames MUST include the lowercase type prefix:
+
+- docs/specs/<type>-<nn>-<slug>.md
+- docs/roadmap/<type>-<nn>-<slug>.md
+
+Where:
+
+- <type> is one of: feat | bug | improve | chore
+- <nn> is the zero-padded number (01, 02, 11, ...)
+- <slug> is kebab-case derived from the title (same as before)
+
+Examples:
+
+- IMPROVE-11 -> docs/specs/improve-11-ux-enable-proxy-controls.md
+- BUG-01 -> docs/specs/bug-01-enable-only-on-this-page-disables-proxy.md
+
+### Roadmap table requirements
+
+The Roadmap table "ID" column must always store the typed ID (e.g. IMPROVE-11, BUG-01).
+The "Title" column may keep the existing human numbering/prefix, but it must not be the source of truth.
+
+The Roadmap table MUST include and maintain these date columns:
+
+- `created_date` (YYYY-MM-DD): date when the task row is created.
+- `started_date` (YYYY-MM-DD or `-`): set when status first becomes `in_progress`.
+- `done_date` (YYYY-MM-DD or `-`): set when status becomes `done`.
+
+Date rules:
+
+- When task is created: set `created_date` to the current date (`YYYY-MM-DD`), `started_date = -`, `done_date = -`.
+- When task moves to `in_progress`: set `started_date` to the actual start date (`YYYY-MM-DD`) if empty; do not change `created_date`.
+- When task moves to `done`: set `done_date` to the actual completion date (`YYYY-MM-DD`); keep existing `created_date` and `started_date`.
+- If status moves back from `done` to non-done, clear `done_date` to `-`.
+- Use ISO format only: `YYYY-MM-DD`.
+
+Example migration:
+
+- ID: 11 -> IMPROVE-11
+- ID: B01 -> BUG-01
+
+### When creating a new task (ideas -> roadmap)
+
+1. Choose the appropriate type prefix (FEAT/BUG/IMPROVE/CHORE).
+2. Pick the next available numeric sequence for that type.
+3. Create the task row with ID like FEAT-12.
+4. Create the detail/spec file using the lowercase filename convention:
+   - feat-12-<slug>.md / bug-03-<slug>.md / improve-07-<slug>.md
+5. Ensure the Roadmap "Spec" link points to the new typed filename.
+6. Set roadmap date fields on creation:
+   - `created_date = current date (YYYY-MM-DD)`
+   - `started_date = -`
+   - `done_date = -`
+
+### When a task already exists but uses a legacy ID
+
+If a task row uses a legacy ID (like "11" or "B01") and the user requests the new format:
+
+1. Convert the Roadmap "ID" cell to the typed format:
+   - Pure numbers default to IMPROVE-<NN> unless the user specifies otherwise.
+   - "Bxx" becomes BUG-<NN> (B01 -> BUG-01).
+2. Rename the spec/detail file to include the type prefix if missing:
+   - 11-ux-enable-proxy-controls.md -> improve-11-ux-enable-proxy-controls.md
+3. Update all links that pointed to the old filename (roadmap row, any cross-references).
+4. Do not change the human title text unless requested.
+
+### Release notes tasks
+
+Release notes must include a "## Tasks" section that lists typed IDs:
+
+- FEAT-12
+- BUG-01
+- IMPROVE-11
+
+## Statuses
+
 Statuses (allowed values)
 
 - idea
@@ -110,18 +203,18 @@ Status emoji colors (prefix Status with emoji)
 - 🔴 blocked (#EF4444)
 - 🟢 done (#22C55E)
 
-Definitions (must follow)
+## Definitions (must follow)
 
 - "Task started" means: the agent begins analysis, spec writing, implementation,
   or any non-trivial action related to the task.
-  => Immediately set the task status to in_progress and re-sort the table.
+  => Immediately set the task status to in_progress, set `started_date` to the actual start date (`YYYY-MM-DD`) if not set, and re-sort the table.
 
 - "Task done" means:
   1. Implementation completed
   2. Manual verification performed (extension loaded & behavior checked)
   3. Spec updated to match reality (requirements, decisions, edge cases)
   4. Roadmap updated (status done + sorted)
-     => Then set status to done and re-sort.
+     => Then set status to done, set `done_date` to the actual completion date (`YYYY-MM-DD`), and re-sort.
   5. When complete:
      - Update spec to reflect final behavior.
      - Set status = done, unlock dependent blocked tasks (rule above), and re-sort.
@@ -176,7 +269,8 @@ When the user says "brainstorm ideas" (ideas -> roadmap):
    - a new row in docs/roadmap/roadmap.md
    - a detail file in docs/roadmap/<id>-<slug>.md
 3. Set initial status = idea.
-4. Re-sort roadmap table by status order.
+4. Set date fields: `created_date = current date (YYYY-MM-DD)`, `started_date = -`, `done_date = -`.
+5. Re-sort roadmap table by status order.
 
 When the user says "create a spec" (roadmap -> spec):
 
@@ -192,6 +286,7 @@ When the user says "do this task / implement / fix bug" (spec + implementation):
 
 1. Locate the task row in docs/roadmap/roadmap.md.
 2. Set status to in_progress IMMEDIATELY and re-sort.
+   - Also set `started_date` to the actual start date (`YYYY-MM-DD`) if not already set.
 3. Ensure a spec exists (create from template if missing).
 4. Work iteratively:
    - Update spec as you learn (requirements, decisions, risks, plan).
@@ -199,7 +294,65 @@ When the user says "do this task / implement / fix bug" (spec + implementation):
    - Manually verify.
 5. When complete:
    - Update spec to reflect final behavior.
-   - Set status = done and re-sort.
+   - Set status = done, set `done_date` to the actual completion date (`YYYY-MM-DD`), and re-sort.
+
+When the user says "prepare release notes" or "generate release notes" (post-implementation):
+
+Goal: create a release notes file in releases/ that reflects a specific release and includes task IDs.
+
+1. Determine the release tag/version the user requested (e.g. vX.Y.Z).
+2. Collect the list of tasks to include in this release:
+   - Primary source: tasks in docs/roadmap/roadmap.md with status = done.
+   - Prefer tasks that were completed since the last release tag (if tags exist).
+   - If the user explicitly names task IDs, use exactly that list.
+3. Draft release notes file: releases/vX.Y.Z.md
+   - Must be single-language (no bilingual content).
+   - Must include a "Tasks" section listing task IDs included in the release.
+   - Keep it user-facing: what changed, why it matters, any breaking changes, any upgrade notes.
+   - Avoid promising future work; only describe what is shipped.
+4. Do NOT create git tags or GitHub Releases in this step unless the user asked for it.
+
+Recommended release notes structure:
+
+## Overview
+
+...
+
+## New
+
+...
+
+## Improvements
+
+...
+
+## Fixes & stability
+
+...
+
+## Tasks
+
+- FEAT-123
+- BUG-456
+
+When the user says "cut release" / "create tag" / "tag and push release" (publish step):
+
+Goal: create a release commit + git tag vX.Y.Z, and push the tag.
+
+1. Determine the release tag/version the user requested (e.g. vX.Y.Z).
+2. Verify prerequisites in the repo:
+   - Version has been bumped (e.g. manifest.json and any other relevant places).
+   - releases/vX.Y.Z.md exists.
+3. Create a dedicated release commit:
+   - Include the version bump + releases/vX.Y.Z.md in the commit.
+   - Commit message: "release vX.Y.Z"
+4. Create an annotated tag:
+   - Tag name: vX.Y.Z
+   - Tag message: "vX.Y.Z"
+5. Push:
+   - Push the commit to the current branch.
+   - Push the tag to origin.
+6. Do NOT generate release notes here unless the user asked (this step assumes notes already exist).
 
 When the user says "pause / not now" or work cannot proceed:
 

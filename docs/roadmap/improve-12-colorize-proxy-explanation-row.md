@@ -1,4 +1,4 @@
-# 12. Colorize proxy explanation row (L2)
+# IMPROVE-12. Colorize proxy explanation row (L2)
 
 - Goal: Make the proxy explanation row more noticeable.
 - Value: Improves readability and comprehension.

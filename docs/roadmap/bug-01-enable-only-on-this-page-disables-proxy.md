@@ -1,4 +1,4 @@
-# Bug-01. Enable only on this page disables proxy
+# BUG-01. Enable only on this page disables proxy
 
 - Goal: Separate global and per-page toggles so "Enable only on this page" can override global mode with its own proxy choice.
 - Value: Keeps current-domain proxying intact, allows both toggles on, and removes misleading "temporarily disabled" status.

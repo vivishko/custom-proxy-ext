@@ -1,0 +1,56 @@
+name: Release on tag
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve release notes
+        id: notes
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          NOTES="releases/${TAG}.md"
+
+          if [ ! -f "$NOTES" ]; then
+            echo "Release notes file not found: $NOTES" >&2
+            exit 1
+          fi
+
+          echo "file=$NOTES" >> "$GITHUB_OUTPUT"
+
+      - name: Package zip
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+
+          zip -r "custom-proxy-ext-${TAG}.zip" . \
+            -x ".git/*" ".github/*" "node_modules/*" "*.DS_Store"
+
+          sha256sum "custom-proxy-ext-${TAG}.zip" > "custom-proxy-ext-${TAG}.zip.sha256"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --notes-file "${{ steps.notes.outputs.file }}" \
+            "custom-proxy-ext-${TAG}.zip" \
+            "custom-proxy-ext-${TAG}.zip.sha256"

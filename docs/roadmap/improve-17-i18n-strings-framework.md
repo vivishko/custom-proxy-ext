@@ -1,4 +1,4 @@
-# 17. i18n strings framework
+# IMPROVE-17. i18n strings framework
 
 ## Goal
 Introduce a simple language map for all user-facing strings so the extension can support multiple languages.

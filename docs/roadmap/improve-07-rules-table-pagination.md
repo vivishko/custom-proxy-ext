@@ -1,4 +1,4 @@
-# 07. Rules table pagination (M1)
+# IMPROVE-07. Rules table pagination (M1)
 
 - Goal: Paginate rules table at 10 rows per page.
 - Value: Improves performance and readability.

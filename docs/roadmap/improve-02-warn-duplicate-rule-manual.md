@@ -1,4 +1,4 @@
-# 02. Warn on duplicate rule (manual) (L3)
+# IMPROVE-02. Warn on duplicate rule (manual) (L3)
 
 - Goal: Warn when a rule already exists for a domain during manual add/edit.
 - Value: Avoids accidental duplicate rules.
