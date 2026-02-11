@@ -598,9 +598,30 @@ document.addEventListener("DOMContentLoaded", async () => {
   const proxyCountryInput = document.getElementById("proxyCountry");
   const proxyProtocolInput = document.getElementById("proxyProtocol");
   const proxiesTableBody = document.querySelector("#proxiesTable tbody");
+  const proxiesFeedback = document.getElementById("proxiesFeedback");
   const exportProxiesButton = document.getElementById("exportProxiesButton");
   const importProxiesFile = document.getElementById("importProxiesFile");
   const importProxiesButton = document.getElementById("importProxiesButton");
+  let proxiesFeedbackTimeoutId = null;
+
+  const showProxiesFeedback = (message) => {
+    if (!proxiesFeedback) {
+      return;
+    }
+
+    if (proxiesFeedbackTimeoutId !== null) {
+      window.clearTimeout(proxiesFeedbackTimeoutId);
+      proxiesFeedbackTimeoutId = null;
+    }
+
+    proxiesFeedback.textContent = message;
+    proxiesFeedback.classList.add("visible");
+    proxiesFeedbackTimeoutId = window.setTimeout(() => {
+      proxiesFeedback.textContent = "";
+      proxiesFeedback.classList.remove("visible");
+      proxiesFeedbackTimeoutId = null;
+    }, 2200);
+  };
 
   const renderProxies = async () => {
     const settings = await chrome.storage.sync.get("proxies");
@@ -719,6 +740,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderProxies();
     loadProxiesForDropdown();
     loadMainControls();
+    setActiveScreen("proxiesScreen");
+    showProxiesFeedback(`Proxy "${newProxy.name}" saved.`);
     chrome.runtime.sendMessage({ action: "updateProxySettings" });
     updateProxyStatusDisplay();
 

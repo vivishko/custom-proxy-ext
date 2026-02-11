@@ -210,6 +210,20 @@ button:disabled {
   width: 60px;
 }
 
+.screen-feedback {
+  min-height: 18px;
+  margin: -6px 0 10px;
+  border-radius: 4px;
+  color: #0f5132;
+  font-size: 0.85em;
+}
+
+.screen-feedback.visible {
+  padding: 7px 9px;
+  background-color: #d1e7dd;
+  border: 1px solid #badbcc;
+}
+
 .screen-actions {
   display: flex;
   gap: 10px;

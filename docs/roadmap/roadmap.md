@@ -4,7 +4,7 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| IMPROVE-18 | 18. After saving proxy, open proxies table | H7 | P1 | S | 🔵 planned | 2026-02-08 | - | - | docs/specs/improve-18-after-saving-proxy-open-proxies-table.md | Improve post-save flow by taking users to proxy list | - |
+| IMPROVE-18 | 18. After saving proxy, open proxies table | H7 | P1 | S | 🟠 in_progress | 2026-02-08 | 2026-02-11 | - | docs/specs/improve-18-after-saving-proxy-open-proxies-table.md | Improve post-save flow by taking users to proxy list | - |
 | IMPROVE-19 | 19. Reload current page on proxy toggle | H8 | P1 | S | 🔵 planned | 2026-02-08 | - | - | docs/specs/improve-19-reload-current-page-on-proxy-toggle.md | Make proxy effect visible immediately after toggle | - |
 | IMPROVE-02 | 02. Warn on duplicate rule | L3 | P0 | S | 🟣 idea | 2026-01-25 | - | - | docs/roadmap/improve-02-warn-duplicate-rule-manual.md | Prevent accidental duplicate rules | - |
 | IMPROVE-07 | 07. Rules table pagination | M1 | P1 | M | 🟣 idea | 2026-01-25 | - | - | docs/roadmap/improve-07-rules-table-pagination.md | Limit rules table to 10 rows | - |

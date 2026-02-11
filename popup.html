@@ -186,19 +186,21 @@
         </div>
       </div>
 
-      <div id="proxiesScreen" class="screen">
-        <div class="screen-header">
-          <button class="back-button" data-screen-target="mainScreen">
-            Back
-          </button>
-          <h2>Proxies</h2>
-          <span class="screen-header-spacer"></span>
-        </div>
+        <div id="proxiesScreen" class="screen">
+          <div class="screen-header">
+            <button class="back-button" data-screen-target="mainScreen">
+              Back
+            </button>
+            <h2>Proxies</h2>
+            <span class="screen-header-spacer"></span>
+          </div>
 
-        <button
-          id="openAddProxyScreen"
-          class="primary-action"
-          data-screen-target="addProxyScreen"
+          <div id="proxiesFeedback" class="screen-feedback" aria-live="polite"></div>
+
+          <button
+            id="openAddProxyScreen"
+            class="primary-action"
+            data-screen-target="addProxyScreen"
         >
           + Add Proxy
         </button>
