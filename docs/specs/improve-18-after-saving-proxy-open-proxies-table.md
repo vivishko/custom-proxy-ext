@@ -42,3 +42,4 @@ Implement navigation to the proxies table only after successful save, preserve c
 ## Changelog / Decisions
 - 2026-02-09: Spec created from roadmap idea; default direction is success-only navigation with lightweight confirmation on the table view.
 - 2026-02-11: Implemented success-path navigation to `proxiesScreen` after proxy save and added a short-lived inline success banner on that screen.
+- 2026-02-12: Manual verification completed; task marked done.

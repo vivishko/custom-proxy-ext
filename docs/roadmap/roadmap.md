@@ -4,7 +4,6 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| IMPROVE-18 | 18. After saving proxy, open proxies table | H7 | P1 | S | 🟠 in_progress | 2026-02-08 | 2026-02-11 | - | docs/specs/improve-18-after-saving-proxy-open-proxies-table.md | Improve post-save flow by taking users to proxy list | - |
 | IMPROVE-19 | 19. Reload current page on proxy toggle | H8 | P1 | S | 🔵 planned | 2026-02-08 | - | - | docs/specs/improve-19-reload-current-page-on-proxy-toggle.md | Make proxy effect visible immediately after toggle | - |
 | IMPROVE-02 | 02. Warn on duplicate rule | L3 | P0 | S | 🟣 idea | 2026-01-25 | - | - | docs/roadmap/improve-02-warn-duplicate-rule-manual.md | Prevent accidental duplicate rules | - |
 | IMPROVE-07 | 07. Rules table pagination | M1 | P1 | M | 🟣 idea | 2026-01-25 | - | - | docs/roadmap/improve-07-rules-table-pagination.md | Limit rules table to 10 rows | - |
@@ -24,3 +23,4 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 | IMPROVE-01 | 01. Separate main screens | H1 | P0 | L | 🟢 done | 2026-01-25 | 2026-01-25 | 2026-01-25 | docs/specs/improve-01-separate-main-screens.md | Simplify main screen and split views | - |
 | BUG-01 | Bug-01. Enable only on this page disables proxy | B1 | P0 | M | 🟢 done | 2026-01-26 | 2026-02-01 | 2026-02-01 | docs/specs/bug-01-enable-only-on-this-page-disables-proxy.md | Separate global/per-page enable, add per-page proxy choice | IMPROVE-11 |
 | IMPROVE-11 | 11. UX: Enable Proxy controls | H0 | P0 | M | 🟢 done | 2026-02-07 | 2026-02-07 | 2026-02-08 | docs/specs/improve-11-ux-enable-proxy-controls.md | Make proxy mode controls clear and user-friendly | - |
+| IMPROVE-18 | 18. After saving proxy, open proxies table | H7 | P1 | S | 🟢 done | 2026-02-08 | 2026-02-11 | 2026-02-12 | docs/specs/improve-18-after-saving-proxy-open-proxies-table.md | Improve post-save flow by taking users to proxy list | - |

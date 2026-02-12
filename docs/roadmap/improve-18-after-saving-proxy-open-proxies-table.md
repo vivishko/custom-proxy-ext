@@ -9,3 +9,4 @@
 - Notes / questions:
   - Keep a success feedback (toast or inline message) after navigation so users know save completed.
   - 2026-02-11: Implemented as inline feedback banner on Proxies screen after successful save.
+  - 2026-02-12: Manual verification completed; behavior matches spec.
