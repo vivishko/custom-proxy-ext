@@ -26,6 +26,55 @@ const logError = (...args) => logger.error(...args);
 
 logDebug("Background script loaded");
 
+const isReloadableUrl = (url) => {
+  if (!url) {
+    return false;
+  }
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch (error) {
+    logDebug("Skipping reload for invalid URL:", url, error);
+    return false;
+  }
+};
+
+const getActiveTab = () => {
+  return new Promise((resolve) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const err = chrome.runtime.lastError;
+      if (err) {
+        logError("Failed to query active tab:", err);
+        resolve(null);
+        return;
+      }
+      resolve(tabs && tabs.length > 0 ? tabs[0] : null);
+    });
+  });
+};
+
+const reloadActiveTabIfAllowed = async () => {
+  const tab = await getActiveTab();
+  if (!tab || !tab.id || !isReloadableUrl(tab.url)) {
+    if (tab && tab.url) {
+      logDebug("Skipping reload for unsupported URL:", tab.url);
+    }
+    return false;
+  }
+
+  return new Promise((resolve) => {
+    chrome.tabs.reload(tab.id, {}, () => {
+      const err = chrome.runtime.lastError;
+      if (err) {
+        logError("Failed to reload active tab:", err);
+        resolve(false);
+        return;
+      }
+      resolve(true);
+    });
+  });
+};
+
 // Build PAC script text from current settings
 async function buildPacScript() {
   try {
@@ -133,7 +182,14 @@ return "DIRECT";
 }
 
 // Apply proxy settings based on current storage
-async function applyProxySettings() {
+async function applyProxySettings(options = {}) {
+  const reloadActiveTab = !!options.reloadActiveTab;
+  const maybeReloadActiveTab = () => {
+    if (reloadActiveTab) {
+      reloadActiveTabIfAllowed();
+    }
+  };
+
   const settings = await chrome.storage.sync.get(Object.values(STORAGE_KEYS));
   const globalProxyEnabled = !!settings.globalProxyEnabled;
   const siteRules = settings.siteRules || {};
@@ -204,7 +260,10 @@ async function applyProxySettings() {
       () => {
         if (chrome.runtime.lastError)
           logError("PAC mode error:", chrome.runtime.lastError.message);
-        else logDebug("PAC script applied successfully.");
+        else {
+          logDebug("PAC script applied successfully.");
+          maybeReloadActiveTab();
+        }
       }
     );
     return;
@@ -215,10 +274,20 @@ async function applyProxySettings() {
     const selectedProxy = proxies.find((p) => p.name === lastSelectedProxyName);
     if (!selectedProxy) {
       logDebug("No selected proxy for fixed_servers, setting direct.");
-      chrome.proxy.settings.set({
-        value: { mode: "direct" },
-        scope: "regular",
-      });
+      chrome.proxy.settings.set(
+        {
+          value: { mode: "direct" },
+          scope: "regular",
+        },
+        () => {
+          if (chrome.runtime.lastError)
+            logError("Direct mode error:", chrome.runtime.lastError.message);
+          else {
+            logDebug("Direct mode applied successfully.");
+            maybeReloadActiveTab();
+          }
+        }
+      );
       return;
     }
 
@@ -263,6 +332,7 @@ async function applyProxySettings() {
         chrome.proxy.settings.get({}, (config) => {
           logDebug("Current proxy config:", JSON.stringify(config, null, 2));
         });
+        maybeReloadActiveTab();
       }
     });
 
@@ -288,7 +358,10 @@ async function applyProxySettings() {
       () => {
         if (chrome.runtime.lastError)
           logError("PAC mode error:", chrome.runtime.lastError.message);
-        else logDebug("PAC script applied successfully.");
+        else {
+          logDebug("PAC script applied successfully.");
+          maybeReloadActiveTab();
+        }
       }
     );
     return;
@@ -301,7 +374,10 @@ async function applyProxySettings() {
     () => {
       if (chrome.runtime.lastError)
         logError("Direct mode error:", chrome.runtime.lastError.message);
-      else logDebug("Direct mode applied successfully.");
+      else {
+        logDebug("Direct mode applied successfully.");
+        maybeReloadActiveTab();
+      }
     }
   );
 }
@@ -354,25 +430,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         [STORAGE_KEYS.lastSelectedProxy]: request.proxyName,
       },
       () => {
-        applyProxySettings();
+        applyProxySettings({ reloadActiveTab: !!request.reloadActiveTab });
         setTimeout(checkCurrentProxySettings, 1000);
       }
     );
-    } else if (request.action === "clearProxy") {
-      chrome.storage.sync.set(
-        {
-          [STORAGE_KEYS.globalProxyEnabled]: false,
-          [STORAGE_KEYS.temporaryDirectSites]: {},
-          [STORAGE_KEYS.temporaryProxySites]: {},
-        },
-        () => {
-          applyProxySettings();
-          setTimeout(checkCurrentProxySettings, 1000);
-        }
-      );
-    } else if (request.action === "updateProxySettings") {
-
-    applyProxySettings();
+  } else if (request.action === "clearProxy") {
+    chrome.storage.sync.set(
+      {
+        [STORAGE_KEYS.globalProxyEnabled]: false,
+        [STORAGE_KEYS.temporaryDirectSites]: {},
+        [STORAGE_KEYS.temporaryProxySites]: {},
+      },
+      () => {
+        applyProxySettings({ reloadActiveTab: !!request.reloadActiveTab });
+        setTimeout(checkCurrentProxySettings, 1000);
+      }
+    );
+  } else if (request.action === "updateProxySettings") {
+    applyProxySettings({ reloadActiveTab: !!request.reloadActiveTab });
     setTimeout(checkCurrentProxySettings, 1000);
   } else if (request.action === "setTemporaryDirect") {
     chrome.storage.sync.get(STORAGE_KEYS.temporaryDirectSites, (data) => {

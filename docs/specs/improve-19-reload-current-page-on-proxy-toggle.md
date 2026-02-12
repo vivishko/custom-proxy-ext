@@ -44,3 +44,6 @@ Implement safe, single-shot active-tab reload after successful proxy-toggle acti
 
 ## Changelog / Decisions
 - 2026-02-10: Spec created; direction is to reload active tab only after successful toggle updates, with restricted-page guardrails.
+- 2026-02-12: Implemented active-tab reload guarded to http/https URLs only, with error logging on failures.
+- 2026-02-12: Moved reload trigger into background after proxy settings apply to avoid racing before proxy takes effect.
+- 2026-02-12: Manual verification completed; behavior acceptable.

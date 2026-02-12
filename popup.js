@@ -269,24 +269,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     pageProxyToggle.disabled = !currentTabDomain || !hasProxies;
     pageProxySelect.disabled = !currentTabDomain || !hasProxies;
 
-    if (isEnabled) {
-      const selectedProxyName = proxySelect.value;
-      await chrome.storage.sync.set({
-        globalProxyEnabled: true,
-        lastSelectedProxy: selectedProxyName,
-        temporaryProxySites: {},
-        temporaryDirectSites: {},
-      });
-      pageProxyToggle.checked = false;
-      chrome.runtime.sendMessage({
-        action: "applyProxy",
-        proxyName: selectedProxyName,
-      });
-    } else {
-      await chrome.storage.sync.set({ globalProxyEnabled: false });
-      chrome.runtime.sendMessage({ action: "updateProxySettings" });
+    try {
+      if (isEnabled) {
+        const selectedProxyName = proxySelect.value;
+        await chrome.storage.sync.set({
+          globalProxyEnabled: true,
+          lastSelectedProxy: selectedProxyName,
+          temporaryProxySites: {},
+          temporaryDirectSites: {},
+        });
+        pageProxyToggle.checked = false;
+        chrome.runtime.sendMessage({
+          action: "updateProxySettings",
+          reloadActiveTab: true,
+        });
+      } else {
+        await chrome.storage.sync.set({ globalProxyEnabled: false });
+        chrome.runtime.sendMessage({
+          action: "updateProxySettings",
+          reloadActiveTab: true,
+        });
+      }
+      updateProxyStatusDisplay();
+    } catch (error) {
+      logError("Failed to update global proxy toggle:", error);
     }
-    updateProxyStatusDisplay();
   });
 
   proxySelect.addEventListener("change", async () => {
@@ -320,21 +327,28 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (currentTabDomain) {
-      if (isEnabled) {
-        temporaryProxySites = { [currentTabDomain]: selectedProxyName };
-        delete temporaryDirectSites[currentTabDomain];
-        await chrome.storage.sync.set({
-          temporaryProxySites,
-          temporaryDirectSites,
-          lastSelectedProxy: selectedProxyName,
+      try {
+        if (isEnabled) {
+          temporaryProxySites = { [currentTabDomain]: selectedProxyName };
+          delete temporaryDirectSites[currentTabDomain];
+          await chrome.storage.sync.set({
+            temporaryProxySites,
+            temporaryDirectSites,
+            lastSelectedProxy: selectedProxyName,
+          });
+        } else {
+          delete temporaryProxySites[currentTabDomain];
+          await chrome.storage.sync.set({ temporaryProxySites });
+        }
+        chrome.runtime.sendMessage({
+          action: "updateProxySettings",
+          reloadActiveTab: true,
         });
-      } else {
-        delete temporaryProxySites[currentTabDomain];
-        await chrome.storage.sync.set({ temporaryProxySites });
+        updateProxyStatusDisplay();
+      } catch (error) {
+        logError("Failed to update page proxy toggle:", error);
       }
-      chrome.runtime.sendMessage({ action: "updateProxySettings" });
     }
-    updateProxyStatusDisplay();
   });
 
   pageProxySelect.addEventListener("change", async () => {
