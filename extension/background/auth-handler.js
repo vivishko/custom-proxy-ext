@@ -64,7 +64,7 @@ export function registerAuthHandler(logger) {
           let targetHost = "";
           try {
             targetHost = new URL(details.url).hostname;
-          } catch (e) {
+          } catch {
             /* ignore */
           }
 

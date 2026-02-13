@@ -3,8 +3,8 @@
 Дата: 2026-02-12
 
 Полный план рефакторинга кодовой базы расширения на основе ревью
-background.js (679 строк), popup.js (869 строк), utils.js (89 строк),
-strings.js (37 строк).
+extension/background.js (679 строк), extension/popup.js (869 строк), extension/utils.js (89 строк),
+extension/strings.js (37 строк).
 
 ---
 
@@ -12,43 +12,43 @@ strings.js (37 строк).
 
 ### 1. Консистентное использование `STORAGE_KEYS`
 
-`popup.js` в ~10 местах использует сырые строки (`"proxies"`, `"siteRules"`,
-`"globalProxyEnabled"`) вместо констант из `utils.js`. Это бомба замедленного
+`extension/popup.js` в ~10 местах использует сырые строки (`"proxies"`, `"siteRules"`,
+`"globalProxyEnabled"`) вместо констант из `extension/utils.js`. Это бомба замедленного
 действия -- если ключ переименуется, часть ссылок сломается.
 
 **Действие:** заменить все raw-строки на `STORAGE_KEYS.*`.
 
 ### 2. Вынести магические числа в константы
 
-- `setTimeout(checkCurrentProxySettings, 1000)` -- 6 раз в background.js
-- Debounce 100ms для applyProxySettings (background.js строка 392)
-- Retry interval 100ms x 10 попыток в getCurrentTabInfo (popup.js)
+- `setTimeout(checkCurrentProxySettings, 1000)` -- 6 раз в extension/background.js
+- Debounce 100ms для applyProxySettings (extension/background.js строка 392)
+- Retry interval 100ms x 10 попыток в getCurrentTabInfo (extension/popup.js)
 
-**Действие:** создать объект `TIMEOUTS` в `utils.js`.
+**Действие:** создать объект `TIMEOUTS` в `extension/utils.js`.
 
 ### 3. Убрать мёртвый код и ресурсы
 
 - `manifest.json` ссылается на `tabs.js` -- файла нет
 - Разрешение `notifications` не используется
-- `icon48.png` весит 1.5 MB для иконки 48x48
+- `extension/icon48.png` весит 1.5 MB для иконки 48x48
 
-### 4. Перенести inline-стили из `popup.html` в `popup.css`
+### 4. Перенести inline-стили из `extension/popup.html` в `extension/popup.css`
 
-Строки 6-65 в `popup.html` содержат `<style>` блок для logging toggle.
-Остальные стили живут в `popup.css`. Надо консолидировать.
+Строки 6-65 в `extension/popup.html` содержат `<style>` блок для logging toggle.
+Остальные стили живут в `extension/popup.css`. Надо консолидировать.
 
 ---
 
-## Фаза 2: Декомпозиция popup.js (главный рефакторинг)
+## Фаза 2: Декомпозиция extension/popup.js (главный рефакторинг)
 
-`popup.js` -- 869 строк в одном замыкании `DOMContentLoaded`. Невозможно
+`extension/popup.js` -- 869 строк в одном замыкании `DOMContentLoaded`. Невозможно
 тестировать, всё связано через замыкание.
 
 ### Предлагаемая структура
 
 ```
 popup/
-  popup.js          -- точка входа, инициализация, маршрутизация экранов
+  extension/popup.js          -- точка входа, инициализация, маршрутизация экранов
   storage.js        -- абстракция над chrome.storage.sync (get/set обёртки)
   ui-render.js      -- функции рендеринга (dropdown-ы, таблицы, статус)
   proxy-controls.js -- обработчики toggle/select (global, per-page)
@@ -70,16 +70,16 @@ popup/
 
 ---
 
-## Фаза 3: Декомпозиция background.js
+## Фаза 3: Декомпозиция extension/background.js
 
-`background.js` -- 679 строк. Главная проблема -- `applyProxySettings()` на
+`extension/background.js` -- 679 строк. Главная проблема -- `applyProxySettings()` на
 198 строк, `onAuthRequired` на 136 строк.
 
 ### Предлагаемая структура
 
 ```
 background/
-  background.js      -- точка входа, listeners, message router
+  extension/background.js      -- точка входа, listeners, message router
   pac-builder.js     -- buildPacScript() + вспомогательные функции
   proxy-modes.js     -- 4 стратегии применения прокси
   auth-handler.js    -- onAuthRequired (136 строк -> отдельный модуль)
@@ -101,7 +101,7 @@ background/
 
 ## Фаза 4: Общий storage-слой
 
-Сейчас `popup.js` и `background.js` оба напрямую читают/пишут в
+Сейчас `extension/popup.js` и `extension/background.js` оба напрямую читают/пишут в
 `chrome.storage.sync`. Это два канала связи (messages + shared storage).
 
 **Действие:** создать общий `storage.js` модуль, импортируемый обеими сторонами.
@@ -121,7 +121,7 @@ background/
 - `validation.js` -- чистые функции валидации
 - `storage.js` -- можно мокать `chrome.storage`
 - `findMostSpecificRule`, `endsWithDomain`, `chooseDeterministicProxy` --
-  уже тестируемы из utils.js
+  уже тестируемы из extension/utils.js
 
 ---
 
@@ -143,15 +143,15 @@ background/
 
 ## Выявленные code smells
 
-- **popup.js god file** -- 869 строк, одно замыкание, нет экспортов
+- **extension/popup.js god file** -- 869 строк, одно замыкание, нет экспортов
 - **applyProxySettings() god function** -- 198 строк, 4 режима в одной функции
 - **onAuthRequired** -- 136 строк монолит с захардкоженным jivosite.com bypass
-- **Дублирование построения dropdown-ов** -- 3 места в popup.js
+- **Дублирование построения dropdown-ов** -- 3 места в extension/popup.js
 - **Непоследовательное использование storage-ключей** -- STORAGE_KEYS vs
-  сырые строки в popup.js
+  сырые строки в extension/popup.js
 - **Смешанные async-паттерны** -- колбэки и async/await в одной функции
-  (background.js)
+  (extension/background.js)
 - **Нет обработки ошибок** -- валидация inline, используется alert()
-- **Дублирование domain-matching** -- endsWithDomain в utils.js и внутри
+- **Дублирование domain-matching** -- endsWithDomain в extension/utils.js и внутри
   PAC-строки (дублирование в PAC необходимо из-за песочницы, но есть риск
   расхождения логики)

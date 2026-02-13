@@ -1,4 +1,3 @@
-import { STORAGE_KEYS } from "../utils.js";
 import * as storage from "../shared/storage.js";
 import { buildRuleProxyOptions } from "./ui-render.js";
 import { validateImportedSiteRules } from "./validation.js";

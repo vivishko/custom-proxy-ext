@@ -1,7 +1,7 @@
 # Proxy Manager Extension
 
 <p align="center">
-  <img src="./icon48.png" width="120" alt="icon"/>
+  <img src="./extension/icon48.png" width="120" alt="icon"/>
 </p>
 
 A lightweight browser extension for flexible proxy control. It lets you manage global proxy settings, define per-site behavior, and maintain your own list of proxies with authentication support. The popup UI gives instant visibility into which proxy rule applies to the current page.
@@ -59,7 +59,7 @@ Toggle detailed debugging output for background proxy logic.
 1. Download or clone the project.
 2. Open **chrome://extensions/**.
 3. Enable **Developer mode**.
-4. Click **Load unpacked** and select the extension folder.
+4. Click **Load unpacked** and select the project root folder (this repo).
 
 ---
 

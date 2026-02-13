@@ -34,7 +34,7 @@ export function createLogger(initiallyEnabled = false) {
       if (!enabled) return;
       try {
         fn(...args);
-      } catch (e) {
+      } catch {
         // Swallow logging errors to avoid breaking extension logic
       }
     };

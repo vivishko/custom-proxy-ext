@@ -79,7 +79,7 @@ No-domain hint:
 - Strings should be sourced from a language map (i18n-ready object).
 
 ## i18n structure (proposal)
-Suggested file: `strings.js` (or `i18n.js`) in the project root, imported by popup.
+Suggested file: `extension/strings.js` (or `i18n.js`) in the extension root, imported by popup.
 
 Example structure:
 ```js
@@ -128,7 +128,7 @@ Describe the recommended UI option (English copy) and map it to storage keys.
 ## Changelog / Decisions
 - 2026-02-06: Spec created; UX exploration needed for mode selection (Global / Only this page).
 - 2026-02-06: Added toggle-based UX, English copy, and storage mapping.
-- 2026-02-07: Started implementation: popup labels/hints/status moved to `strings.js`, status priority set to Rules -> Only this page -> Global, and PAC evaluation updated so Only this page no longer disables Global for other domains.
+- 2026-02-07: Started implementation: popup labels/hints/status moved to `extension/strings.js`, status priority set to Rules -> Only this page -> Global, and PAC evaluation updated so Only this page no longer disables Global for other domains.
 - 2026-02-07: Updated UX copy placement: removed domain from the "Only this page" label and moved explanatory text into an info icon tooltip next to the toggle.
 - 2026-02-07: Updated info icon cursor from `help` to `default` to avoid the question-mark cursor while keeping tooltip behavior.
 - 2026-02-07: Fixed bug where enabling "Only this page" auto-enabled Global in popup state/storage writes.

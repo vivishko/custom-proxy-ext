@@ -9,7 +9,7 @@ Keep this file updated as workflows or conventions change.
 
 - Browser extension (Manifest V3) with background worker and popup UI.
 - Plain JavaScript ES modules (no TypeScript, no build step).
-- Core files: background/background.js, popup/popup.js, shared/storage.js, utils.js, manifest.json.
+- Core files: manifest.json, extension/background/background.js, extension/popup/popup.js, extension/shared/storage.js, extension/utils.js.
 
 ---
 
@@ -23,7 +23,7 @@ This repo is intentionally minimal and does not have a build step.
 
 Manual testing (extension)
 
-- Load unpacked in chrome://extensions/.
+- Load unpacked in chrome://extensions/ (select the project root).
 - Verify background/popup behavior after changes.
 
 ---
@@ -45,16 +45,16 @@ Imports
 
 - Use relative imports with explicit file extensions: "./utils.js".
 - Group imports at the top of the file.
-- Prefer named exports (see utils.js).
+- Prefer named exports (see extension/utils.js).
 
 State & storage
 
 - chrome.storage.sync is the source of truth for settings.
-- Use STORAGE_KEYS in utils.js for storage key names.
+- Use STORAGE_KEYS in extension/utils.js for storage key names.
 
 Logging
 
-- Use createLogger from utils.js; avoid direct console.\* unless consistent.
+- Use createLogger from extension/utils.js; avoid direct console.\* unless consistent.
 - Respect the loggingEnabled flag and storage toggle.
 
 ---
@@ -262,13 +262,15 @@ When the user asks for refactoring, documentation updates are part of "done".
   - docs/roadmap/\* (task details if the refactor impacts tasks/scopes)
   - docs/specs/\* (any specs affected by the refactor)
   - any other docs that mention file structure, responsibilities, or entry points (e.g., README.md if present)
-- If a refactor changes filenames, module boundaries, or responsibilities (e.g., background.js, popup.js, utils.js):
+- If a refactor changes filenames, module boundaries, or responsibilities (e.g., extension/background.js, extension/popup.js, extension/utils.js):
   - update all references across the repo so they remain accurate (docs and code comments included).
 - If refactoring introduces new files or folders:
   - document each new file and its purpose in AGENTS.md (and any relevant specs/roadmap docs).
   - ensure the "Files to know" section stays current and remains a reliable map of the codebase.
 - If a refactor removes or merges files:
   - remove or adjust documentation references accordingly (avoid stale pointers).
+- If manifest paths or extension asset locations change during any task (not just releases):
+  - update `.github/workflows/release.yml` to keep release packaging correct.
 
 ---
 
@@ -365,7 +367,7 @@ Goal: create a release commit + git tag vX.Y.Z, and push the tag.
 5. Push:
    - Push the commit to the current branch.
    - Push the tag to origin.
-6. Do NOT generate release notes here unless the user asked (this step assumes notes already exist).
+7. Do NOT generate release notes here unless the user asked (this step assumes notes already exist).
 
 When the user says "pause / not now" or work cannot proceed:
 
@@ -376,25 +378,34 @@ When the user says "pause / not now" or work cannot proceed:
 
 # Files to know
 
-Background (background/)
-- background/auth-handler.js: proxy auth handler (onAuthRequired).
-- background/background.js: entry point, listeners, message router, logging.
-- background/pac-builder.js: PAC script generator (string template).
-- background/proxy-modes.js: proxy apply strategies + coordinator.
-- background/tab-tracker.js: tab domain tracking + temp cleanup.
+Extension root (extension/)
+- extension/popup.html: popup shell.
+- extension/popup.css: popup styles.
+- extension/utils.js: shared helpers and logging.
+- extension/strings.js: UI text strings.
+- extension/icon48.png: extension icon.
 
-Popup (popup/)
-- popup/popup.js: entry point, screen routing, init wiring.
-- popup/proxy-controls.js: global/per-page toggles + control handlers.
-- popup/proxy-crud.js: proxy CRUD + import/export.
-- popup/site-rules.js: rules CRUD + import/export.
-- popup/ui-render.js: render helpers (dropdowns, status).
-- popup/validation.js: pure form validation helpers.
+Repo root
+- manifest.json: MV3 manifest (service worker + popup).
 
-Shared (shared/)
-- shared/storage.js: shared chrome.storage.sync access layer.
+Background (extension/background/)
+- extension/background/auth-handler.js: proxy auth handler (onAuthRequired).
+- extension/background/background.js: entry point, listeners, message router, logging.
+- extension/background/pac-builder.js: PAC script generator (string template).
+- extension/background/proxy-modes.js: proxy apply strategies + coordinator.
+- extension/background/tab-tracker.js: tab domain tracking + temp cleanup.
 
-Root + docs
-- utils.js: shared helpers and logging.
+Popup (extension/popup/)
+- extension/popup/popup.js: entry point, screen routing, init wiring.
+- extension/popup/proxy-controls.js: global/per-page toggles + control handlers.
+- extension/popup/proxy-crud.js: proxy CRUD + import/export.
+- extension/popup/site-rules.js: rules CRUD + import/export.
+- extension/popup/ui-render.js: render helpers (dropdowns, status).
+- extension/popup/validation.js: pure form validation helpers.
+
+Shared (extension/shared/)
+- extension/shared/storage.js: shared chrome.storage.sync access layer.
+
+Docs
 - docs/roadmap/roadmap.md: tracking table (single source of truth).
 - docs/specs/: specs (one per task).

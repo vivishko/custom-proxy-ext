@@ -14,14 +14,14 @@
   ],
   "host_permissions": ["<all_urls>"],
   "background": {
-    "service_worker": "background/background.js",
+    "service_worker": "extension/background/background.js",
     "type": "module"
   },
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "extension/popup.html",
     "default_title": "Proxy Settings"
   },
   "icons": {
-    "48": "icon48.png"
+    "48": "extension/icon48.png"
   }
 }

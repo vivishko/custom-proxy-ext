@@ -28,7 +28,6 @@ export function initProxyControls(deps) {
     addRuleButtons,
     proxyStatusDisplay,
     getTabDomain,
-    logDebug,
     logError,
     setActiveScreen,
     getSiteDomainInput,
