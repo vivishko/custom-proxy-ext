@@ -1,6 +1,6 @@
 import { STORAGE_KEYS } from "../utils.js";
 import { DEFAULT_LOCALE, STRINGS } from "../strings.js";
-import * as storage from "./storage.js";
+import * as storage from "../shared/storage.js";
 import {
   resolveTemporaryProxyName,
   buildProxyOptions,

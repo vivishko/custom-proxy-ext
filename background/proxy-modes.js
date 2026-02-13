@@ -1,4 +1,5 @@
 import { STORAGE_KEYS } from "../utils.js";
+import * as storage from "../shared/storage.js";
 import { buildPacScript } from "./pac-builder.js";
 
 /**
@@ -128,13 +129,14 @@ export async function applyProxySettings({
     }
   };
 
-  const settings = await chrome.storage.sync.get(Object.values(STORAGE_KEYS));
-  const globalProxyEnabled = !!settings.globalProxyEnabled;
-  const siteRules = settings.siteRules || {};
-  const temporaryDirectSites = settings.temporaryDirectSites || {};
-  let temporaryProxySites = settings.temporaryProxySites || {};
-  const proxies = settings.proxies || [];
-  const lastSelectedProxyName = settings.lastSelectedProxy || null;
+  const settings = await storage.getAllSettings();
+  const globalProxyEnabled = !!settings[STORAGE_KEYS.globalProxyEnabled];
+  const siteRules = settings[STORAGE_KEYS.siteRules] || {};
+  const temporaryDirectSites = settings[STORAGE_KEYS.temporaryDirectSites] || {};
+  let temporaryProxySites = settings[STORAGE_KEYS.temporaryProxySites] || {};
+  const proxies = settings[STORAGE_KEYS.proxies] || [];
+  const lastSelectedProxyName =
+    settings[STORAGE_KEYS.lastSelectedProxy] || null;
 
   // Clean up legacy boolean entries in temporaryProxySites
   if (!lastSelectedProxyName && Object.keys(temporaryProxySites).length > 0) {
@@ -148,9 +150,7 @@ export async function applyProxySettings({
     }
     if (removed) {
       logger.warn("Clearing legacy temporary proxy sites without selected proxy");
-      await chrome.storage.sync.set({
-        [STORAGE_KEYS.temporaryProxySites]: cleanedTemporaryProxySites,
-      });
+      await storage.setTemporaryProxySites(cleanedTemporaryProxySites);
       temporaryProxySites = cleanedTemporaryProxySites;
     }
   }

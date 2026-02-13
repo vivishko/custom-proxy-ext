@@ -9,7 +9,7 @@ Keep this file updated as workflows or conventions change.
 
 - Browser extension (Manifest V3) with background worker and popup UI.
 - Plain JavaScript ES modules (no TypeScript, no build step).
-- Core files: background.js, popup.js, utils.js, manifest.json.
+- Core files: background/background.js, popup/popup.js, shared/storage.js, utils.js, manifest.json.
 
 ---
 
@@ -68,7 +68,7 @@ Canonical docs structure (single source of truth)
 - Docs root: docs/
   - docs/ideas/ : raw brainstorm snapshots (1 file per time unit)
   - docs/roadmap/ : roadmap.md table + one detail file per task
-  - docs/spec/ : one spec per roadmap task
+  - docs/specs/ : one spec per roadmap task
 
 If the repo currently differs, align paths in this file FIRST.
 Agents must follow the paths defined here.
@@ -78,7 +78,7 @@ Roadmap table (single source of truth)
 - File: docs/roadmap/roadmap.md
 - Each row links to:
   - a detail file in docs/roadmap/
-  - optionally a spec file in docs/spec/ (preferred when implementation-ready)
+  - optionally a spec file in docs/specs/ (preferred when implementation-ready)
 
 ## Task IDs and file naming
 
@@ -260,7 +260,7 @@ When the user asks for refactoring, documentation updates are part of "done".
 - After completing a refactor, update documentation so it matches the codebase:
   - AGENTS.md
   - docs/roadmap/\* (task details if the refactor impacts tasks/scopes)
-  - docs/spec/\* (any specs affected by the refactor)
+  - docs/specs/\* (any specs affected by the refactor)
   - any other docs that mention file structure, responsibilities, or entry points (e.g., README.md if present)
 - If a refactor changes filenames, module boundaries, or responsibilities (e.g., background.js, popup.js, utils.js):
   - update all references across the repo so they remain accurate (docs and code comments included).
@@ -287,8 +287,8 @@ When the user says "brainstorm ideas" (ideas -> roadmap):
 When the user says "create a spec" (roadmap -> spec):
 
 1. Locate the task row in docs/roadmap/roadmap.md.
-2. If spec file does not exist, create docs/spec/<id>-<slug>.md
-   using docs/spec/spec-template.md (or repository template).
+2. If spec file does not exist, create docs/specs/<id>-<slug>.md
+   using docs/specs/spec-template.md (or repository template).
 3. Update the "Spec" link in the roadmap row to point to the spec.
 4. If you are actively working on it now:
    - set status to planned
@@ -376,8 +376,9 @@ When the user says "pause / not now" or work cannot proceed:
 
 # Files to know
 
-- background.js: proxy routing, PAC script creation, auth, logging.
-- popup.js: UI controls, storage edits, import/export.
+- background/background.js: proxy routing, PAC script creation, auth, logging.
+- popup/popup.js: UI controls, screen routing, initialization.
+- shared/storage.js: shared chrome.storage.sync access layer for popup/background.
 - utils.js: shared helpers and logging.
 - docs/roadmap/roadmap.md: tracking table (single source of truth).
-- docs/spec/: specs (one per task).
+- docs/specs/: specs (one per task).

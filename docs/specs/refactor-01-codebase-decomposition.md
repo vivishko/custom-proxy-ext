@@ -42,7 +42,6 @@ identically to the current version:
 - Must: All `chrome.storage.sync` access uses `STORAGE_KEYS` constants -- no raw strings.
 - Must: Decompose popup.js into modules:
   - `popup/popup.js` -- entry point, init, screen routing.
-  - `popup/storage.js` -- `chrome.storage.sync` wrapper with typed methods (`getProxies()`, `setSiteRules()`, etc.).
   - `popup/ui-render.js` -- rendering helpers (dropdowns, tables, status display).
   - `popup/proxy-controls.js` -- toggle/select handlers (global, per-page).
   - `popup/site-rules.js` -- site rules CRUD + import/export.
@@ -54,7 +53,7 @@ identically to the current version:
   - `background/proxy-modes.js` -- 4 proxy application strategies (`applyPacPerSite`, `applyFixedServers`, `applyPacComplexRules`, `applyDirect`).
   - `background/auth-handler.js` -- `onAuthRequired` logic.
   - `background/tab-tracker.js` -- temporary sites cleanup on tab close.
-- Must: Shared storage layer -- single storage access module imported by both popup and background.
+- Must: Shared storage layer (`shared/storage.js`) -- single storage access module imported by both popup and background.
 - Must: Magic numbers extracted into constants -- timeouts, debounce, retry params in a `TIMEOUTS` object in utils.js.
 - Must: Remove dead code -- `tabs.js` reference in manifest.json, unused `notifications` permission.
 - Must: Move inline styles from popup.html into popup.css.
@@ -152,3 +151,7 @@ identically to the current version:
   - Updated `manifest.json`: `service_worker` changed from `background.js` to `background/background.js`.
   - Fixed missed hardcoded `1000` (line 452 in old file) → `TIMEOUTS.proxyCheckDelay`.
   - Old root `background.js` is now superseded by `background/background.js` (can be deleted after verification).
+- 2026-02-13: **Phase 4 completed.** Shared storage layer:
+  - Added `shared/storage.js` as the single chrome.storage.sync access module.
+  - Migrated background modules to use shared storage APIs (no direct `chrome.storage.sync` calls).
+  - Updated popup modules to import shared storage directly; removed `popup/storage.js`.

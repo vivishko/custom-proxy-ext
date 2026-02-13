@@ -1,4 +1,5 @@
 import { STORAGE_KEYS, TIMEOUTS, createLogger } from "../utils.js";
+import * as storage from "../shared/storage.js";
 import { applyProxySettings } from "./proxy-modes.js";
 import { registerAuthHandler } from "./auth-handler.js";
 import { initTabTracker } from "./tab-tracker.js";
@@ -9,11 +10,11 @@ const logger = createLogger(false);
 let loggingEnabled = false;
 
 // Load initial logging state from storage
-chrome.storage.sync.get(STORAGE_KEYS.loggingEnabled, (data) => {
-  loggingEnabled = !!data[STORAGE_KEYS.loggingEnabled];
+(async () => {
+  loggingEnabled = await storage.getLoggingEnabled();
   logger.setEnabled(loggingEnabled);
   if (loggingEnabled) applySettings();
-});
+})();
 
 logger.debug("Background script loaded");
 
@@ -77,13 +78,13 @@ function checkCurrentProxySettings() {
 }
 
 async function testProxyConnection() {
-  const settings = await chrome.storage.sync.get(Object.values(STORAGE_KEYS));
+  const settings = await storage.getAllSettings();
   logger.debug("=== STORAGE SETTINGS ===");
-  logger.debug("Proxies:", settings.proxies);
-  logger.debug("Global enabled:", settings.globalProxyEnabled);
-  logger.debug("Last selected:", settings.lastSelectedProxy);
-  logger.debug("Site rules:", settings.siteRules);
-  logger.debug("Temporary direct:", settings.temporaryDirectSites);
+  logger.debug("Proxies:", settings[STORAGE_KEYS.proxies]);
+  logger.debug("Global enabled:", settings[STORAGE_KEYS.globalProxyEnabled]);
+  logger.debug("Last selected:", settings[STORAGE_KEYS.lastSelectedProxy]);
+  logger.debug("Site rules:", settings[STORAGE_KEYS.siteRules]);
+  logger.debug("Temporary direct:", settings[STORAGE_KEYS.temporaryDirectSites]);
   logger.debug("=======================");
 }
 
@@ -137,51 +138,45 @@ chrome.storage.onChanged.addListener((changes, area) => {
 // --- Message router ---
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "applyProxy") {
-    chrome.storage.sync.set(
-      {
+    storage
+      .setValues({
         [STORAGE_KEYS.globalProxyEnabled]: true,
         [STORAGE_KEYS.lastSelectedProxy]: request.proxyName,
-      },
-      () => {
+      })
+      .then(() => {
         applySettings({ reloadActiveTab: !!request.reloadActiveTab });
         setTimeout(checkCurrentProxySettings, TIMEOUTS.proxyCheckDelay);
-      }
-    );
+      });
   } else if (request.action === "clearProxy") {
-    chrome.storage.sync.set(
-      {
+    storage
+      .setValues({
         [STORAGE_KEYS.globalProxyEnabled]: false,
         [STORAGE_KEYS.temporaryDirectSites]: {},
         [STORAGE_KEYS.temporaryProxySites]: {},
-      },
-      () => {
+      })
+      .then(() => {
         applySettings({ reloadActiveTab: !!request.reloadActiveTab });
         setTimeout(checkCurrentProxySettings, TIMEOUTS.proxyCheckDelay);
-      }
-    );
+      });
   } else if (request.action === "updateProxySettings") {
     applySettings({ reloadActiveTab: !!request.reloadActiveTab });
     setTimeout(checkCurrentProxySettings, TIMEOUTS.proxyCheckDelay);
   } else if (request.action === "setTemporaryDirect") {
-    chrome.storage.sync.get(STORAGE_KEYS.temporaryDirectSites, (data) => {
-      let temporaryDirectSites = data[STORAGE_KEYS.temporaryDirectSites] || {};
+    (async () => {
+      const temporaryDirectSites = await storage.getTemporaryDirectSites();
       if (request.enabled) temporaryDirectSites[request.domain] = true;
       else delete temporaryDirectSites[request.domain];
-      chrome.storage.sync.set(
-        { [STORAGE_KEYS.temporaryDirectSites]: temporaryDirectSites },
-        () => {
-          applySettings();
-          setTimeout(checkCurrentProxySettings, TIMEOUTS.proxyCheckDelay);
-        }
-      );
-    });
+      await storage.setTemporaryDirectSites(temporaryDirectSites);
+      applySettings();
+      setTimeout(checkCurrentProxySettings, TIMEOUTS.proxyCheckDelay);
+    })();
   } else if (request.action === "testProxy") {
     testProxyConnection();
     checkCurrentProxySettings();
     sendResponse({ success: true });
   } else if (request.action === "setLoggingEnabled") {
     const next = !!request.enabled;
-    chrome.storage.sync.set({ [STORAGE_KEYS.loggingEnabled]: next }, () => {
+    storage.setLoggingEnabled(next).then(() => {
       loggingEnabled = next;
       logger.setEnabled(loggingEnabled);
       if (loggingEnabled) applySettings();

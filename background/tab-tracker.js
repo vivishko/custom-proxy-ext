@@ -1,4 +1,5 @@
-import { STORAGE_KEYS, TIMEOUTS } from "../utils.js";
+import { TIMEOUTS } from "../utils.js";
+import * as storage from "../shared/storage.js";
 
 /**
  * Track tab domains and clean up temporary proxy sites when tabs close.
@@ -29,17 +30,13 @@ export function initTabTracker({ logger, applyProxySettings, checkCurrentProxySe
     const domain = tabDomainById.get(tabId);
     tabDomainById.delete(tabId);
     if (!domain) return;
-    chrome.storage.sync.get(STORAGE_KEYS.temporaryProxySites, (data) => {
-      const temporaryProxySites = data[STORAGE_KEYS.temporaryProxySites] || {};
+    (async () => {
+      const temporaryProxySites = await storage.getTemporaryProxySites();
       if (!temporaryProxySites[domain]) return;
       delete temporaryProxySites[domain];
-      chrome.storage.sync.set(
-        { [STORAGE_KEYS.temporaryProxySites]: temporaryProxySites },
-        () => {
-          applyProxySettings();
-          setTimeout(checkCurrentProxySettings, TIMEOUTS.proxyCheckDelay);
-        }
-      );
-    });
+      await storage.setTemporaryProxySites(temporaryProxySites);
+      applyProxySettings();
+      setTimeout(checkCurrentProxySettings, TIMEOUTS.proxyCheckDelay);
+    })();
   });
 }

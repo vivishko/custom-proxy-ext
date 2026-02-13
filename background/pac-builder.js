@@ -1,4 +1,5 @@
 import { STORAGE_KEYS } from "../utils.js";
+import * as storage from "../shared/storage.js";
 
 /**
  * Build PAC script text from current storage settings.
@@ -15,13 +16,16 @@ import { STORAGE_KEYS } from "../utils.js";
 export async function buildPacScript(logger) {
   try {
     logger.debug("Building PAC script...");
-    const settings = await chrome.storage.sync.get(Object.values(STORAGE_KEYS));
-    const proxies = settings.proxies || [];
-    const siteRules = settings.siteRules || {};
-    const globalProxyEnabled = !!settings.globalProxyEnabled;
-    const lastSelectedProxyName = settings.lastSelectedProxy || null;
-    const temporaryDirectSites = settings.temporaryDirectSites || {};
-    const temporaryProxySites = settings.temporaryProxySites || {};
+    const settings = await storage.getAllSettings();
+    const proxies = settings[STORAGE_KEYS.proxies] || [];
+    const siteRules = settings[STORAGE_KEYS.siteRules] || {};
+    const globalProxyEnabled = !!settings[STORAGE_KEYS.globalProxyEnabled];
+    const lastSelectedProxyName =
+      settings[STORAGE_KEYS.lastSelectedProxy] || null;
+    const temporaryDirectSites =
+      settings[STORAGE_KEYS.temporaryDirectSites] || {};
+    const temporaryProxySites =
+      settings[STORAGE_KEYS.temporaryProxySites] || {};
 
     logger.debug("Storage data:", {
       proxies: proxies.length,

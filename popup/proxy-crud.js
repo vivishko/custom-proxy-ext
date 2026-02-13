@@ -1,5 +1,5 @@
 import { TIMEOUTS } from "../utils.js";
-import * as storage from "./storage.js";
+import * as storage from "../shared/storage.js";
 import { validateProxy, validateImportedProxies } from "./validation.js";
 
 /**

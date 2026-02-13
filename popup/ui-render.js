@@ -1,7 +1,7 @@
 import { TIMEOUTS } from "../utils.js";
 import { findMostSpecificRule } from "../utils.js";
 import { DEFAULT_LOCALE, STRINGS, formatString } from "../strings.js";
-import * as storage from "./storage.js";
+import * as storage from "../shared/storage.js";
 
 const strings = STRINGS[DEFAULT_LOCALE];
 

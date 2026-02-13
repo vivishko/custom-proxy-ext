@@ -1,5 +1,5 @@
 import { TIMEOUTS, createLogger } from "../utils.js";
-import * as storage from "./storage.js";
+import * as storage from "../shared/storage.js";
 import { initProxyControls } from "./proxy-controls.js";
 import { initSiteRules } from "./site-rules.js";
 import { initProxyCrud } from "./proxy-crud.js";
