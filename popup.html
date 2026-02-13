@@ -3,66 +3,6 @@
   <head>
     <title>Proxy Manager</title>
     <link rel="stylesheet" href="popup.css" />
-    <style>
-      /* Header row: title left, toggle right */
-      .header-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        margin: 6px 0 10px;
-      }
-      .header-bar h1 {
-        margin: 0;
-        font-size: 22px;
-        line-height: 1.2;
-        flex: 1 1 auto; /* let title take free space */
-      }
-
-      /* Tiny toggle button pinned to the right */
-      .logging-toggle {
-        /* override any global button width rules */
-        width: auto !important;
-        min-width: 0 !important;
-        flex: 0 0 auto; /* never grow */
-        display: inline-flex; /* shrink to icon */
-        align-items: center;
-        justify-content: center;
-
-        padding: 2px;
-        line-height: 0;
-        border: none;
-        background: transparent;
-        cursor: pointer;
-
-        opacity: 0.6;
-        transition: opacity 0.2s ease, transform 0.1s ease, filter 0.2s ease;
-      }
-      .logging-toggle:focus-visible {
-        outline: 2px solid rgba(0, 0, 0, 0.25);
-        outline-offset: 2px;
-      }
-      .logging-toggle.enabled {
-        opacity: 1;
-        filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.15));
-      }
-      .logging-toggle:active {
-        transform: scale(0.96);
-      }
-      .logging-toggle svg {
-        width: 18px;
-        height: 18px;
-        display: block;
-      }
-      .logging-toggle.enabled svg path {
-        stroke: #007bff;
-        fill: #007bff1a;
-      }
-      .logging-toggle:not(.enabled) svg path {
-        stroke: #666;
-        fill: transparent;
-      }
-    </style>
   </head>
   <body>
     <div class="container">
@@ -180,7 +120,7 @@
             type="file"
             id="importSiteRulesFile"
             accept=".json"
-            style="display: none"
+            class="hidden-file-input"
           />
           <button id="importSiteRulesButton">Import Site Rules</button>
         </div>
@@ -223,7 +163,7 @@
             type="file"
             id="importProxiesFile"
             accept=".json"
-            style="display: none"
+            class="hidden-file-input"
           />
           <button id="importProxiesButton">Import Proxies</button>
         </div>

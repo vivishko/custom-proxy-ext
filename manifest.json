@@ -6,7 +6,6 @@
   "permissions": [
     "proxy",
     "storage",
-    "notifications",
     "activeTab",
     "tabs",
     "webRequest",
@@ -24,11 +23,5 @@
   },
   "icons": {
     "48": "icon48.png"
-  },
-  "web_accessible_resources": [
-    {
-      "resources": ["tabs.js"],
-      "matches": ["<all_urls>"]
-    }
-  ]
+  }
 }

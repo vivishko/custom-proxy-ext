@@ -1,5 +1,14 @@
 // utils.js
 
+export const TIMEOUTS = {
+  proxyCheckDelay: 1000,
+  debounceApply: 100,
+  tabRetryInterval: 100,
+  tabMaxAttempts: 10,
+  hintDuration: 2200,
+  feedbackDuration: 2200,
+};
+
 export const STORAGE_KEYS = {
   proxies: "proxies",
   siteRules: "siteRules",

@@ -128,3 +128,8 @@ identically to the current version:
 ## Changelog / Decisions
 
 - 2026-02-13: Spec created from refactoring plan (docs/ideas/2026-02-refactoring-plan.md).
+- 2026-02-13: **Phase 1 completed.** Quick wins:
+  - 1.1: Replaced all 10 raw storage key strings in popup.js (`"proxies"`, `"siteRules"`, etc.) with `STORAGE_KEYS.*` constants, including both `get()` and `set()` calls. Also converted property access on settings objects to bracket notation (`settings[STORAGE_KEYS.x]`).
+  - 1.2: Created `TIMEOUTS` object in utils.js with 6 named constants (`proxyCheckDelay`, `debounceApply`, `tabRetryInterval`, `tabMaxAttempts`, `hintDuration`, `feedbackDuration`). Replaced all magic numbers in popup.js (retry logic, hint/feedback durations) and background.js (debounce 100ms, checkCurrentProxySettings 1000ms delays).
+  - 1.3: Removed dead `web_accessible_resources` section referencing non-existent `tabs.js` from manifest.json. Removed unused `notifications` permission.
+  - 1.4: Moved all inline `<style>` block (58 lines of logging toggle CSS) from popup.html into popup.css. Replaced inline `style="display: none"` on file inputs with `.hidden-file-input` CSS class.

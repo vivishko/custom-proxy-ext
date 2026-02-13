@@ -1,5 +1,6 @@
 import {
   STORAGE_KEYS,
+  TIMEOUTS,
   createLogger,
   endsWithDomain,
   chooseDeterministicProxy,
@@ -389,7 +390,7 @@ applyProxySettings();
 let applyTimeout = null;
 const debouncedApply = () => {
   if (applyTimeout) clearTimeout(applyTimeout);
-  applyTimeout = setTimeout(applyProxySettings, 100);
+  applyTimeout = setTimeout(applyProxySettings, TIMEOUTS.debounceApply);
 };
 
 // React to storage changes
@@ -431,7 +432,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       },
       () => {
         applyProxySettings({ reloadActiveTab: !!request.reloadActiveTab });
-        setTimeout(checkCurrentProxySettings, 1000);
+        setTimeout(checkCurrentProxySettings, TIMEOUTS.proxyCheckDelay);
       }
     );
   } else if (request.action === "clearProxy") {
@@ -443,7 +444,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       },
       () => {
         applyProxySettings({ reloadActiveTab: !!request.reloadActiveTab });
-        setTimeout(checkCurrentProxySettings, 1000);
+        setTimeout(checkCurrentProxySettings, TIMEOUTS.proxyCheckDelay);
       }
     );
   } else if (request.action === "updateProxySettings") {
@@ -458,7 +459,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         { [STORAGE_KEYS.temporaryDirectSites]: temporaryDirectSites },
         () => {
           applyProxySettings();
-          setTimeout(checkCurrentProxySettings, 1000);
+          setTimeout(checkCurrentProxySettings, TIMEOUTS.proxyCheckDelay);
         }
       );
     });
@@ -504,7 +505,7 @@ chrome.tabs.onRemoved.addListener((tabId) => {
       { [STORAGE_KEYS.temporaryProxySites]: temporaryProxySites },
       () => {
         applyProxySettings();
-        setTimeout(checkCurrentProxySettings, 1000);
+        setTimeout(checkCurrentProxySettings, TIMEOUTS.proxyCheckDelay);
       }
     );
   });

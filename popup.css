@@ -361,3 +361,70 @@ table tr:hover {
   margin-top: 0;
   padding: 8px 12px;
 }
+
+.hidden-file-input {
+  display: none;
+}
+
+/* Header row: title left, toggle right */
+.header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 6px 0 10px;
+}
+
+.header-bar h1 {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  flex: 1 1 auto;
+}
+
+/* Tiny toggle button pinned to the right */
+.logging-toggle {
+  width: auto !important;
+  min-width: 0 !important;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  line-height: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s ease, transform 0.1s ease, filter 0.2s ease;
+}
+
+.logging-toggle:focus-visible {
+  outline: 2px solid rgba(0, 0, 0, 0.25);
+  outline-offset: 2px;
+}
+
+.logging-toggle.enabled {
+  opacity: 1;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.15));
+}
+
+.logging-toggle:active {
+  transform: scale(0.96);
+}
+
+.logging-toggle svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.logging-toggle.enabled svg path {
+  stroke: #007bff;
+  fill: #007bff1a;
+}
+
+.logging-toggle:not(.enabled) svg path {
+  stroke: #666;
+  fill: transparent;
+}

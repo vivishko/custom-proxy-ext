@@ -1,4 +1,4 @@
-import { STORAGE_KEYS, createLogger, findMostSpecificRule } from "./utils.js";
+import { STORAGE_KEYS, TIMEOUTS, createLogger, findMostSpecificRule } from "./utils.js";
 import { DEFAULT_LOCALE, STRINGS, formatString } from "./strings.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -44,15 +44,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (proxyModeHint.textContent === message) {
         setModeHint("");
       }
-    }, 2200);
+    }, TIMEOUTS.hintDuration);
   };
 
   // --- Helper Functions ---
   const getCurrentTabInfo = async () => {
     return new Promise((resolve) => {
       let attempts = 0;
-      const maxAttempts = 10;
-      const retryInterval = 100;
+      const maxAttempts = TIMEOUTS.tabMaxAttempts;
+      const retryInterval = TIMEOUTS.tabRetryInterval;
 
       const tryGetTab = () => {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -103,11 +103,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const settings = await chrome.storage.sync.get(Object.values(STORAGE_KEYS));
-    const globalProxyEnabled = settings.globalProxyEnabled || false;
-    const lastSelectedProxyName = settings.lastSelectedProxy || null;
-    const siteRules = settings.siteRules || {};
-    const temporaryDirectSites = settings.temporaryDirectSites || {};
-    const temporaryProxySites = settings.temporaryProxySites || {};
+    const globalProxyEnabled = settings[STORAGE_KEYS.globalProxyEnabled] || false;
+    const lastSelectedProxyName = settings[STORAGE_KEYS.lastSelectedProxy] || null;
+    const siteRules = settings[STORAGE_KEYS.siteRules] || {};
+    const temporaryDirectSites = settings[STORAGE_KEYS.temporaryDirectSites] || {};
+    const temporaryProxySites = settings[STORAGE_KEYS.temporaryProxySites] || {};
     const currentDomainProxyName = resolveTemporaryProxyName(
       temporaryProxySites[currentTabDomain],
       lastSelectedProxyName
@@ -181,10 +181,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // --- Proxy Management (Main Popup Controls) ---
   const loadMainControls = async () => {
     const settings = await chrome.storage.sync.get(Object.values(STORAGE_KEYS));
-    const proxies = settings.proxies || [];
-    const globalProxyEnabled = settings.globalProxyEnabled || false;
-    const lastSelectedProxy = settings.lastSelectedProxy || null;
-    const temporaryProxySites = settings.temporaryProxySites || {};
+    const proxies = settings[STORAGE_KEYS.proxies] || [];
+    const globalProxyEnabled = settings[STORAGE_KEYS.globalProxyEnabled] || false;
+    const lastSelectedProxy = settings[STORAGE_KEYS.lastSelectedProxy] || null;
+    const temporaryProxySites = settings[STORAGE_KEYS.temporaryProxySites] || {};
     proxyToggleLabel.textContent = strings.toggles.global;
     updateOnlyThisPageLabel();
 
@@ -273,10 +273,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (isEnabled) {
         const selectedProxyName = proxySelect.value;
         await chrome.storage.sync.set({
-          globalProxyEnabled: true,
-          lastSelectedProxy: selectedProxyName,
-          temporaryProxySites: {},
-          temporaryDirectSites: {},
+          [STORAGE_KEYS.globalProxyEnabled]: true,
+          [STORAGE_KEYS.lastSelectedProxy]: selectedProxyName,
+          [STORAGE_KEYS.temporaryProxySites]: {},
+          [STORAGE_KEYS.temporaryDirectSites]: {},
         });
         pageProxyToggle.checked = false;
         chrome.runtime.sendMessage({
@@ -284,7 +284,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           reloadActiveTab: true,
         });
       } else {
-        await chrome.storage.sync.set({ globalProxyEnabled: false });
+        await chrome.storage.sync.set({ [STORAGE_KEYS.globalProxyEnabled]: false });
         chrome.runtime.sendMessage({
           action: "updateProxySettings",
           reloadActiveTab: true,
@@ -298,7 +298,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   proxySelect.addEventListener("change", async () => {
     const selectedProxyName = proxySelect.value;
-    await chrome.storage.sync.set({ lastSelectedProxy: selectedProxyName });
+    await chrome.storage.sync.set({ [STORAGE_KEYS.lastSelectedProxy]: selectedProxyName });
     if (!pageProxyToggle.checked) {
       pageProxySelect.value = selectedProxyName;
     }
@@ -316,8 +316,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   pageProxyToggle.addEventListener("change", async () => {
     const isEnabled = pageProxyToggle.checked;
     const settings = await chrome.storage.sync.get(Object.values(STORAGE_KEYS));
-    let temporaryProxySites = settings.temporaryProxySites || {};
-    const temporaryDirectSites = settings.temporaryDirectSites || {};
+    let temporaryProxySites = settings[STORAGE_KEYS.temporaryProxySites] || {};
+    const temporaryDirectSites = settings[STORAGE_KEYS.temporaryDirectSites] || {};
     const selectedProxyName = pageProxySelect.value || proxySelect.value;
 
     if (!selectedProxyName) {
@@ -332,13 +332,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           temporaryProxySites = { [currentTabDomain]: selectedProxyName };
           delete temporaryDirectSites[currentTabDomain];
           await chrome.storage.sync.set({
-            temporaryProxySites,
-            temporaryDirectSites,
-            lastSelectedProxy: selectedProxyName,
+            [STORAGE_KEYS.temporaryProxySites]: temporaryProxySites,
+            [STORAGE_KEYS.temporaryDirectSites]: temporaryDirectSites,
+            [STORAGE_KEYS.lastSelectedProxy]: selectedProxyName,
           });
         } else {
           delete temporaryProxySites[currentTabDomain];
-          await chrome.storage.sync.set({ temporaryProxySites });
+          await chrome.storage.sync.set({ [STORAGE_KEYS.temporaryProxySites]: temporaryProxySites });
         }
         chrome.runtime.sendMessage({
           action: "updateProxySettings",
@@ -359,17 +359,17 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!selectedProxyName) {
       return;
     }
-    await chrome.storage.sync.set({ lastSelectedProxy: selectedProxyName });
+    await chrome.storage.sync.set({ [STORAGE_KEYS.lastSelectedProxy]: selectedProxyName });
     if (!pageProxyToggle.checked) {
       updateProxyStatusDisplay();
       return;
     }
     const settings = await chrome.storage.sync.get(Object.values(STORAGE_KEYS));
-    const temporaryProxySites = settings.temporaryProxySites || {};
+    const temporaryProxySites = settings[STORAGE_KEYS.temporaryProxySites] || {};
     temporaryProxySites[currentTabDomain] = selectedProxyName;
     await chrome.storage.sync.set({
-      temporaryProxySites,
-      lastSelectedProxy: selectedProxyName,
+      [STORAGE_KEYS.temporaryProxySites]: temporaryProxySites,
+      [STORAGE_KEYS.lastSelectedProxy]: selectedProxyName,
     });
     if (proxyToggle.checked) {
       proxySelect.value = selectedProxyName;
@@ -451,8 +451,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   let allProxies = [];
 
   const loadProxiesForDropdown = async () => {
-    const settings = await chrome.storage.sync.get("proxies");
-    allProxies = settings.proxies || [];
+    const settings = await chrome.storage.sync.get(STORAGE_KEYS.proxies);
+    allProxies = settings[STORAGE_KEYS.proxies] || [];
 
     siteProxySelect.innerHTML = `
       <option value="NO_PROXY">NO_PROXY</option>
@@ -468,8 +468,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const renderSiteRules = async () => {
-    const settings = await chrome.storage.sync.get("siteRules");
-    const siteRules = settings.siteRules || {};
+    const settings = await chrome.storage.sync.get(STORAGE_KEYS.siteRules);
+    const siteRules = settings[STORAGE_KEYS.siteRules] || {};
     siteRulesTableBody.innerHTML = "";
 
     for (const domain in siteRules) {
@@ -508,7 +508,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           siteRules[domain].type = "PROXY_BY_RULE";
           siteRules[domain].proxyName = newSetting;
         }
-        await chrome.storage.sync.set({ siteRules });
+        await chrome.storage.sync.set({ [STORAGE_KEYS.siteRules]: siteRules });
         chrome.runtime.sendMessage({ action: "updateProxySettings" });
         updateProxyStatusDisplay();
       });
@@ -521,7 +521,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       deleteButton.classList.add("delete-button");
       deleteButton.addEventListener("click", async () => {
         delete siteRules[domain];
-        await chrome.storage.sync.set({ siteRules });
+        await chrome.storage.sync.set({ [STORAGE_KEYS.siteRules]: siteRules });
         renderSiteRules();
         chrome.runtime.sendMessage({ action: "updateProxySettings" });
         updateProxyStatusDisplay();
@@ -535,8 +535,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const selectedProxySetting = siteProxySelect.value;
 
     if (domain) {
-      const settings = await chrome.storage.sync.get("siteRules");
-      const siteRules = settings.siteRules || {};
+      const settings = await chrome.storage.sync.get(STORAGE_KEYS.siteRules);
+      const siteRules = settings[STORAGE_KEYS.siteRules] || {};
 
       if (
         selectedProxySetting === "NO_PROXY" ||
@@ -551,7 +551,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
       }
 
-      await chrome.storage.sync.set({ siteRules });
+      await chrome.storage.sync.set({ [STORAGE_KEYS.siteRules]: siteRules });
       siteDomainInput.value = "";
       renderSiteRules();
       chrome.runtime.sendMessage({ action: "updateProxySettings" });
@@ -560,8 +560,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   exportSiteRulesButton.addEventListener("click", async () => {
-    const settings = await chrome.storage.sync.get("siteRules");
-    const dataStr = JSON.stringify(settings.siteRules, null, 2);
+    const settings = await chrome.storage.sync.get(STORAGE_KEYS.siteRules);
+    const dataStr = JSON.stringify(settings[STORAGE_KEYS.siteRules], null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     chrome.downloads.download({ url, filename: "site_rules.json" });
@@ -585,10 +585,10 @@ document.addEventListener("DOMContentLoaded", async () => {
           ) {
             throw new Error("Invalid site rules file format.");
           }
-          const existingSettings = await chrome.storage.sync.get("siteRules");
-          const existingRules = existingSettings.siteRules || {};
+          const existingSettings = await chrome.storage.sync.get(STORAGE_KEYS.siteRules);
+          const existingRules = existingSettings[STORAGE_KEYS.siteRules] || {};
           const mergedRules = { ...existingRules, ...importedRules };
-          await chrome.storage.sync.set({ siteRules: mergedRules });
+          await chrome.storage.sync.set({ [STORAGE_KEYS.siteRules]: mergedRules });
           renderSiteRules();
           chrome.runtime.sendMessage({ action: "updateProxySettings" });
           updateProxyStatusDisplay();
@@ -634,12 +634,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       proxiesFeedback.textContent = "";
       proxiesFeedback.classList.remove("visible");
       proxiesFeedbackTimeoutId = null;
-    }, 2200);
+    }, TIMEOUTS.feedbackDuration);
   };
 
   const renderProxies = async () => {
-    const settings = await chrome.storage.sync.get("proxies");
-    const proxies = settings.proxies || [];
+    const settings = await chrome.storage.sync.get(STORAGE_KEYS.proxies);
+    const proxies = settings[STORAGE_KEYS.proxies] || [];
     proxiesTableBody.innerHTML = "";
 
     proxies.forEach((proxy) => {
@@ -664,10 +664,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
         if (confirmDelete) {
           const updatedProxies = proxies.filter((p) => p.name !== proxy.name);
-          await chrome.storage.sync.set({ proxies: updatedProxies });
+          await chrome.storage.sync.set({ [STORAGE_KEYS.proxies]: updatedProxies });
 
-          const siteSettings = await chrome.storage.sync.get("siteRules");
-          let siteRules = siteSettings.siteRules || {};
+          const siteSettings = await chrome.storage.sync.get(STORAGE_KEYS.siteRules);
+          let siteRules = siteSettings[STORAGE_KEYS.siteRules] || {};
           for (const domain in siteRules) {
             if (
               siteRules[domain].type === "PROXY_BY_RULE" &&
@@ -676,7 +676,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               delete siteRules[domain];
             }
           }
-          await chrome.storage.sync.set({ siteRules });
+          await chrome.storage.sync.set({ [STORAGE_KEYS.siteRules]: siteRules });
 
           const temporarySettings = await chrome.storage.sync.get(
             STORAGE_KEYS.temporaryProxySites
@@ -691,7 +691,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
           }
           if (temporaryUpdated) {
-            await chrome.storage.sync.set({ temporaryProxySites });
+            await chrome.storage.sync.set({ [STORAGE_KEYS.temporaryProxySites]: temporaryProxySites });
           }
 
           renderProxies();
@@ -735,8 +735,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    const settings = await chrome.storage.sync.get("proxies");
-    const proxies = settings.proxies || [];
+    const settings = await chrome.storage.sync.get(STORAGE_KEYS.proxies);
+    const proxies = settings[STORAGE_KEYS.proxies] || [];
 
     if (proxies.some((p) => p.name === newProxy.name)) {
       alert(
@@ -748,7 +748,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     logDebug("Adding new proxy:", newProxy);
 
     proxies.push(newProxy);
-    await chrome.storage.sync.set({ proxies });
+    await chrome.storage.sync.set({ [STORAGE_KEYS.proxies]: proxies });
 
     addProxyForm.reset();
     renderProxies();
@@ -763,8 +763,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   exportProxiesButton.addEventListener("click", async () => {
-    const settings = await chrome.storage.sync.get("proxies");
-    const dataStr = JSON.stringify(settings.proxies, null, 2);
+    const settings = await chrome.storage.sync.get(STORAGE_KEYS.proxies);
+    const dataStr = JSON.stringify(settings[STORAGE_KEYS.proxies], null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     chrome.downloads.download({ url, filename: "proxies.json" });
@@ -794,8 +794,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
             seenNames.add(p.name);
           }
-          const existingSettings = await chrome.storage.sync.get("proxies");
-          const existingProxies = existingSettings.proxies || [];
+          const existingSettings = await chrome.storage.sync.get(STORAGE_KEYS.proxies);
+          const existingProxies = existingSettings[STORAGE_KEYS.proxies] || [];
           const mergedProxies = [...existingProxies];
           const indexByName = new Map(
             mergedProxies.map((p, idx) => [p.name, idx])
@@ -809,7 +809,7 @@ document.addEventListener("DOMContentLoaded", async () => {
               mergedProxies[idx] = p;
             }
           });
-          await chrome.storage.sync.set({ proxies: mergedProxies });
+          await chrome.storage.sync.set({ [STORAGE_KEYS.proxies]: mergedProxies });
           renderProxies();
           loadProxiesForDropdown();
           chrome.runtime.sendMessage({ action: "updateProxySettings" });
