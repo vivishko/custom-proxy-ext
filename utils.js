@@ -75,6 +75,9 @@ export function findMostSpecificRule(hostname, rulesObj) {
 
 /**
  * Check if host ends with domain boundary-aware (foo.bar matches bar, but not foobar).
+ *
+ * WARNING: Duplicated in the PAC script template (background/pac-builder.js).
+ * Keep both implementations in sync to avoid logic drift.
  */
 export function endsWithDomain(host, domain) {
   if (!host || !domain) return false;
@@ -84,6 +87,9 @@ export function endsWithDomain(host, domain) {
 
 /**
  * Deterministically choose a proxy from list based on hostname (stable per host).
+ *
+ * WARNING: Duplicated in the PAC script template (background/pac-builder.js).
+ * Keep both implementations in sync to avoid logic drift.
  */
 export function chooseDeterministicProxy(hostname, proxies) {
   if (!Array.isArray(proxies) || proxies.length === 0) return null;

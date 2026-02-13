@@ -376,9 +376,25 @@ When the user says "pause / not now" or work cannot proceed:
 
 # Files to know
 
-- background/background.js: proxy routing, PAC script creation, auth, logging.
-- popup/popup.js: UI controls, screen routing, initialization.
-- shared/storage.js: shared chrome.storage.sync access layer for popup/background.
+Background (background/)
+- background/auth-handler.js: proxy auth handler (onAuthRequired).
+- background/background.js: entry point, listeners, message router, logging.
+- background/pac-builder.js: PAC script generator (string template).
+- background/proxy-modes.js: proxy apply strategies + coordinator.
+- background/tab-tracker.js: tab domain tracking + temp cleanup.
+
+Popup (popup/)
+- popup/popup.js: entry point, screen routing, init wiring.
+- popup/proxy-controls.js: global/per-page toggles + control handlers.
+- popup/proxy-crud.js: proxy CRUD + import/export.
+- popup/site-rules.js: rules CRUD + import/export.
+- popup/ui-render.js: render helpers (dropdowns, status).
+- popup/validation.js: pure form validation helpers.
+
+Shared (shared/)
+- shared/storage.js: shared chrome.storage.sync access layer.
+
+Root + docs
 - utils.js: shared helpers and logging.
 - docs/roadmap/roadmap.md: tracking table (single source of truth).
 - docs/specs/: specs (one per task).

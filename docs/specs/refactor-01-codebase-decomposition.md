@@ -155,3 +155,7 @@ identically to the current version:
   - Added `shared/storage.js` as the single chrome.storage.sync access module.
   - Migrated background modules to use shared storage APIs (no direct `chrome.storage.sync` calls).
   - Updated popup modules to import shared storage directly; removed `popup/storage.js`.
+- 2026-02-13: **Phase 5 started.** Final cleanup:
+  - Added explicit WARNING comments in `utils.js` to keep PAC template logic in sync.
+  - Updated AGENTS.md to reflect new file structure and docs/specs path.
+  - Manual verification still required before marking phase 5 complete.
