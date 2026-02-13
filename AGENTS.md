@@ -84,17 +84,29 @@ Roadmap table (single source of truth)
 
 ### Task ID format
 
-All tasks use an ID based on conventional-commit type + numeric sequence:
+All tasks use an ID based on [Conventional Commits](https://www.conventionalcommits.org/) type + numeric sequence.
+
+The type prefix is derived from the conventional-commit type that best describes the work.
+Common types and their task prefixes:
 
 - FEAT-<NN> (new feature)
-- BUG-<NN> (bug fix)
-- IMPROVE-<NN> (improvement / UX / refactor / polish)
-- CHORE-<NN> (maintenance, tooling, docs; use sparingly)
+- FIX-<NN> / BUG-<NN> (bug fix)
+- IMPROVE-<NN> (improvement / UX / polish)
+- REFACTOR-<NN> (code restructuring without behavior change)
+- PERF-<NN> (performance improvement)
+- STYLE-<NN> (formatting, CSS, visual-only changes)
+- DOCS-<NN> (documentation only)
+- TEST-<NN> (adding or updating tests)
+- CHORE-<NN> (maintenance, tooling; use sparingly)
+
+This list is not exhaustive. If a Conventional Commits type not listed above
+fits better, use it as the prefix (UPPERCASE in tables, lowercase in filenames).
 
 Rules:
 
 - The numeric part is zero-padded to 2 digits when < 10 (e.g. BUG-01, FEAT-02).
 - IDs are UPPERCASE in tables and release notes (BUG-01), but lowercase in filenames (bug-01).
+- Each type has its own independent numeric sequence (FEAT-01, BUG-01, REFACTOR-01 can coexist).
 
 ### Slugs and filenames
 
@@ -105,7 +117,7 @@ Spec/detail filenames MUST include the lowercase type prefix:
 
 Where:
 
-- <type> is one of: feat | bug | improve | chore
+- <type> is the lowercase conventional-commit prefix (feat, bug, improve, refactor, perf, style, docs, test, chore, etc.)
 - <nn> is the zero-padded number (01, 02, 11, ...)
 - <slug> is kebab-case derived from the title (same as before)
 
@@ -140,11 +152,11 @@ Example migration:
 
 ### When creating a new task (ideas -> roadmap)
 
-1. Choose the appropriate type prefix (FEAT/BUG/IMPROVE/CHORE).
+1. Choose the appropriate type prefix based on Conventional Commits (FEAT, BUG, IMPROVE, REFACTOR, PERF, STYLE, DOCS, TEST, CHORE, etc.).
 2. Pick the next available numeric sequence for that type.
-3. Create the task row with ID like FEAT-12.
+3. Create the task row with the typed ID (e.g. FEAT-12, REFACTOR-01).
 4. Create the detail/spec file using the lowercase filename convention:
-   - feat-12-<slug>.md / bug-03-<slug>.md / improve-07-<slug>.md
+   - feat-12-<slug>.md / bug-03-<slug>.md / refactor-01-<slug>.md
 5. Ensure the Roadmap "Spec" link points to the new typed filename.
 6. Set roadmap date fields on creation:
    - `created_date = current date (YYYY-MM-DD)`

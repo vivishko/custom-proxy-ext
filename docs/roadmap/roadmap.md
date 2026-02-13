@@ -4,6 +4,7 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| REFACTOR-01 | Codebase decomposition | - | P1 | L | 🔵 planned | 2026-02-13 | - | - | docs/specs/refactor-01-codebase-decomposition.md | Decompose monolithic popup.js and background.js into focused modules for maintainability and testability | - |
 | IMPROVE-02 | 02. Warn on duplicate rule | L3 | P0 | S | 🟣 idea | 2026-01-25 | - | - | docs/roadmap/improve-02-warn-duplicate-rule-manual.md | Prevent accidental duplicate rules | - |
 | IMPROVE-07 | 07. Rules table pagination | M1 | P1 | M | 🟣 idea | 2026-01-25 | - | - | docs/roadmap/improve-07-rules-table-pagination.md | Limit rules table to 10 rows | - |
 | IMPROVE-09 | 09. Proxies table pagination | M2 | P1 | M | 🟣 idea | 2026-01-25 | - | - | docs/roadmap/improve-09-proxies-table-pagination.md | Limit proxies table to 10 rows | - |
