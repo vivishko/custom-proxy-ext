@@ -143,3 +143,12 @@ identically to the current version:
   - `popup/popup.js` — entry point (~160 lines): screen routing, logging toggle, tab info retrieval, initialization. Wires modules via dependency injection.
   - Updated `popup.html`: `<script>` src changed from `popup.js` to `popup/popup.js`.
   - Old root `popup.js` is now superseded by `popup/popup.js` (can be deleted after verification).
+- 2026-02-13: **Phase 3 completed.** Decomposed background.js (679 lines) into 4 modules under `background/`:
+  - `background/pac-builder.js` — `buildPacScript(logger)` extracted as standalone async function (~110 lines). Added WARNING comments about PAC sandbox duplication of `endsWithDomain` and `chooseRandomProxy` (logic drift risk documented).
+  - `background/proxy-modes.js` — 4 strategy functions: `applyPacMode()`, `applyFixedServers()`, `applyDirect()`, `applyProxySettings()`. The god function `applyProxySettings` (198 lines) refactored into a coordinator that delegates to strategy functions. All take `{ logger, maybeReload }` deps.
+  - `background/auth-handler.js` — `registerAuthHandler(logger)` encapsulates the 136-line `onAuthRequired` listener. Jivosite bypass documented with comment.
+  - `background/tab-tracker.js` — `initTabTracker({ logger, applyProxySettings, checkCurrentProxySettings })` handles `tabDomainById` Map, `onUpdated`, `onRemoved` listeners.
+  - `background/background.js` — entry point (~190 lines): logger setup, tab reload helpers, debug functions, debounce, storage listener, message router, wires all modules.
+  - Updated `manifest.json`: `service_worker` changed from `background.js` to `background/background.js`.
+  - Fixed missed hardcoded `1000` (line 452 in old file) → `TIMEOUTS.proxyCheckDelay`.
+  - Old root `background.js` is now superseded by `background/background.js` (can be deleted after verification).
