@@ -133,3 +133,13 @@ identically to the current version:
   - 1.2: Created `TIMEOUTS` object in utils.js with 6 named constants (`proxyCheckDelay`, `debounceApply`, `tabRetryInterval`, `tabMaxAttempts`, `hintDuration`, `feedbackDuration`). Replaced all magic numbers in popup.js (retry logic, hint/feedback durations) and background.js (debounce 100ms, checkCurrentProxySettings 1000ms delays).
   - 1.3: Removed dead `web_accessible_resources` section referencing non-existent `tabs.js` from manifest.json. Removed unused `notifications` permission.
   - 1.4: Moved all inline `<style>` block (58 lines of logging toggle CSS) from popup.html into popup.css. Replaced inline `style="display: none"` on file inputs with `.hidden-file-input` CSS class.
+- 2026-02-13: **Phase 2 completed.** Decomposed popup.js (869 lines) into 6 focused modules under `popup/`:
+  - `popup/storage.js` — chrome.storage.sync wrapper with typed getters/setters (`getProxies()`, `setSiteRules()`, `getAllSettings()`, etc.). 14 exported functions, all async. Eliminates direct `chrome.storage.sync` calls from other modules.
+  - `popup/ui-render.js` — rendering helpers: `buildProxyOptions()` and `buildRuleProxyOptions()` replace 3 duplicate dropdown-construction blocks. `resolveTemporaryProxyName()`, `setModeHint()`, `showModeInteractionHint()`, `updateProxyStatusDisplay()` extracted as named exports.
+  - `popup/validation.js` — 3 pure validation functions: `validateProxy()`, `validateImportedProxies()`, `validateImportedSiteRules()`. Previously inline in submit/import handlers.
+  - `popup/proxy-controls.js` — `initProxyControls()` wires global toggle, page toggle, select handlers, add-rule button, control group hints. Returns `{ loadMainControls, refreshStatus, updateOnlyThisPageLabel }`.
+  - `popup/site-rules.js` — `initSiteRules()` handles rules CRUD, import/export, dropdown population. Returns `{ renderSiteRules, loadProxiesForDropdown, getSiteDomainInput, getSiteProxySelect, getAddSiteRuleButton }`.
+  - `popup/proxy-crud.js` — `initProxyCrud()` handles proxy add form, table rendering, delete with cascade cleanup, import/export. Returns `{ renderProxies }`.
+  - `popup/popup.js` — entry point (~160 lines): screen routing, logging toggle, tab info retrieval, initialization. Wires modules via dependency injection.
+  - Updated `popup.html`: `<script>` src changed from `popup.js` to `popup/popup.js`.
+  - Old root `popup.js` is now superseded by `popup/popup.js` (can be deleted after verification).
