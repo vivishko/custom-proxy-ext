@@ -322,6 +322,7 @@ Goal: create a release notes file in releases/ that reflects a specific release 
 3. Draft release notes file: releases/vX.Y.Z.md
    - Must be single-language (no bilingual content).
    - Must include a "Tasks" section listing task IDs included in the release.
+   - Must mention major refactors (if any) in Overview/Improvements.
    - Keep it user-facing: what changed, why it matters, any breaking changes, any upgrade notes.
    - Avoid promising future work; only describe what is shipped.
 4. Bump extension version in `manifest.json` to match the release version (`X.Y.Z` without `v`).
