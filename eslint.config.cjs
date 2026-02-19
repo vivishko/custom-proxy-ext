@@ -36,6 +36,7 @@ module.exports = [
         alert: "readonly",
         confirm: "readonly",
         console: "readonly",
+        process: "readonly",
         module: "readonly",
       },
     },

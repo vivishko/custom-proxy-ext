@@ -20,6 +20,8 @@ This repo is intentionally minimal and does not have a build step.
 - npm install
 - npm run lint
 - npm test (Node.js built-in test runner via `node --test`)
+- npm run check:mv3 (manifest/service-worker/popup/permissions static validation)
+- npm run check:package (release payload verification)
 
 Manual testing (extension)
 
@@ -394,6 +396,11 @@ Extension root (extension/)
 
 Repo root
 - manifest.json: MV3 manifest (service worker + popup).
+- .github/workflows/ci.yml: pull-request/push quality gate (lint, tests, MV3 checks, security).
+- .github/workflows/release.yml: tag-based packaging/release workflow with package verification.
+- scripts/check-mv3.mjs: MV3 static checks for manifest and entrypoint integrity.
+- scripts/verify-package.mjs: release payload verification (content allowlist, size, version/tag match).
+- scripts/build-release-package.mjs: deterministic release zip creation + sha256 output.
 
 Background (extension/background/)
 - extension/background/auth-handler.js: proxy auth handler (onAuthRequired).

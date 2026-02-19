@@ -15,6 +15,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
       - name: Resolve release notes
         id: notes
         shell: bash
@@ -30,21 +36,19 @@ jobs:
 
           echo "file=$NOTES" >> "$GITHUB_OUTPUT"
 
+      - name: Verify package payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          npm run check:package -- --tag "$TAG"
+
       - name: Package zip
         shell: bash
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
-
-          if [ ! -f "manifest.json" ]; then
-            echo "Extension manifest not found at manifest.json" >&2
-            exit 1
-          fi
-
-          zip -r "custom-proxy-ext-${TAG}.zip" . \
-            -x ".git/*" ".github/*" "node_modules/*" "*.DS_Store"
-
-          sha256sum "custom-proxy-ext-${TAG}.zip" > "custom-proxy-ext-${TAG}.zip.sha256"
+          npm run build:package -- --tag "$TAG"
 
       - name: Create GitHub Release
         env:
