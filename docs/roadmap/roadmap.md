@@ -4,7 +4,8 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| REFACTOR-01 | Codebase decomposition | - | P1 | L | 🟠 in_progress | 2026-02-13 | 2026-02-13 | - | docs/specs/refactor-01-codebase-decomposition.md | Decompose monolithic popup.js and background.js into focused modules for maintainability and testability | - |
+| TEST-01 | Extension test coverage baseline | Q1 | P0 | M | 🟠 in_progress | 2026-02-19 | 2026-02-19 | - | docs/specs/test-01-extension-test-coverage.md | Establish unit/integration test baseline for critical extension logic and flows | REFACTOR-01 |
+| CHORE-01 | CI quality gate for MV3 releases | Q2 | P0 | M | 🔵 planned | 2026-02-19 | - | - | docs/specs/chore-01-ci-quality-gate-for-mv3-releases.md | Enforce pre-release CI checks: lint, tests, MV3 static validation, security | TEST-01 |
 | IMPROVE-02 | 02. Warn on duplicate rule | L3 | P0 | S | 🟣 idea | 2026-01-25 | - | - | docs/roadmap/improve-02-warn-duplicate-rule-manual.md | Prevent accidental duplicate rules | - |
 | IMPROVE-07 | 07. Rules table pagination | M1 | P1 | M | 🟣 idea | 2026-01-25 | - | - | docs/roadmap/improve-07-rules-table-pagination.md | Limit rules table to 10 rows | - |
 | IMPROVE-09 | 09. Proxies table pagination | M2 | P1 | M | 🟣 idea | 2026-01-25 | - | - | docs/roadmap/improve-09-proxies-table-pagination.md | Limit proxies table to 10 rows | - |
@@ -20,6 +21,7 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 | IMPROVE-14 | 14. UI style refresh | H5 | P2 | L | 🔴 blocked | 2026-01-25 | - | - | docs/roadmap/improve-14-ui-style-refresh.md | Explore a new visual style | IMPROVE-01, IMPROVE-13 |
 | IMPROVE-15 | 15. Dark/light theme | N3 | P2 | S | 🔴 blocked | 2026-01-25 | - | - | docs/roadmap/improve-15-dark-light-theme.md | Add theme toggle for comfort | IMPROVE-14 |
 | IMPROVE-16 | 16. Onboarding | N2 | P2 | S | 🔴 blocked | 2026-01-25 | - | - | docs/roadmap/improve-16-onboarding.md | Guide new users through setup | IMPROVE-01, IMPROVE-14 |
+| REFACTOR-01 | Codebase decomposition | - | P1 | L | 🟢 done | 2026-02-13 | 2026-02-13 | 2026-02-13 | docs/specs/refactor-01-codebase-decomposition.md | Decompose monolithic popup.js and background.js into focused modules for maintainability and testability | - |
 | IMPROVE-01 | 01. Separate main screens | H1 | P0 | L | 🟢 done | 2026-01-25 | 2026-01-25 | 2026-01-25 | docs/specs/improve-01-separate-main-screens.md | Simplify main screen and split views | - |
 | BUG-01 | Bug-01. Enable only on this page disables proxy | B1 | P0 | M | 🟢 done | 2026-01-26 | 2026-02-01 | 2026-02-01 | docs/specs/bug-01-enable-only-on-this-page-disables-proxy.md | Separate global/per-page enable, add per-page proxy choice | IMPROVE-11 |
 | IMPROVE-11 | 11. UX: Enable Proxy controls | H0 | P0 | M | 🟢 done | 2026-02-07 | 2026-02-07 | 2026-02-08 | docs/specs/improve-11-ux-enable-proxy-controls.md | Make proxy mode controls clear and user-friendly | - |
