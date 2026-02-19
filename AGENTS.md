@@ -19,7 +19,7 @@ This repo is intentionally minimal and does not have a build step.
 
 - npm install
 - npm run lint
-- npm test (currently no test runner)
+- npm test (Node.js built-in test runner via `node --test`)
 
 Manual testing (extension)
 
@@ -80,6 +80,11 @@ Roadmap table (single source of truth)
   - a detail file in docs/roadmap/
   - optionally a spec file in docs/specs/ (preferred when implementation-ready)
 
+Roadmap detail files policy
+
+- Keep `docs/roadmap/*.md` concise (goal/value/priority/dependencies only).
+- Do not keep progress notes/changelog there; use the spec file `## Changelog / Decisions` as the single history log.
+
 ## Task IDs and file naming
 
 ### Task ID format
@@ -97,6 +102,7 @@ Common types and their task prefixes:
 - STYLE-<NN> (formatting, CSS, visual-only changes)
 - DOCS-<NN> (documentation only)
 - TEST-<NN> (adding or updating tests)
+- CI-<NN> (CI/CD pipelines and release automation)
 - CHORE-<NN> (maintenance, tooling; use sparingly)
 
 This list is not exhaustive. If a Conventional Commits type not listed above
@@ -117,7 +123,7 @@ Spec/detail filenames MUST include the lowercase type prefix:
 
 Where:
 
-- <type> is the lowercase conventional-commit prefix (feat, bug, improve, refactor, perf, style, docs, test, chore, etc.)
+- <type> is the lowercase conventional-commit prefix (feat, bug, improve, refactor, perf, style, docs, test, ci, chore, etc.)
 - <nn> is the zero-padded number (01, 02, 11, ...)
 - <slug> is kebab-case derived from the title (same as before)
 
@@ -152,7 +158,7 @@ Example migration:
 
 ### When creating a new task (ideas -> roadmap)
 
-1. Choose the appropriate type prefix based on Conventional Commits (FEAT, BUG, IMPROVE, REFACTOR, PERF, STYLE, DOCS, TEST, CHORE, etc.).
+1. Choose the appropriate type prefix based on Conventional Commits (FEAT, BUG, IMPROVE, REFACTOR, PERF, STYLE, DOCS, TEST, CI, CHORE, etc.).
 2. Pick the next available numeric sequence for that type.
 3. Create the task row with the typed ID (e.g. FEAT-12, REFACTOR-01).
 4. Create the detail/spec file using the lowercase filename convention:

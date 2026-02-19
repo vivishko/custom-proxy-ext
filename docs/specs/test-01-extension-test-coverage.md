@@ -11,7 +11,7 @@ After refactoring, modules are more testable, but the project still lacks a reli
 ## Non-goals
 - Building a full end-to-end browser automation suite in the first step.
 - Forcing very high coverage thresholds immediately.
-- Designing CI policy itself (covered by CHORE-01).
+- Designing CI policy itself (covered by CI-01).
 
 ## User scenarios
 - Developer changes validation/helpers and unit tests catch regressions.
@@ -43,3 +43,13 @@ Implement a minimal but meaningful test baseline first; optimize for reliability
 
 ## Changelog / Decisions
 - 2026-02-19: Task split from former unified TEST-01 scope (tests + CI). This spec now covers tests only.
+- 2026-02-19: Selected Node.js built-in test runner (`node --test`) to avoid extra dependencies and keep plain-ESM workflow.
+- 2026-02-19: Added unit tests:
+  - `tests/unit/validation.test.js` for proxy/site-rule validation paths.
+  - `tests/unit/utils.test.js` for domain matching, specificity resolution, deterministic proxy selection.
+- 2026-02-19: Added integration tests:
+  - `tests/integration/proxy-modes.test.js` for strategy selection (fixed_servers, PAC, direct fallback).
+  - `tests/integration/tab-tracker.test.js` for temporary proxy cleanup on tab close.
+- 2026-02-19: Added reusable Chrome API mock harness in `tests/helpers/chrome-mock.js`.
+- 2026-02-19: Updated `package.json` test script to `node --test` and switched package `type` to `module` so tests can import extension ES modules directly.
+- 2026-02-19: Verification in CLI passed: `npm test` and `npm run lint`.

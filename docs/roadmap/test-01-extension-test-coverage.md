@@ -6,6 +6,3 @@
 - Complexity: M
 - Dependencies: REFACTOR-01
 - Tag: Q1
-- Notes / questions:
-  - Start with high-value unit tests for pure modules.
-  - Add pragmatic integration tests for critical popup/background flows where stable.
