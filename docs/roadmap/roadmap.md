@@ -4,13 +4,15 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| CI-01 | CI quality gate for MV3 releases | Q2 | P0 | M | 🟠 in_progress | 2026-02-19 | 2026-02-19 | - | [spec](docs/specs/ci-01-quality-gate-for-mv3-releases.md) | Enforce pre-release CI checks: lint, tests, MV3 static validation, security, package verification | TEST-01 |
 | IMPROVE-02 | 02. Warn on duplicate rule | L3 | P0 | S | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-02-warn-duplicate-rule-manual.md) | Prevent accidental duplicate rules | - |
 | IMPROVE-07 | 07. Rules table pagination | M1 | P1 | M | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-07-rules-table-pagination.md) | Limit rules table to 10 rows | - |
 | IMPROVE-09 | 09. Proxies table pagination | M2 | P1 | M | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-09-proxies-table-pagination.md) | Limit proxies table to 10 rows | - |
 | IMPROVE-12 | 12. Colorize proxy explanation | L2 | P2 | S | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-12-colorize-proxy-explanation-row.md) | Make proxy explanation easier to scan | - |
 | IMPROVE-13 | 13. Proxies left of rules | N1 | P2 | S | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-13-proxies-left-of-rules.md) | Reorder UI columns for proxies | IMPROVE-01 |
 | IMPROVE-17 | 17. i18n strings framework | H6 | P1 | M | 🟣 idea | 2026-02-07 | - | - | [spec](docs/roadmap/improve-17-i18n-strings-framework.md) | Add multi-language string support | - |
+| REFACTOR-02 | 02. Decompose popup.html into components | R1 | P1 | M | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/refactor-02-decompose-popup-html-into-components.md) | Split popup layout into reusable sections and simplify maintenance | - |
+| FEAT-01 | 01. Settings screen in popup | N4 | P1 | M | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/feat-01-settings-screen-in-popup.md) | Add a dedicated settings screen and move technical toggles there | REFACTOR-02 |
+| IMPROVE-20 | 20. Light/dark theme switch in settings | N5 | P2 | S | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/improve-20-light-dark-theme-switch-in-settings.md) | Add explicit light/dark theme toggle in settings | FEAT-01 |
 | IMPROVE-03 | 03. Rule editing + duplicate warning | M4 | P0 | M | 🔴 blocked | 2026-01-25 | - | - | [spec](docs/roadmap/improve-03-rule-editing-duplicate-warning.md) | Enable edits while preventing duplicates | IMPROVE-02 |
 | IMPROVE-04 | 04. Import rules duplicate handling | H3 | P0 | L | 🔴 blocked | 2026-01-25 | - | - | [spec](docs/roadmap/improve-04-import-rules-duplicate-handling.md) | Prevent duplicate rule imports | IMPROVE-02, IMPROVE-03 |
 | IMPROVE-05 | 05. Import proxies duplicate handling | H4 | P0 | L | 🔴 blocked | 2026-01-25 | - | - | [spec](docs/roadmap/improve-05-import-proxies-duplicate-handling.md) | Prevent duplicate proxy imports | IMPROVE-09 |
@@ -20,6 +22,7 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 | IMPROVE-14 | 14. UI style refresh | H5 | P2 | L | 🔴 blocked | 2026-01-25 | - | - | [spec](docs/roadmap/improve-14-ui-style-refresh.md) | Explore a new visual style | IMPROVE-01, IMPROVE-13 |
 | IMPROVE-15 | 15. Dark/light theme | N3 | P2 | S | 🔴 blocked | 2026-01-25 | - | - | [spec](docs/roadmap/improve-15-dark-light-theme.md) | Add theme toggle for comfort | IMPROVE-14 |
 | IMPROVE-16 | 16. Onboarding | N2 | P2 | S | 🔴 blocked | 2026-01-25 | - | - | [spec](docs/roadmap/improve-16-onboarding.md) | Guide new users through setup | IMPROVE-01, IMPROVE-14 |
+| CI-01 | CI quality gate for MV3 releases | Q2 | P0 | M | 🟢 done | 2026-02-19 | 2026-02-19 | 2026-02-19 | [spec](docs/specs/ci-01-quality-gate-for-mv3-releases.md) | Enforce pre-release CI checks: lint, tests, MV3 static validation, security, package verification | TEST-01 |
 | TEST-01 | Extension test coverage baseline | Q1 | P0 | M | 🟢 done | 2026-02-19 | 2026-02-19 | 2026-02-19 | [spec](docs/specs/test-01-extension-test-coverage.md) | Establish unit/integration test baseline for critical extension logic and flows | REFACTOR-01 |
 | REFACTOR-01 | Codebase decomposition | - | P1 | L | 🟢 done | 2026-02-13 | 2026-02-13 | 2026-02-13 | [spec](docs/specs/refactor-01-codebase-decomposition.md) | Decompose monolithic popup.js and background.js into focused modules for maintainability and testability | - |
 | IMPROVE-01 | 01. Separate main screens | H1 | P0 | L | 🟢 done | 2026-01-25 | 2026-01-25 | 2026-01-25 | [spec](docs/specs/improve-01-separate-main-screens.md) | Simplify main screen and split views | - |
