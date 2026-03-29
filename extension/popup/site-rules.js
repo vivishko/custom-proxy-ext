@@ -1,6 +1,9 @@
 import * as storage from "../shared/storage.js";
 import { buildRuleProxyOptions } from "./ui-render.js";
-import { validateImportedSiteRules } from "./validation.js";
+import {
+  findDuplicateSiteRuleDomain,
+  validateImportedSiteRules,
+} from "./validation.js";
 
 /**
  * Initialize site rules screen: CRUD, import/export.
@@ -86,6 +89,20 @@ export function initSiteRules(deps) {
 
     if (domain) {
       const siteRules = await storage.getSiteRules();
+      const duplicateDomain = findDuplicateSiteRuleDomain(siteRules, domain);
+
+      if (duplicateDomain) {
+        const shouldReplace = confirm(
+          `A rule for domain "${duplicateDomain}" already exists.\n\nClick OK to replace it, or Cancel to keep the existing rule.`
+        );
+        if (!shouldReplace) {
+          return;
+        }
+
+        if (duplicateDomain !== domain) {
+          delete siteRules[duplicateDomain];
+        }
+      }
 
       if (
         selectedProxySetting === "NO_PROXY" ||

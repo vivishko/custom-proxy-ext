@@ -59,3 +59,40 @@ export function validateImportedSiteRules(data) {
 
   return null;
 }
+
+/**
+ * Find an existing site-rule domain that matches the candidate domain.
+ * Comparison is case-insensitive, but returns the original stored key.
+ * @param {Object<string, Object>} siteRules
+ * @param {string} candidateDomain
+ * @param {string} [excludeDomain]
+ * @returns {string|null}
+ */
+export function findDuplicateSiteRuleDomain(
+  siteRules,
+  candidateDomain,
+  excludeDomain = ""
+) {
+  if (!siteRules || typeof siteRules !== "object") {
+    return null;
+  }
+
+  const normalizedCandidate = String(candidateDomain || "").trim().toLowerCase();
+  const normalizedExclude = String(excludeDomain || "").trim().toLowerCase();
+
+  if (!normalizedCandidate) {
+    return null;
+  }
+
+  for (const existingDomain of Object.keys(siteRules)) {
+    const normalizedExisting = existingDomain.trim().toLowerCase();
+    if (normalizedExisting === normalizedExclude) {
+      continue;
+    }
+    if (normalizedExisting === normalizedCandidate) {
+      return existingDomain;
+    }
+  }
+
+  return null;
+}

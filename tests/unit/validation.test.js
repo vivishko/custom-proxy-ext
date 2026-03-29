@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import {
+  findDuplicateSiteRuleDomain,
   validateImportedProxies,
   validateImportedSiteRules,
   validateProxy,
@@ -96,5 +97,26 @@ test("validateImportedSiteRules accepts plain object and rejects arrays", () => 
   assert.equal(
     validateImportedSiteRules(["example.com"]),
     "Invalid site rules file format."
+  );
+});
+
+test("findDuplicateSiteRuleDomain finds duplicates case-insensitively", () => {
+  const rules = {
+    "example.com": { type: "NO_PROXY" },
+    "sub.domain.com": { type: "RANDOM_PROXY" },
+  };
+
+  assert.equal(findDuplicateSiteRuleDomain(rules, "EXAMPLE.com"), "example.com");
+  assert.equal(findDuplicateSiteRuleDomain(rules, "missing.com"), null);
+});
+
+test("findDuplicateSiteRuleDomain can exclude current domain for edit flows", () => {
+  const rules = {
+    "example.com": { type: "NO_PROXY" },
+  };
+
+  assert.equal(
+    findDuplicateSiteRuleDomain(rules, "Example.COM", "example.com"),
+    null
   );
 });
