@@ -65,6 +65,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     getSiteDomainInput: () => siteRulesModule.getSiteDomainInput(),
     getSiteProxySelect: () => siteRulesModule.getSiteProxySelect(),
     getAddSiteRuleButton: () => siteRulesModule.getAddSiteRuleButton(),
+    resetSiteRuleEditor: () => siteRulesModule.resetRuleEditor(),
   });
 
   // --- Initialize proxy CRUD ---

@@ -5,6 +5,59 @@ import {
   validateImportedSiteRules,
 } from "./validation.js";
 
+const RULE_SPECIAL_SETTINGS = new Set([
+  "NO_PROXY",
+  "RANDOM_PROXY",
+  "DIRECT_TEMPORARY",
+]);
+
+export const RULE_FORM_MODES = {
+  add: "add",
+  edit: "edit",
+};
+
+/**
+ * Convert UI proxy setting value to persisted site-rule object.
+ * @param {string} selectedProxySetting
+ * @returns {Object}
+ */
+export function createSiteRuleFromSetting(selectedProxySetting) {
+  if (RULE_SPECIAL_SETTINGS.has(selectedProxySetting)) {
+    return { type: selectedProxySetting };
+  }
+
+  return {
+    type: "PROXY_BY_RULE",
+    proxyName: selectedProxySetting,
+  };
+}
+
+/**
+ * Prepare a site-rules object before upsert by handling domain rename/replacement.
+ * @param {Object<string, Object>} siteRules
+ * @param {Object} params
+ * @param {string} params.domain
+ * @param {string} [params.editingDomain]
+ * @param {string|null} [params.duplicateDomain]
+ * @returns {Object<string, Object>}
+ */
+export function prepareSiteRulesForSave(
+  siteRules,
+  { domain, editingDomain = "", duplicateDomain = null }
+) {
+  const nextRules = { ...(siteRules || {}) };
+
+  if (duplicateDomain && duplicateDomain !== domain) {
+    delete nextRules[duplicateDomain];
+  }
+
+  if (editingDomain && editingDomain !== domain) {
+    delete nextRules[editingDomain];
+  }
+
+  return nextRules;
+}
+
 /**
  * Initialize site rules screen: CRUD, import/export.
  * @param {Object} deps
@@ -16,12 +69,36 @@ export function initSiteRules(deps) {
   const siteDomainInput = document.getElementById("siteDomainInput");
   const siteProxySelect = document.getElementById("siteProxySelect");
   const addSiteRuleButtonOptions = document.getElementById("addSiteRuleButtonOptions");
+  const cancelSiteRuleEditButton = document.getElementById("cancelSiteRuleEditButton");
   const siteRulesTableBody = document.querySelector("#siteRulesTable tbody");
   const exportSiteRulesButton = document.getElementById("exportSiteRulesButton");
   const importSiteRulesFile = document.getElementById("importSiteRulesFile");
   const importSiteRulesButton = document.getElementById("importSiteRulesButton");
 
   let allProxies = [];
+  let ruleFormMode = RULE_FORM_MODES.add;
+  let editingDomain = "";
+
+  const resetRuleEditor = ({ clearDomainInput = true } = {}) => {
+    ruleFormMode = RULE_FORM_MODES.add;
+    editingDomain = "";
+    addSiteRuleButtonOptions.textContent = "Add Rule";
+    cancelSiteRuleEditButton.hidden = true;
+    if (clearDomainInput) {
+      siteDomainInput.value = "";
+    }
+  };
+
+  const startRuleEdit = (domain, rule) => {
+    ruleFormMode = RULE_FORM_MODES.edit;
+    editingDomain = domain;
+    siteDomainInput.value = domain;
+    siteProxySelect.value = rule.type === "PROXY_BY_RULE" ? rule.proxyName : rule.type;
+    addSiteRuleButtonOptions.textContent = "Save Rule";
+    cancelSiteRuleEditButton.hidden = false;
+    siteDomainInput.focus();
+    siteDomainInput.select();
+  };
 
   const loadProxiesForDropdown = async () => {
     allProxies = await storage.getProxies();
@@ -49,17 +126,7 @@ export function initSiteRules(deps) {
 
       select.addEventListener("change", async (event) => {
         const newSetting = event.target.value;
-        if (
-          newSetting === "NO_PROXY" ||
-          newSetting === "RANDOM_PROXY" ||
-          newSetting === "DIRECT_TEMPORARY"
-        ) {
-          siteRules[domain].type = newSetting;
-          delete siteRules[domain].proxyName;
-        } else {
-          siteRules[domain].type = "PROXY_BY_RULE";
-          siteRules[domain].proxyName = newSetting;
-        }
+        siteRules[domain] = createSiteRuleFromSetting(newSetting);
         await storage.setSiteRules(siteRules);
         chrome.runtime.sendMessage({ action: "updateProxySettings" });
         refreshStatus();
@@ -68,28 +135,50 @@ export function initSiteRules(deps) {
       proxyCell.appendChild(select);
 
       const actionsCell = row.insertCell();
+      const actionsGroup = document.createElement("div");
+      actionsGroup.classList.add("rule-actions");
+
+      const editButton = document.createElement("button");
+      editButton.textContent = "✏";
+      editButton.classList.add("edit-button", "icon-button");
+      editButton.title = "Edit rule";
+      editButton.setAttribute("aria-label", `Edit rule for ${domain}`);
+      editButton.addEventListener("click", () => {
+        startRuleEdit(domain, rule);
+      });
+      actionsGroup.appendChild(editButton);
+
       const deleteButton = document.createElement("button");
       deleteButton.textContent = "Delete";
       deleteButton.classList.add("delete-button");
       deleteButton.addEventListener("click", async () => {
         delete siteRules[domain];
         await storage.setSiteRules(siteRules);
+        if (editingDomain === domain) {
+          resetRuleEditor();
+        }
         renderSiteRules();
         chrome.runtime.sendMessage({ action: "updateProxySettings" });
         refreshStatus();
       });
-      actionsCell.appendChild(deleteButton);
+      actionsGroup.appendChild(deleteButton);
+
+      actionsCell.appendChild(actionsGroup);
     }
   };
 
-  // --- Add rule ---
+  // --- Add/edit rule ---
   addSiteRuleButtonOptions.addEventListener("click", async () => {
     const domain = siteDomainInput.value.trim();
     const selectedProxySetting = siteProxySelect.value;
 
     if (domain) {
-      const siteRules = await storage.getSiteRules();
-      const duplicateDomain = findDuplicateSiteRuleDomain(siteRules, domain);
+      const existingRules = await storage.getSiteRules();
+      const duplicateDomain = findDuplicateSiteRuleDomain(
+        existingRules,
+        domain,
+        ruleFormMode === RULE_FORM_MODES.edit ? editingDomain : ""
+      );
 
       if (duplicateDomain) {
         const shouldReplace = confirm(
@@ -98,31 +187,25 @@ export function initSiteRules(deps) {
         if (!shouldReplace) {
           return;
         }
-
-        if (duplicateDomain !== domain) {
-          delete siteRules[duplicateDomain];
-        }
       }
 
-      if (
-        selectedProxySetting === "NO_PROXY" ||
-        selectedProxySetting === "RANDOM_PROXY" ||
-        selectedProxySetting === "DIRECT_TEMPORARY"
-      ) {
-        siteRules[domain] = { type: selectedProxySetting };
-      } else {
-        siteRules[domain] = {
-          type: "PROXY_BY_RULE",
-          proxyName: selectedProxySetting,
-        };
-      }
+      const nextRules = prepareSiteRulesForSave(existingRules, {
+        domain,
+        editingDomain,
+        duplicateDomain,
+      });
+      nextRules[domain] = createSiteRuleFromSetting(selectedProxySetting);
 
-      await storage.setSiteRules(siteRules);
-      siteDomainInput.value = "";
+      await storage.setSiteRules(nextRules);
+      resetRuleEditor();
       renderSiteRules();
       chrome.runtime.sendMessage({ action: "updateProxySettings" });
       refreshStatus();
     }
+  });
+
+  cancelSiteRuleEditButton.addEventListener("click", () => {
+    resetRuleEditor();
   });
 
   // --- Export ---
@@ -169,6 +252,7 @@ export function initSiteRules(deps) {
   return {
     renderSiteRules,
     loadProxiesForDropdown,
+    resetRuleEditor,
     getSiteDomainInput: () => siteDomainInput,
     getSiteProxySelect: () => siteProxySelect,
     getAddSiteRuleButton: () => addSiteRuleButtonOptions,

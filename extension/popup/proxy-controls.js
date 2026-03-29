@@ -33,6 +33,7 @@ export function initProxyControls(deps) {
     getSiteDomainInput,
     getSiteProxySelect,
     getAddSiteRuleButton,
+    resetSiteRuleEditor,
   } = deps;
 
   const refreshStatus = () => {
@@ -241,6 +242,9 @@ export function initProxyControls(deps) {
   const handleAddRuleClick = async () => {
     const currentTabDomain = getTabDomain();
     if (currentTabDomain) {
+      if (typeof resetSiteRuleEditor === "function") {
+        resetSiteRuleEditor({ clearDomainInput: false });
+      }
       setActiveScreen("rulesScreen");
       getSiteDomainInput().value = currentTabDomain;
       getSiteProxySelect().value = proxySelect.value || "RANDOM_PROXY";
