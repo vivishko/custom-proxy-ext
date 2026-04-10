@@ -21,12 +21,25 @@ h2 {
 .status-display {
   margin-bottom: 15px;
   padding: 8px;
-  background-color: #dee2e6;
+  background-color: #f1f5f9;
   border-radius: 4px;
   font-size: 0.9em;
-  color: #495057;
+  color: #334155;
   text-align: center;
-  border-left: 4px solid #adb5bd;
+  border-left: 4px solid #94a3b8;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.status-display[data-tone="active"] {
+  background-color: #dcfce7;
+  border-left-color: #16a34a;
+  color: #14532d;
+}
+
+.status-display[data-tone="inactive"] {
+  background-color: #f1f5f9;
+  border-left-color: #94a3b8;
+  color: #334155;
 }
 
 .control-group {
