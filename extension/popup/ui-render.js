@@ -6,6 +6,17 @@ import * as storage from "../shared/storage.js";
 const strings = STRINGS[DEFAULT_LOCALE];
 
 /**
+ * Set popup status text and visual tone in one place.
+ * @param {HTMLElement} statusEl
+ * @param {"active"|"inactive"} tone
+ * @param {string} message
+ */
+function setStatusDisplay(statusEl, tone, message) {
+  statusEl.textContent = message;
+  statusEl.dataset.tone = tone;
+}
+
+/**
  * Resolve a temporary proxy name from storage value + fallback.
  * @param {*} value - Stored value (string proxy name, boolean true, or falsy).
  * @param {string|null} fallback - Fallback proxy name (lastSelectedProxy).
@@ -97,7 +108,7 @@ export function showModeInteractionHint(hintEl, message) {
  */
 export async function updateProxyStatusDisplay({ statusEl, pageProxyToggle, currentTabDomain }) {
   if (!currentTabDomain) {
-    statusEl.textContent = strings.status.noDomain;
+    setStatusDisplay(statusEl, "inactive", strings.status.noDomain);
     return;
   }
 
@@ -126,6 +137,7 @@ export async function updateProxyStatusDisplay({ statusEl, pageProxyToggle, curr
 
   if (rule) {
     let statusMsg = strings.status.direct;
+    let statusTone = "inactive";
     const displayDomain = matchedDomain || currentTabDomain;
 
     if (rule.type === "NO_PROXY") {
@@ -133,10 +145,12 @@ export async function updateProxyStatusDisplay({ statusEl, pageProxyToggle, curr
         domain: displayDomain,
       });
     } else if (rule.type === "RANDOM_PROXY") {
+      statusTone = "active";
       statusMsg = formatString(strings.status.ruleRandom, {
         domain: displayDomain,
       });
     } else if (rule.type === "PROXY_BY_RULE" && rule.proxyName) {
+      statusTone = "active";
       statusMsg = formatString(strings.status.ruleProxy, {
         proxyName: rule.proxyName,
         domain: displayDomain,
@@ -147,31 +161,39 @@ export async function updateProxyStatusDisplay({ statusEl, pageProxyToggle, curr
       });
     }
 
-    statusEl.textContent = statusMsg;
+    setStatusDisplay(statusEl, statusTone, statusMsg);
     return;
   }
 
   if (temporaryDirectSites[currentTabDomain]) {
-    statusEl.textContent = strings.status.direct;
+    setStatusDisplay(statusEl, "inactive", strings.status.direct);
     return;
   }
 
   if (currentDomainProxyName) {
-    statusEl.textContent = formatString(strings.status.onlyThisPage, {
-      proxyName: currentDomainProxyName,
-      domain: currentTabDomain,
-    });
+    setStatusDisplay(
+      statusEl,
+      "active",
+      formatString(strings.status.onlyThisPage, {
+        proxyName: currentDomainProxyName,
+        domain: currentTabDomain,
+      })
+    );
     return;
   }
 
   if (globalProxyEnabled && lastSelectedProxyName) {
-    statusEl.textContent = formatString(strings.status.global, {
-      proxyName: lastSelectedProxyName,
-    });
+    setStatusDisplay(
+      statusEl,
+      "active",
+      formatString(strings.status.global, {
+        proxyName: lastSelectedProxyName,
+      })
+    );
     return;
   }
 
-  statusEl.textContent = strings.status.direct;
+  setStatusDisplay(statusEl, "inactive", strings.status.direct);
   if (activeTemporaryDomains.length > 0) {
     pageProxyToggle.checked = false;
   }
