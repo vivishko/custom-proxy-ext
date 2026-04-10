@@ -313,6 +313,14 @@ button:disabled {
   padding: 8px 12px;
 }
 
+#cancelSiteRuleEditButton {
+  background-color: #6c757d;
+}
+
+#cancelSiteRuleEditButton:hover {
+  background-color: #5a6268;
+}
+
 /* Table styles */
 table {
   width: 100%;
@@ -348,6 +356,30 @@ table tr:hover {
 
 .delete-button:hover {
   background-color: #c82333;
+}
+
+.edit-button {
+  background-color: #0d6efd;
+}
+
+.edit-button:hover {
+  background-color: #0b5ed7;
+}
+
+.rule-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.rule-actions button {
+  width: auto;
+  margin-top: 0;
+  padding: 6px 10px;
+}
+
+.icon-button {
+  min-width: 32px;
+  padding: 6px 8px;
 }
 
 .export-import {
