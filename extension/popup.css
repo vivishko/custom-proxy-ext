@@ -350,6 +350,28 @@ table tr:hover {
   background-color: #f1f1f1;
 }
 
+.table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: -6px 0 12px;
+}
+
+.table-pagination button {
+  width: auto;
+  margin-top: 0;
+  padding: 6px 10px;
+  font-size: 0.85em;
+}
+
+.table-pagination span {
+  min-width: 78px;
+  text-align: center;
+  color: #374151;
+  font-size: 0.85em;
+}
+
 .delete-button {
   background-color: #dc3545;
 }
