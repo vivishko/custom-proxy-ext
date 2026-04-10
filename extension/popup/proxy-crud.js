@@ -1,6 +1,9 @@
 import { TIMEOUTS } from "../utils.js";
 import * as storage from "../shared/storage.js";
+import { paginateItems } from "./pagination.js";
 import { validateProxy, validateImportedProxies } from "./validation.js";
+
+const PROXIES_PAGE_SIZE = 10;
 
 /**
  * Initialize proxy CRUD screen: add form, table, import/export.
@@ -30,6 +33,11 @@ export function initProxyCrud(deps) {
   const exportProxiesButton = document.getElementById("exportProxiesButton");
   const importProxiesFile = document.getElementById("importProxiesFile");
   const importProxiesButton = document.getElementById("importProxiesButton");
+  const proxiesPrevPageButton = document.getElementById("proxiesPrevPageButton");
+  const proxiesNextPageButton = document.getElementById("proxiesNextPageButton");
+  const proxiesPageLabel = document.getElementById("proxiesPageLabel");
+
+  let currentPage = 1;
   let proxiesFeedbackTimeoutId = null;
 
   const showProxiesFeedback = (message) => {
@@ -53,9 +61,20 @@ export function initProxyCrud(deps) {
 
   const renderProxies = async () => {
     const proxies = await storage.getProxies();
-    proxiesTableBody.innerHTML = "";
+    const { items: pageProxies, pagination } = paginateItems(
+      proxies,
+      currentPage,
+      PROXIES_PAGE_SIZE
+    );
+    currentPage = pagination.currentPage;
 
-    proxies.forEach((proxy) => {
+    proxiesTableBody.innerHTML = "";
+    proxiesPageLabel.textContent = `Page ${pagination.currentPage} of ${pagination.totalPages}`;
+    proxiesPrevPageButton.disabled = pagination.currentPage === 1;
+    proxiesNextPageButton.disabled =
+      pagination.currentPage === pagination.totalPages;
+
+    pageProxies.forEach((proxy) => {
       const row = proxiesTableBody.insertRow();
 
       const nameCell = row.insertCell();
@@ -106,16 +125,28 @@ export function initProxyCrud(deps) {
             await storage.setTemporaryProxySites(temporaryProxySites);
           }
 
-          renderProxies();
-          loadProxiesForDropdown();
-          renderSiteRules();
+          await renderProxies();
+          await loadProxiesForDropdown();
+          await renderSiteRules();
           chrome.runtime.sendMessage({ action: "updateProxySettings" });
-          refreshStatus();
+          await refreshStatus();
         }
       });
       actionsCell.appendChild(deleteButton);
     });
   };
+
+  proxiesPrevPageButton.addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage -= 1;
+      renderProxies();
+    }
+  });
+
+  proxiesNextPageButton.addEventListener("click", () => {
+    currentPage += 1;
+    renderProxies();
+  });
 
   // --- Add proxy form ---
   addProxyForm.addEventListener("submit", async (event) => {
@@ -142,15 +173,16 @@ export function initProxyCrud(deps) {
 
     proxies.push(newProxy);
     await storage.setProxies(proxies);
+    currentPage = Math.ceil(proxies.length / PROXIES_PAGE_SIZE);
 
     addProxyForm.reset();
-    renderProxies();
-    loadProxiesForDropdown();
-    loadMainControls();
+    await renderProxies();
+    await loadProxiesForDropdown();
+    await loadMainControls();
     setActiveScreen("proxiesScreen");
     showProxiesFeedback(`Proxy "${newProxy.name}" saved.`);
     chrome.runtime.sendMessage({ action: "updateProxySettings" });
-    refreshStatus();
+    await refreshStatus();
 
     logDebug("Proxy added successfully");
   });
@@ -195,10 +227,10 @@ export function initProxyCrud(deps) {
             }
           });
           await storage.setProxies(mergedProxies);
-          renderProxies();
-          loadProxiesForDropdown();
+          await renderProxies();
+          await loadProxiesForDropdown();
           chrome.runtime.sendMessage({ action: "updateProxySettings" });
-          refreshStatus();
+          await refreshStatus();
           alert("Proxies imported successfully!");
         } catch (error) {
           alert("Error importing proxies: " + error.message);
