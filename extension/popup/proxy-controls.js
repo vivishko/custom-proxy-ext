@@ -1,5 +1,5 @@
 import { STORAGE_KEYS } from "../utils.js";
-import { DEFAULT_LOCALE, STRINGS } from "../strings.js";
+import { getCurrentLocale, getString } from "../strings.js";
 import * as storage from "../shared/storage.js";
 import {
   resolveTemporaryProxyName,
@@ -9,7 +9,8 @@ import {
   updateProxyStatusDisplay,
 } from "./ui-render.js";
 
-const strings = STRINGS[DEFAULT_LOCALE];
+const locale = getCurrentLocale();
+const t = (key, values) => getString(key, { locale, values });
 
 /**
  * Initialize and wire up the main proxy controls (global toggle, page toggle, selects).
@@ -45,7 +46,7 @@ export function initProxyControls(deps) {
   };
 
   const updateOnlyThisPageLabel = () => {
-    pageProxyToggleLabel.textContent = strings.toggles.onlyThisPage;
+    pageProxyToggleLabel.textContent = t("toggles.onlyThisPage");
   };
 
   /**
@@ -59,7 +60,7 @@ export function initProxyControls(deps) {
     const temporaryProxySites = settings[STORAGE_KEYS.temporaryProxySites] || {};
     const currentTabDomain = getTabDomain();
 
-    proxyToggleLabel.textContent = strings.toggles.global;
+    proxyToggleLabel.textContent = t("toggles.global");
     updateOnlyThisPageLabel();
 
     proxySelect.innerHTML = "";
@@ -69,7 +70,7 @@ export function initProxyControls(deps) {
     if (proxies.length === 0) {
       const option = document.createElement("option");
       option.value = "";
-      option.textContent = strings.hints.noProxiesAvailable;
+      option.textContent = t("hints.noProxiesAvailable");
       proxySelect.appendChild(option);
       pageProxySelect.appendChild(option.cloneNode(true));
       proxySelect.disabled = true;
@@ -182,7 +183,7 @@ export function initProxyControls(deps) {
 
     if (!selectedProxyName) {
       pageProxyToggle.checked = false;
-      showModeInteractionHint(proxyModeHint, strings.hints.noProxies);
+      showModeInteractionHint(proxyModeHint, t("hints.noProxies"));
       return;
     }
 
@@ -263,19 +264,19 @@ export function initProxyControls(deps) {
       const currentTabDomain = getTabDomain();
       if (proxyToggle.disabled || pageProxyToggle.disabled) {
         if (proxyToggle.disabled && pageProxyToggle.disabled) {
-          showModeInteractionHint(proxyModeHint, strings.hints.noProxies);
+          showModeInteractionHint(proxyModeHint, t("hints.noProxies"));
           return;
         }
         if (!currentTabDomain && group.dataset.controlGroup === "page") {
-          showModeInteractionHint(proxyModeHint, strings.hints.noDomain);
+          showModeInteractionHint(proxyModeHint, t("hints.noDomain"));
         }
       }
     });
   });
 
   // --- Info icon setup ---
-  pageProxyInfoIcon.title = strings.hints.onlyThisPageInfo;
-  pageProxyInfoIcon.setAttribute("aria-label", strings.hints.onlyThisPageInfo);
+  pageProxyInfoIcon.title = t("hints.onlyThisPageInfo");
+  pageProxyInfoIcon.setAttribute("aria-label", t("hints.onlyThisPageInfo"));
 
   return {
     loadMainControls,
