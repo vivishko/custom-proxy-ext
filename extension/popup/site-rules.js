@@ -11,10 +11,23 @@ const RULE_SPECIAL_SETTINGS = new Set([
   "DIRECT_TEMPORARY",
 ]);
 
+export const IMPORT_DUPLICATE_STRATEGIES = {
+  replace: "replace",
+  skip: "skip",
+};
+
 export const RULE_FORM_MODES = {
   add: "add",
   edit: "edit",
 };
+
+export function normalizeSiteRuleDomain(domain) {
+  return String(domain || "").trim().toLowerCase();
+}
+
+function isSpecialRuleType(type) {
+  return RULE_SPECIAL_SETTINGS.has(type);
+}
 
 /**
  * Convert UI proxy setting value to persisted site-rule object.
@@ -56,6 +69,144 @@ export function prepareSiteRulesForSave(
   }
 
   return nextRules;
+}
+
+/**
+ * Normalize imported rule entry into internal site-rule object.
+ * Accepts only current object format.
+ * @param {*} rawRule
+ * @returns {{ type: string, proxyName?: string }|null}
+ */
+export function normalizeImportedSiteRule(rawRule) {
+  if (!rawRule || typeof rawRule !== "object" || Array.isArray(rawRule)) {
+    return null;
+  }
+
+  const type = String(rawRule.type || "").trim();
+  const proxyName = String(rawRule.proxyName || "").trim();
+
+  if (isSpecialRuleType(type)) {
+    return { type };
+  }
+  if (type === "PROXY_BY_RULE" && proxyName) {
+    return { type: "PROXY_BY_RULE", proxyName };
+  }
+
+  return null;
+}
+
+/**
+ * Find case-insensitive conflicts between imported rules and existing rules.
+ * @param {Object<string, Object>} existingRules
+ * @param {Object<string, Object>} importedRules
+ * @returns {Array<{ importedDomain: string, existingDomain: string }>}
+ */
+export function findImportSiteRuleConflicts(existingRules, importedRules) {
+  if (!importedRules || typeof importedRules !== "object") {
+    return [];
+  }
+
+  const conflicts = [];
+
+  for (const rawImportedDomain of Object.keys(importedRules)) {
+    const importedDomain = normalizeSiteRuleDomain(rawImportedDomain);
+    if (!importedDomain) {
+      continue;
+    }
+    const existingDomain = findDuplicateSiteRuleDomain(
+      existingRules,
+      importedDomain
+    );
+    if (existingDomain) {
+      conflicts.push({ importedDomain, existingDomain });
+    }
+  }
+
+  return conflicts;
+}
+
+/**
+ * Merge imported rules into existing rules using explicit duplicate strategy.
+ * @param {Object<string, Object>} existingRules
+ * @param {Object<string, Object>} importedRules
+ * @param {("replace"|"skip")} [duplicateStrategy]
+ * @returns {{
+ *   mergedRules: Object<string, Object>,
+ *   stats: { totalImported: number, added: number, replaced: number, skipped: number, duplicates: number, skippedMissingProxy: number, skippedInvalid: number }
+ * }}
+ */
+export function mergeImportedSiteRules(
+  existingRules,
+  importedRules,
+  duplicateStrategy = IMPORT_DUPLICATE_STRATEGIES.replace,
+  availableProxyNames = []
+) {
+  if (
+    duplicateStrategy !== IMPORT_DUPLICATE_STRATEGIES.replace &&
+    duplicateStrategy !== IMPORT_DUPLICATE_STRATEGIES.skip
+  ) {
+    throw new Error(`Unknown duplicate strategy: ${duplicateStrategy}`);
+  }
+
+  const mergedRules = { ...(existingRules || {}) };
+  const importedDomains = Object.keys(importedRules || {});
+  const availableProxyNameSet = new Set(
+    (availableProxyNames || []).map((name) => String(name).trim())
+  );
+  const stats = {
+    totalImported: importedDomains.length,
+    added: 0,
+    replaced: 0,
+    skipped: 0,
+    duplicates: 0,
+    skippedMissingProxy: 0,
+    skippedInvalid: 0,
+  };
+
+  for (const importedDomain of importedDomains) {
+    const normalizedDomain = normalizeSiteRuleDomain(importedDomain);
+    if (!normalizedDomain) {
+      stats.skipped += 1;
+      stats.skippedInvalid += 1;
+      continue;
+    }
+
+    const importedRule = normalizeImportedSiteRule(importedRules[importedDomain]);
+    if (!importedRule) {
+      stats.skipped += 1;
+      stats.skippedInvalid += 1;
+      continue;
+    }
+    if (
+      importedRule.type === "PROXY_BY_RULE" &&
+      !availableProxyNameSet.has(String(importedRule.proxyName || "").trim())
+    ) {
+      stats.skipped += 1;
+      stats.skippedMissingProxy += 1;
+      continue;
+    }
+
+    const existingDomain = findDuplicateSiteRuleDomain(mergedRules, normalizedDomain);
+    const hasDuplicate = Boolean(existingDomain);
+
+    if (hasDuplicate) {
+      stats.duplicates += 1;
+      if (duplicateStrategy === IMPORT_DUPLICATE_STRATEGIES.skip) {
+        stats.skipped += 1;
+        continue;
+      }
+      stats.replaced += 1;
+      if (existingDomain !== normalizedDomain) {
+        delete mergedRules[existingDomain];
+      }
+    } else {
+      stats.added += 1;
+    }
+
+    mergedRules[normalizedDomain] = importedRule;
+  }
+
+  return { mergedRules, stats };
 }
 
 /**
@@ -169,7 +320,7 @@ export function initSiteRules(deps) {
 
   // --- Add/edit rule ---
   addSiteRuleButtonOptions.addEventListener("click", async () => {
-    const domain = siteDomainInput.value.trim();
+    const domain = normalizeSiteRuleDomain(siteDomainInput.value);
     const selectedProxySetting = siteProxySelect.value;
 
     if (domain) {
@@ -233,13 +384,35 @@ export function initSiteRules(deps) {
           if (error) {
             throw new Error(error);
           }
+
           const existingRules = await storage.getSiteRules();
-          const mergedRules = { ...existingRules, ...importedRules };
+          const conflicts = findImportSiteRuleConflicts(existingRules, importedRules);
+          let duplicateStrategy = IMPORT_DUPLICATE_STRATEGIES.replace;
+
+          if (conflicts.length > 0) {
+            const shouldReplace = confirm(
+              `${conflicts.length} imported site rule(s) already exist.\n\nClick OK to replace duplicates with imported values, or Cancel to skip duplicate imports and keep existing rules.`
+            );
+            duplicateStrategy = shouldReplace
+              ? IMPORT_DUPLICATE_STRATEGIES.replace
+              : IMPORT_DUPLICATE_STRATEGIES.skip;
+          }
+
+          const proxies = await storage.getProxies();
+          const { mergedRules, stats } = mergeImportedSiteRules(
+            existingRules,
+            importedRules,
+            duplicateStrategy,
+            proxies.map((proxy) => proxy.name)
+          );
+
           await storage.setSiteRules(mergedRules);
           renderSiteRules();
           chrome.runtime.sendMessage({ action: "updateProxySettings" });
           refreshStatus();
-          alert("Site rules imported successfully!");
+          alert(
+            `Site rules import complete. Added: ${stats.added}, Replaced: ${stats.replaced}, Skipped: ${stats.skipped} (missing proxy: ${stats.skippedMissingProxy}, invalid format: ${stats.skippedInvalid}).`
+          );
         } catch (error) {
           alert("Error importing site rules: " + error.message);
         }
