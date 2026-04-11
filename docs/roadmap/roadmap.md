@@ -5,10 +5,10 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | IMPROVE-06 | 06. Proxy delete warning flow | H2 | P0 | L | 🟠 in_progress | 2026-01-25 | 2026-04-11 | - | [spec](docs/specs/improve-06-proxy-delete-warning-flow.md) | Handle rule dependencies on proxy delete | IMPROVE-03 |
+| IMPROVE-17 | 17. i18n strings framework | H6 | P1 | M | 🟠 in_progress | 2026-02-07 | 2026-04-11 | - | [spec](docs/specs/improve-17-i18n-strings-framework.md) | Add multi-language string support | - |
 | IMPROVE-07 | 07. Rules table pagination | M1 | P1 | M | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-07-rules-table-pagination.md) | Limit rules table to 10 rows | - |
 | IMPROVE-05 | 05. Import proxies duplicate handling | H4 | P0 | L | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-05-import-proxies-duplicate-handling.md) | Prevent duplicate proxy imports | IMPROVE-09 |
 | IMPROVE-13 | 13. Proxies left of rules | N1 | P2 | S | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-13-proxies-left-of-rules.md) | Reorder UI columns for proxies | IMPROVE-01 |
-| IMPROVE-17 | 17. i18n strings framework | H6 | P1 | M | 🟣 idea | 2026-02-07 | - | - | [spec](docs/roadmap/improve-17-i18n-strings-framework.md) | Add multi-language string support | - |
 | REFACTOR-02 | 02. Decompose popup.html into components | R1 | P1 | M | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/refactor-02-decompose-popup-html-into-components.md) | Split popup layout into reusable sections and simplify maintenance | - |
 | FEAT-01 | 01. Settings screen in popup | N4 | P1 | M | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/feat-01-settings-screen-in-popup.md) | Add a dedicated settings screen and move technical toggles there | REFACTOR-02 |
 | IMPROVE-20 | 20. Light/dark theme switch in settings | N5 | P2 | S | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/improve-20-light-dark-theme-switch-in-settings.md) | Add explicit light/dark theme toggle in settings | FEAT-01 |

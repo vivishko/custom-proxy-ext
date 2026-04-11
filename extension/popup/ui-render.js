@@ -1,9 +1,10 @@
 import { TIMEOUTS } from "../utils.js";
 import { findMostSpecificRule } from "../utils.js";
-import { DEFAULT_LOCALE, STRINGS, formatString } from "../strings.js";
+import { getCurrentLocale, getString } from "../strings.js";
 import * as storage from "../shared/storage.js";
 
-const strings = STRINGS[DEFAULT_LOCALE];
+const locale = getCurrentLocale();
+const t = (key, values) => getString(key, { locale, values });
 
 /**
  * Set popup status text and visual tone in one place.
@@ -108,7 +109,7 @@ export function showModeInteractionHint(hintEl, message) {
  */
 export async function updateProxyStatusDisplay({ statusEl, pageProxyToggle, currentTabDomain }) {
   if (!currentTabDomain) {
-    setStatusDisplay(statusEl, "inactive", strings.status.noDomain);
+    setStatusDisplay(statusEl, "inactive", t("status.noDomain"));
     return;
   }
 
@@ -136,29 +137,23 @@ export async function updateProxyStatusDisplay({ statusEl, pageProxyToggle, curr
   );
 
   if (rule) {
-    let statusMsg = strings.status.direct;
+    let statusMsg = t("status.direct");
     let statusTone = "inactive";
     const displayDomain = matchedDomain || currentTabDomain;
 
     if (rule.type === "NO_PROXY") {
-      statusMsg = formatString(strings.status.ruleNoProxy, {
-        domain: displayDomain,
-      });
+      statusMsg = t("status.ruleNoProxy", { domain: displayDomain });
     } else if (rule.type === "RANDOM_PROXY") {
       statusTone = "active";
-      statusMsg = formatString(strings.status.ruleRandom, {
-        domain: displayDomain,
-      });
+      statusMsg = t("status.ruleRandom", { domain: displayDomain });
     } else if (rule.type === "PROXY_BY_RULE" && rule.proxyName) {
       statusTone = "active";
-      statusMsg = formatString(strings.status.ruleProxy, {
+      statusMsg = t("status.ruleProxy", {
         proxyName: rule.proxyName,
         domain: displayDomain,
       });
     } else if (rule.type === "DIRECT_TEMPORARY") {
-      statusMsg = formatString(strings.status.ruleDirectTemporary, {
-        domain: displayDomain,
-      });
+      statusMsg = t("status.ruleDirectTemporary", { domain: displayDomain });
     }
 
     setStatusDisplay(statusEl, statusTone, statusMsg);
@@ -166,7 +161,7 @@ export async function updateProxyStatusDisplay({ statusEl, pageProxyToggle, curr
   }
 
   if (temporaryDirectSites[currentTabDomain]) {
-    setStatusDisplay(statusEl, "inactive", strings.status.direct);
+    setStatusDisplay(statusEl, "inactive", t("status.direct"));
     return;
   }
 
@@ -174,7 +169,7 @@ export async function updateProxyStatusDisplay({ statusEl, pageProxyToggle, curr
     setStatusDisplay(
       statusEl,
       "active",
-      formatString(strings.status.onlyThisPage, {
+      t("status.onlyThisPage", {
         proxyName: currentDomainProxyName,
         domain: currentTabDomain,
       })
@@ -186,14 +181,14 @@ export async function updateProxyStatusDisplay({ statusEl, pageProxyToggle, curr
     setStatusDisplay(
       statusEl,
       "active",
-      formatString(strings.status.global, {
+      t("status.global", {
         proxyName: lastSelectedProxyName,
       })
     );
     return;
   }
 
-  setStatusDisplay(statusEl, "inactive", strings.status.direct);
+  setStatusDisplay(statusEl, "inactive", t("status.direct"));
   if (activeTemporaryDomains.length > 0) {
     pageProxyToggle.checked = false;
   }
