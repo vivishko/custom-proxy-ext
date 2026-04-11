@@ -4,6 +4,145 @@ import { paginateItems } from "./pagination.js";
 import { validateProxy, validateImportedProxies } from "./validation.js";
 
 const PROXIES_PAGE_SIZE = 10;
+const DELETE_WARNING_DOMAIN_PREVIEW_LIMIT = 5;
+
+/**
+ * Find site-rule domains that depend on the given proxy name.
+ * @param {Object<string, Object>} siteRules
+ * @param {string} proxyName
+ * @returns {string[]}
+ */
+export function getDependentRuleDomains(siteRules, proxyName) {
+  if (!siteRules || !proxyName) {
+    return [];
+  }
+
+  return Object.keys(siteRules).filter((domain) => {
+    const rule = siteRules[domain];
+    if (!rule || typeof rule !== "object") {
+      return false;
+    }
+    return (
+      rule.type === "PROXY_BY_RULE" &&
+      rule.proxyName === proxyName
+    );
+  });
+}
+
+/**
+ * Build user-facing warning text before proxy deletion.
+ * @param {string} proxyName
+ * @param {string[]} dependentDomains
+ * @returns {string}
+ */
+export function buildProxyDeleteWarningMessage(proxyName, dependentDomains) {
+  if (!Array.isArray(dependentDomains) || dependentDomains.length === 0) {
+    return [
+      `Delete proxy "${proxyName}"?`,
+      "",
+      "Consequences:",
+      "- Proxy will be removed from the proxies list.",
+      "- Temporary per-page proxy bindings using this proxy will be removed.",
+    ].join("\n");
+  }
+
+  const previewDomains = dependentDomains.slice(
+    0,
+    DELETE_WARNING_DOMAIN_PREVIEW_LIMIT
+  );
+  const hasMoreDomains = dependentDomains.length > previewDomains.length;
+  const domainsPreviewText = hasMoreDomains
+    ? `${previewDomains.join(", ")} (+${dependentDomains.length - previewDomains.length} more)`
+    : previewDomains.join(", ");
+
+  return [
+    `Delete proxy "${proxyName}"?`,
+    "",
+    `This proxy is used by ${dependentDomains.length} site rule(s):`,
+    domainsPreviewText,
+    "",
+    "Consequences:",
+    "- Those rules will be switched to NO_PROXY.",
+    "- Temporary per-page proxy bindings using this proxy will be removed.",
+  ].join("\n");
+}
+
+/**
+ * Build next storage state after proxy deletion.
+ * @param {Object} params
+ * @param {Array<Object>} params.proxies
+ * @param {Object<string, Object>} params.siteRules
+ * @param {Object<string, string>} params.temporaryProxySites
+ * @param {string} params.proxyName
+ * @returns {Object}
+ */
+export function buildProxyDeletionState({
+  proxies,
+  siteRules,
+  temporaryProxySites,
+  proxyName,
+}) {
+  const updatedProxies = (proxies || []).filter((p) => p.name !== proxyName);
+
+  const updatedSiteRules = { ...(siteRules || {}) };
+  let rulesUpdatedCount = 0;
+  for (const domain in updatedSiteRules) {
+    const rule = updatedSiteRules[domain];
+    if (!rule || typeof rule !== "object") {
+      continue;
+    }
+    if (rule.type === "PROXY_BY_RULE" && rule.proxyName === proxyName) {
+      updatedSiteRules[domain] = { type: "NO_PROXY" };
+      rulesUpdatedCount += 1;
+    }
+  }
+
+  const updatedTemporaryProxySites = { ...(temporaryProxySites || {}) };
+  let temporaryUpdated = false;
+  for (const domain in updatedTemporaryProxySites) {
+    if (updatedTemporaryProxySites[domain] === proxyName) {
+      delete updatedTemporaryProxySites[domain];
+      temporaryUpdated = true;
+    }
+  }
+
+  return {
+    updatedProxies,
+    updatedSiteRules,
+    updatedTemporaryProxySites,
+    rulesUpdatedCount,
+    temporaryUpdated,
+  };
+}
+
+/**
+ * Resolve next last-selected proxy value after deletion.
+ * @param {Object} params
+ * @param {string|null} params.lastSelectedProxy
+ * @param {string} params.deletedProxyName
+ * @param {Array<Object>} params.updatedProxies
+ * @returns {string|null}
+ */
+export function getLastSelectedProxyAfterDeletion({
+  lastSelectedProxy,
+  deletedProxyName,
+  updatedProxies,
+}) {
+  if (lastSelectedProxy !== deletedProxyName) {
+    return lastSelectedProxy || null;
+  }
+
+  if (!Array.isArray(updatedProxies) || updatedProxies.length === 0) {
+    return null;
+  }
+
+  const fallbackProxyName = updatedProxies[updatedProxies.length - 1].name;
+  if (typeof fallbackProxyName !== "string" || !fallbackProxyName.trim()) {
+    return null;
+  }
+
+  return fallbackProxyName;
+}
 
 /**
  * Initialize proxy CRUD screen: add form, table, import/export.
@@ -91,45 +230,61 @@ export function initProxyCrud(deps) {
       deleteButton.textContent = "Delete";
       deleteButton.classList.add("delete-button");
       deleteButton.addEventListener("click", async () => {
+        const siteRules = await storage.getSiteRules();
+        const dependentDomains = getDependentRuleDomains(siteRules, proxy.name);
         const confirmDelete = confirm(
-          `Are you sure you want to delete proxy "${proxy.name}"? All site rules using this proxy will be removed.`
+          buildProxyDeleteWarningMessage(proxy.name, dependentDomains)
         );
-        if (confirmDelete) {
-          const updatedProxies = proxies.filter((p) => p.name !== proxy.name);
-          await storage.setProxies(updatedProxies);
+        if (!confirmDelete) {
+          return;
+        }
 
-          const siteRules = await storage.getSiteRules();
-          let rulesUpdated = false;
-          for (const domain in siteRules) {
-            if (
-              siteRules[domain].type === "PROXY_BY_RULE" &&
-              siteRules[domain].proxyName === proxy.name
-            ) {
-              delete siteRules[domain];
-              rulesUpdated = true;
-            }
-          }
-          if (rulesUpdated) {
-            await storage.setSiteRules(siteRules);
-          }
+        const currentProxies = await storage.getProxies();
+        const temporaryProxySites = await storage.getTemporaryProxySites();
+        const {
+          updatedProxies,
+          updatedSiteRules,
+          updatedTemporaryProxySites,
+          rulesUpdatedCount,
+          temporaryUpdated,
+        } = buildProxyDeletionState({
+          proxies: currentProxies,
+          siteRules,
+          temporaryProxySites,
+          proxyName: proxy.name,
+        });
 
-          const temporaryProxySites = await storage.getTemporaryProxySites();
-          let temporaryUpdated = false;
-          for (const domain in temporaryProxySites) {
-            if (temporaryProxySites[domain] === proxy.name) {
-              delete temporaryProxySites[domain];
-              temporaryUpdated = true;
-            }
-          }
-          if (temporaryUpdated) {
-            await storage.setTemporaryProxySites(temporaryProxySites);
-          }
+        await storage.setProxies(updatedProxies);
+        if (rulesUpdatedCount > 0) {
+          await storage.setSiteRules(updatedSiteRules);
+        }
+        if (temporaryUpdated) {
+          await storage.setTemporaryProxySites(updatedTemporaryProxySites);
+        }
 
-          await renderProxies();
-          await loadProxiesForDropdown();
-          await renderSiteRules();
-          chrome.runtime.sendMessage({ action: "updateProxySettings" });
-          await refreshStatus();
+        const lastSelectedProxy = await storage.getLastSelectedProxy();
+        if (lastSelectedProxy === proxy.name) {
+          const fallbackProxyName = getLastSelectedProxyAfterDeletion({
+            lastSelectedProxy,
+            deletedProxyName: proxy.name,
+            updatedProxies,
+          });
+          await storage.setLastSelectedProxy(fallbackProxyName);
+        }
+
+        await renderProxies();
+        await loadProxiesForDropdown();
+        await renderSiteRules();
+        await loadMainControls();
+        chrome.runtime.sendMessage({ action: "updateProxySettings" });
+        await refreshStatus();
+
+        if (rulesUpdatedCount > 0) {
+          showProxiesFeedback(
+            `Proxy "${proxy.name}" deleted. ${rulesUpdatedCount} dependent rule(s) switched to NO_PROXY.`
+          );
+        } else {
+          showProxiesFeedback(`Proxy "${proxy.name}" deleted.`);
         }
       });
       actionsCell.appendChild(deleteButton);
