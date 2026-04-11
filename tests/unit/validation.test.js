@@ -100,6 +100,20 @@ test("validateImportedSiteRules accepts plain object and rejects arrays", () => 
   );
 });
 
+test("validateImportedSiteRules rejects empty and case-insensitive duplicate domains", () => {
+  assert.equal(
+    validateImportedSiteRules({ "  ": { type: "NO_PROXY" } }),
+    "Invalid site rules file format."
+  );
+  assert.equal(
+    validateImportedSiteRules({
+      "Example.com": { type: "NO_PROXY" },
+      "example.com": { type: "RANDOM_PROXY" },
+    }),
+    'Duplicate site rule domain in import: "example.com" conflicts with "Example.com" (case-insensitive).'
+  );
+});
+
 test("findDuplicateSiteRuleDomain finds duplicates case-insensitively", () => {
   const rules = {
     "example.com": { type: "NO_PROXY" },

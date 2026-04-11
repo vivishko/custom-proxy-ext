@@ -57,6 +57,19 @@ export function validateImportedSiteRules(data) {
     return "Invalid site rules file format.";
   }
 
+  const seenDomains = new Map();
+  for (const domain of Object.keys(data)) {
+    const normalizedDomain = domain.trim().toLowerCase();
+    if (!normalizedDomain) {
+      return "Invalid site rules file format.";
+    }
+    if (seenDomains.has(normalizedDomain)) {
+      const existingDomain = seenDomains.get(normalizedDomain);
+      return `Duplicate site rule domain in import: "${domain}" conflicts with "${existingDomain}" (case-insensitive).`;
+    }
+    seenDomains.set(normalizedDomain, domain);
+  }
+
   return null;
 }
 
