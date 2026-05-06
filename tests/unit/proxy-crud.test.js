@@ -4,8 +4,13 @@ import assert from "node:assert/strict";
 import {
   buildProxyDeleteWarningMessage,
   buildProxyDeletionState,
+  findDuplicateProxyName,
+  findImportProxyConflicts,
   getLastSelectedProxyAfterDeletion,
   getDependentRuleDomains,
+  IMPORT_PROXY_DUPLICATE_STRATEGIES,
+  mergeImportedProxies,
+  normalizeProxyImportName,
 } from "../../extension/popup/proxy-crud.js";
 
 test("getDependentRuleDomains returns domains linked to deleted proxy", () => {
@@ -245,4 +250,127 @@ test("getDependentRuleDomains preserves deterministic key iteration order", () =
     "b.com",
     "a.com",
   ]);
+});
+
+test("normalizeProxyImportName trims and lowercases", () => {
+  assert.equal(normalizeProxyImportName("  Proxy-US "), "proxy-us");
+  assert.equal(normalizeProxyImportName(""), "");
+});
+
+test("findDuplicateProxyName matches case-insensitively", () => {
+  const existingProxies = [
+    { name: "Proxy-US", host: "1.1.1.1", port: 80, country: "US" },
+    { name: "Proxy-DE", host: "2.2.2.2", port: 81, country: "DE" },
+  ];
+
+  assert.equal(findDuplicateProxyName(existingProxies, "proxy-us"), "Proxy-US");
+  assert.equal(findDuplicateProxyName(existingProxies, "proxy-fr"), null);
+});
+
+test("findImportProxyConflicts detects case-insensitive conflicts", () => {
+  const existingProxies = [
+    { name: "Proxy-US", host: "1.1.1.1", port: 80, country: "US" },
+  ];
+  const importedProxies = [
+    { name: "proxy-us", host: "9.9.9.9", port: 82, country: "US" },
+    { name: "proxy-fr", host: "8.8.8.8", port: 83, country: "FR" },
+  ];
+
+  assert.deepEqual(findImportProxyConflicts(existingProxies, importedProxies), [
+    {
+      importedName: "proxy-us",
+      existingName: "Proxy-US",
+    },
+  ]);
+});
+
+test("mergeImportedProxies replaces duplicates by default", () => {
+  const existingProxies = [
+    { name: "Proxy-US", host: "1.1.1.1", port: 80, country: "US" },
+    { name: "proxy-de", host: "2.2.2.2", port: 81, country: "DE" },
+  ];
+  const importedProxies = [
+    { name: "proxy-us", host: "9.9.9.9", port: 90, country: "US" },
+    { name: "proxy-fr", host: "8.8.8.8", port: 91, country: "FR" },
+  ];
+
+  const { mergedProxies, stats } = mergeImportedProxies(
+    existingProxies,
+    importedProxies,
+    IMPORT_PROXY_DUPLICATE_STRATEGIES.replace
+  );
+
+  assert.deepEqual(mergedProxies, [
+    { name: "proxy-us", host: "9.9.9.9", port: 90, country: "US" },
+    { name: "proxy-de", host: "2.2.2.2", port: 81, country: "DE" },
+    { name: "proxy-fr", host: "8.8.8.8", port: 91, country: "FR" },
+  ]);
+  assert.deepEqual(stats, {
+    totalImported: 2,
+    added: 1,
+    replaced: 1,
+    skipped: 0,
+    duplicates: 1,
+  });
+});
+
+test("mergeImportedProxies skips duplicate imports when strategy is skip", () => {
+  const existingProxies = [
+    { name: "Proxy-US", host: "1.1.1.1", port: 80, country: "US" },
+    { name: "proxy-de", host: "2.2.2.2", port: 81, country: "DE" },
+  ];
+  const importedProxies = [
+    { name: "proxy-us", host: "9.9.9.9", port: 90, country: "US" },
+    { name: "proxy-fr", host: "8.8.8.8", port: 91, country: "FR" },
+  ];
+
+  const { mergedProxies, stats } = mergeImportedProxies(
+    existingProxies,
+    importedProxies,
+    IMPORT_PROXY_DUPLICATE_STRATEGIES.skip
+  );
+
+  assert.deepEqual(mergedProxies, [
+    { name: "Proxy-US", host: "1.1.1.1", port: 80, country: "US" },
+    { name: "proxy-de", host: "2.2.2.2", port: 81, country: "DE" },
+    { name: "proxy-fr", host: "8.8.8.8", port: 91, country: "FR" },
+  ]);
+  assert.deepEqual(stats, {
+    totalImported: 2,
+    added: 1,
+    replaced: 0,
+    skipped: 1,
+    duplicates: 1,
+  });
+});
+
+test("mergeImportedProxies trims names and throws on unknown strategy", () => {
+  const existingProxies = [];
+  const importedProxies = [
+    { name: "  proxy-us  ", host: "9.9.9.9", port: 90, country: "US" },
+  ];
+
+  const { mergedProxies, stats } = mergeImportedProxies(
+    existingProxies,
+    importedProxies,
+    IMPORT_PROXY_DUPLICATE_STRATEGIES.replace
+  );
+
+  assert.deepEqual(mergedProxies, [
+    { name: "proxy-us", host: "9.9.9.9", port: 90, country: "US" },
+  ]);
+  assert.deepEqual(stats, {
+    totalImported: 1,
+    added: 1,
+    replaced: 0,
+    skipped: 0,
+    duplicates: 0,
+  });
+
+  assert.throws(
+    () => {
+      mergeImportedProxies(existingProxies, importedProxies, "invalid");
+    },
+    /Unknown duplicate strategy: invalid/
+  );
 });

@@ -78,7 +78,15 @@ test("validateImportedProxies validates array structure and duplicate names", ()
       { name: "p1", host: "1.1.1.1", port: 80, country: "DE" },
       { name: "p1", host: "2.2.2.2", port: 81, country: "US" },
     ]),
-    "Duplicate proxy name in import: p1"
+    'Duplicate proxy name in import: "p1" conflicts with "p1" (case-insensitive).'
+  );
+
+  assert.equal(
+    validateImportedProxies([
+      { name: "Proxy-US", host: "1.1.1.1", port: 80, country: "DE" },
+      { name: " proxy-us ", host: "2.2.2.2", port: 81, country: "US" },
+    ]),
+    'Duplicate proxy name in import: "proxy-us" conflicts with "Proxy-US" (case-insensitive).'
   );
 });
 
