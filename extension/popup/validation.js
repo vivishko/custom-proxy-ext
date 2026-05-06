@@ -32,15 +32,19 @@ export function validateImportedProxies(data) {
     return "Invalid proxies file format.";
   }
 
-  const seenNames = new Set();
+  const seenNames = new Map();
   for (const p of data) {
-    if (!p || !p.name || !p.host || !p.port || !p.country) {
+    const proxyName = String(p?.name || "").trim();
+    if (!proxyName || !p?.host || !p?.port || !p?.country) {
       return "Invalid proxies file format.";
     }
-    if (seenNames.has(p.name)) {
-      return `Duplicate proxy name in import: ${p.name}`;
+
+    const normalizedName = proxyName.toLowerCase();
+    if (seenNames.has(normalizedName)) {
+      const existingName = seenNames.get(normalizedName);
+      return `Duplicate proxy name in import: "${proxyName}" conflicts with "${existingName}" (case-insensitive).`;
     }
-    seenNames.add(p.name);
+    seenNames.set(normalizedName, proxyName);
   }
 
   return null;

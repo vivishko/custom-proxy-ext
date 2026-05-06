@@ -4,8 +4,10 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| IMPROVE-05 | 05. Import proxies duplicate handling | H4 | P0 | L | 🟠 in_progress | 2026-01-25 | 2026-04-13 | - | [spec](docs/specs/improve-05-import-proxies-duplicate-handling.md) | Prevent duplicate proxy imports | IMPROVE-09 |
+| TEST-02 | Seeded extension dev script | Q3 | P0 | M | 🔵 planned | 2026-05-06 | - | - | [spec](docs/specs/test-02-seeded-extension-dev-script.md) | Open extension with deterministic seed data for faster manual verification | TEST-01 |
+| TEST-03 | Browser e2e extension tests | Q4 | P1 | L | 🔵 planned | 2026-05-06 | - | - | [spec](docs/specs/test-03-browser-e2e-extension-tests.md) | Automate browser-level popup flows with real extension storage | TEST-02 |
 | IMPROVE-07 | 07. Rules table pagination | M1 | P1 | M | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-07-rules-table-pagination.md) | Limit rules table to 10 rows | - |
-| IMPROVE-05 | 05. Import proxies duplicate handling | H4 | P0 | L | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-05-import-proxies-duplicate-handling.md) | Prevent duplicate proxy imports | IMPROVE-09 |
 | IMPROVE-13 | 13. Proxies left of rules | N1 | P2 | S | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-13-proxies-left-of-rules.md) | Reorder UI columns for proxies | IMPROVE-01 |
 | REFACTOR-02 | 02. Decompose popup.html into components | R1 | P1 | M | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/refactor-02-decompose-popup-html-into-components.md) | Split popup layout into reusable sections and simplify maintenance | - |
 | FEAT-01 | 01. Settings screen in popup | N4 | P1 | M | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/feat-01-settings-screen-in-popup.md) | Add a dedicated settings screen and move technical toggles there | REFACTOR-02 |

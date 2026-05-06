@@ -6,6 +6,147 @@ import { validateProxy, validateImportedProxies } from "./validation.js";
 const PROXIES_PAGE_SIZE = 10;
 const DELETE_WARNING_DOMAIN_PREVIEW_LIMIT = 5;
 
+export const IMPORT_PROXY_DUPLICATE_STRATEGIES = {
+  replace: "replace",
+  skip: "skip",
+};
+
+export function normalizeProxyImportName(name) {
+  return String(name || "").trim().toLowerCase();
+}
+
+/**
+ * Find existing proxy name using case-insensitive comparison.
+ * Returns stored original name.
+ * @param {Array<Object>} existingProxies
+ * @param {string} candidateName
+ * @returns {string|null}
+ */
+export function findDuplicateProxyName(existingProxies, candidateName) {
+  if (!Array.isArray(existingProxies)) {
+    return null;
+  }
+
+  const normalizedCandidateName = normalizeProxyImportName(candidateName);
+  if (!normalizedCandidateName) {
+    return null;
+  }
+
+  for (const proxy of existingProxies) {
+    const existingProxyName = String(proxy?.name || "").trim();
+    if (!existingProxyName) {
+      continue;
+    }
+    if (normalizeProxyImportName(existingProxyName) === normalizedCandidateName) {
+      return existingProxyName;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Find import conflicts between existing and imported proxies.
+ * @param {Array<Object>} existingProxies
+ * @param {Array<Object>} importedProxies
+ * @returns {Array<{ importedName: string, existingName: string }>}
+ */
+export function findImportProxyConflicts(existingProxies, importedProxies) {
+  if (!Array.isArray(importedProxies)) {
+    return [];
+  }
+
+  const conflicts = [];
+  for (const importedProxy of importedProxies) {
+    const importedName = String(importedProxy?.name || "").trim();
+    if (!importedName) {
+      continue;
+    }
+
+    const existingName = findDuplicateProxyName(existingProxies, importedName);
+    if (existingName) {
+      conflicts.push({
+        importedName,
+        existingName,
+      });
+    }
+  }
+
+  return conflicts;
+}
+
+/**
+ * Merge imported proxies into existing proxies using explicit duplicate strategy.
+ * @param {Array<Object>} existingProxies
+ * @param {Array<Object>} importedProxies
+ * @param {("replace"|"skip")} [duplicateStrategy]
+ * @returns {{
+ *   mergedProxies: Array<Object>,
+ *   stats: { totalImported: number, added: number, replaced: number, skipped: number, duplicates: number }
+ * }}
+ */
+export function mergeImportedProxies(
+  existingProxies,
+  importedProxies,
+  duplicateStrategy = IMPORT_PROXY_DUPLICATE_STRATEGIES.replace
+) {
+  if (
+    duplicateStrategy !== IMPORT_PROXY_DUPLICATE_STRATEGIES.replace &&
+    duplicateStrategy !== IMPORT_PROXY_DUPLICATE_STRATEGIES.skip
+  ) {
+    throw new Error(`Unknown duplicate strategy: ${duplicateStrategy}`);
+  }
+
+  const mergedProxies = Array.isArray(existingProxies)
+    ? [...existingProxies]
+    : [];
+  const importItems = Array.isArray(importedProxies) ? importedProxies : [];
+  const stats = {
+    totalImported: importItems.length,
+    added: 0,
+    replaced: 0,
+    skipped: 0,
+    duplicates: 0,
+  };
+
+  for (const importedProxy of importItems) {
+    const importedName = String(importedProxy?.name || "").trim();
+    const normalizedImportedName = normalizeProxyImportName(importedName);
+    if (!normalizedImportedName) {
+      stats.skipped += 1;
+      continue;
+    }
+
+    const duplicateIndex = mergedProxies.findIndex((existingProxy) => {
+      const existingName = String(existingProxy?.name || "").trim();
+      return normalizeProxyImportName(existingName) === normalizedImportedName;
+    });
+
+    if (duplicateIndex !== -1) {
+      stats.duplicates += 1;
+      if (duplicateStrategy === IMPORT_PROXY_DUPLICATE_STRATEGIES.skip) {
+        stats.skipped += 1;
+        continue;
+      }
+
+      stats.replaced += 1;
+      mergedProxies[duplicateIndex] = {
+        ...importedProxy,
+        name: importedName,
+      };
+      continue;
+    }
+
+    stats.added += 1;
+    mergedProxies.push({
+      ...importedProxy,
+      name: importedName,
+    });
+  }
+
+  return { mergedProxies, stats };
+}
+
 /**
  * Find site-rule domains that depend on the given proxy name.
  * @param {Object<string, Object>} siteRules
@@ -367,26 +508,37 @@ export function initProxyCrud(deps) {
           if (error) {
             throw new Error(error);
           }
+
           const existingProxies = await storage.getProxies();
-          const mergedProxies = [...existingProxies];
-          const indexByName = new Map(
-            mergedProxies.map((p, idx) => [p.name, idx])
+          const conflicts = findImportProxyConflicts(
+            existingProxies,
+            importedProxies
           );
-          importedProxies.forEach((p) => {
-            const idx = indexByName.get(p.name);
-            if (idx === undefined) {
-              indexByName.set(p.name, mergedProxies.length);
-              mergedProxies.push(p);
-            } else {
-              mergedProxies[idx] = p;
-            }
-          });
+          let duplicateStrategy = IMPORT_PROXY_DUPLICATE_STRATEGIES.replace;
+
+          if (conflicts.length > 0) {
+            const shouldReplace = confirm(
+              `${conflicts.length} imported proxy name(s) already exist.\n\nClick OK to replace duplicates with imported values, or Cancel to skip duplicate imports and keep existing proxies.`
+            );
+            duplicateStrategy = shouldReplace
+              ? IMPORT_PROXY_DUPLICATE_STRATEGIES.replace
+              : IMPORT_PROXY_DUPLICATE_STRATEGIES.skip;
+          }
+
+          const { mergedProxies, stats } = mergeImportedProxies(
+            existingProxies,
+            importedProxies,
+            duplicateStrategy
+          );
+
           await storage.setProxies(mergedProxies);
           await renderProxies();
           await loadProxiesForDropdown();
           chrome.runtime.sendMessage({ action: "updateProxySettings" });
           await refreshStatus();
-          alert("Proxies imported successfully!");
+          alert(
+            `Proxies import complete. Added: ${stats.added}, Replaced: ${stats.replaced}, Skipped: ${stats.skipped}.`
+          );
         } catch (error) {
           alert("Error importing proxies: " + error.message);
         }
