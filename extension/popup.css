@@ -495,3 +495,9 @@ table tr:hover {
   stroke: #666;
   fill: transparent;
 }
+
+@media (max-width: 420px) {
+  .screen-actions {
+    flex-direction: column;
+  }
+}
