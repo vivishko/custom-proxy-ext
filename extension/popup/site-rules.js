@@ -1,4 +1,5 @@
 import * as storage from "../shared/storage.js";
+import { paginateItems } from "./pagination.js";
 import { buildRuleProxyOptions } from "./ui-render.js";
 import {
   findDuplicateSiteRuleDomain,
@@ -20,9 +21,50 @@ export const RULE_FORM_MODES = {
   add: "add",
   edit: "edit",
 };
+export const RULES_PAGE_SIZE = 10;
 
 export function normalizeSiteRuleDomain(domain) {
   return String(domain || "").trim().toLowerCase();
+}
+
+export function getSiteRuleEntries(siteRules) {
+  if (!siteRules || typeof siteRules !== "object" || Array.isArray(siteRules)) {
+    return [];
+  }
+
+  return Object.entries(siteRules);
+}
+
+export function getPageForItemIndex(itemIndex, pageSize = RULES_PAGE_SIZE) {
+  if (
+    !Number.isInteger(itemIndex) ||
+    itemIndex < 0 ||
+    !Number.isInteger(pageSize) ||
+    pageSize < 1
+  ) {
+    return 1;
+  }
+
+  return Math.floor(itemIndex / pageSize) + 1;
+}
+
+export function getSiteRulesPage(
+  siteRules,
+  requestedPage,
+  pageSize = RULES_PAGE_SIZE
+) {
+  const entries = getSiteRuleEntries(siteRules);
+  const { items: pageEntries, pagination } = paginateItems(
+    entries,
+    requestedPage,
+    pageSize
+  );
+
+  return {
+    entries,
+    pageEntries,
+    pagination,
+  };
 }
 
 function isSpecialRuleType(type) {
@@ -225,10 +267,14 @@ export function initSiteRules(deps) {
   const exportSiteRulesButton = document.getElementById("exportSiteRulesButton");
   const importSiteRulesFile = document.getElementById("importSiteRulesFile");
   const importSiteRulesButton = document.getElementById("importSiteRulesButton");
+  const siteRulesPrevPageButton = document.getElementById("siteRulesPrevPageButton");
+  const siteRulesNextPageButton = document.getElementById("siteRulesNextPageButton");
+  const siteRulesPageLabel = document.getElementById("siteRulesPageLabel");
 
   let allProxies = [];
   let ruleFormMode = RULE_FORM_MODES.add;
   let editingDomain = "";
+  let currentPage = 1;
 
   const resetRuleEditor = ({ clearDomainInput = true } = {}) => {
     ruleFormMode = RULE_FORM_MODES.add;
@@ -260,10 +306,26 @@ export function initSiteRules(deps) {
 
   const renderSiteRules = async () => {
     const siteRules = await storage.getSiteRules();
-    siteRulesTableBody.innerHTML = "";
+    const { pageEntries, pagination } = getSiteRulesPage(
+      siteRules,
+      currentPage,
+      RULES_PAGE_SIZE
+    );
+    currentPage = pagination.currentPage;
 
-    for (const domain in siteRules) {
-      const rule = siteRules[domain];
+    siteRulesTableBody.innerHTML = "";
+    if (siteRulesPageLabel) {
+      siteRulesPageLabel.textContent = `Page ${pagination.currentPage} of ${pagination.totalPages}`;
+    }
+    if (siteRulesPrevPageButton) {
+      siteRulesPrevPageButton.disabled = pagination.currentPage === 1;
+    }
+    if (siteRulesNextPageButton) {
+      siteRulesNextPageButton.disabled =
+        pagination.currentPage === pagination.totalPages;
+    }
+
+    for (const [domain, rule] of pageEntries) {
       const row = siteRulesTableBody.insertRow();
 
       const domainCell = row.insertCell();
@@ -348,12 +410,32 @@ export function initSiteRules(deps) {
       nextRules[domain] = createSiteRuleFromSetting(selectedProxySetting);
 
       await storage.setSiteRules(nextRules);
+      const savedRuleIndex = getSiteRuleEntries(nextRules).findIndex(
+        ([entryDomain]) => entryDomain === domain
+      );
+      currentPage = getPageForItemIndex(savedRuleIndex, RULES_PAGE_SIZE);
       resetRuleEditor();
       renderSiteRules();
       chrome.runtime.sendMessage({ action: "updateProxySettings" });
       refreshStatus();
     }
   });
+
+  if (siteRulesPrevPageButton) {
+    siteRulesPrevPageButton.addEventListener("click", () => {
+      if (currentPage > 1) {
+        currentPage -= 1;
+        renderSiteRules();
+      }
+    });
+  }
+
+  if (siteRulesNextPageButton) {
+    siteRulesNextPageButton.addEventListener("click", () => {
+      currentPage += 1;
+      renderSiteRules();
+    });
+  }
 
   cancelSiteRuleEditButton.addEventListener("click", () => {
     resetRuleEditor();
