@@ -59,6 +59,11 @@ export async function getThemePreference() {
   return value === "dark" ? "dark" : "light";
 }
 
+/** @returns {Promise<boolean>} */
+export async function getOnboardingCompleted() {
+  return !!(await getOne(STORAGE_KEYS.onboardingCompleted));
+}
+
 /**
  * Set one or more storage values. Keys must be STORAGE_KEYS values.
  * @param {Object} data - Object with STORAGE_KEYS-based keys.
@@ -108,4 +113,9 @@ export async function setThemePreference(theme) {
   return setValues({
     [STORAGE_KEYS.themePreference]: theme === "dark" ? "dark" : "light",
   });
+}
+
+/** @param {boolean} completed */
+export async function setOnboardingCompleted(completed) {
+  return setValues({ [STORAGE_KEYS.onboardingCompleted]: !!completed });
 }

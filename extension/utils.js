@@ -18,6 +18,7 @@ export const STORAGE_KEYS = {
   temporaryProxySites: "temporaryProxySites",
   loggingEnabled: "loggingEnabled",
   themePreference: "themePreference",
+  onboardingCompleted: "onboardingCompleted",
 };
 
 /**

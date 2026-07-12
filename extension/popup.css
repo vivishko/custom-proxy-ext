@@ -616,7 +616,8 @@ table tr:hover {
   line-height: 1.35;
 }
 
-.settings-toggle-button {
+.settings-toggle-button,
+.settings-action-button {
   width: 56px;
   margin-top: 0;
   padding: 7px 10px;
@@ -629,6 +630,70 @@ table tr:hover {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
   color: var(--color-surface);
+}
+
+.settings-action-button {
+  color: var(--color-text);
+}
+
+.settings-action-button:hover {
+  background-color: var(--color-primary-soft);
+  border-color: var(--color-primary);
+  color: var(--color-primary-strong);
+}
+
+.onboarding-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background-color: rgba(15, 23, 42, 0.52);
+}
+
+.onboarding-overlay[hidden] {
+  display: none;
+}
+
+.onboarding-panel {
+  width: min(100%, 390px);
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-panel);
+}
+
+.onboarding-panel h2 {
+  margin: 0 0 12px;
+  font-size: 1.2em;
+}
+
+.onboarding-steps {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding-left: 22px;
+  color: var(--color-muted);
+  line-height: 1.4;
+}
+
+.onboarding-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.onboarding-actions button {
+  width: auto;
+  margin-top: 0;
+}
+
+#skipOnboardingButton {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
 }
 
 @media (max-width: 420px) {
@@ -658,7 +723,16 @@ table tr:hover {
 
   .site-rule-form button,
   .export-import button,
-  .settings-toggle-button {
+  .settings-toggle-button,
+  .settings-action-button {
+    width: 100%;
+  }
+
+  .onboarding-actions {
+    flex-direction: column;
+  }
+
+  .onboarding-actions button {
     width: 100%;
   }
 

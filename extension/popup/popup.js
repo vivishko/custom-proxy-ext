@@ -133,6 +133,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // --- Logging toggle ---
   const loggingToggleButton = document.getElementById("loggingToggle");
   const themeToggleButton = document.getElementById("themeToggle");
+  const onboardingOverlay = document.getElementById("onboardingOverlay");
+  const showOnboardingButton = document.getElementById("showOnboardingButton");
+  const skipOnboardingButton = document.getElementById("skipOnboardingButton");
+  const startOnboardingButton = document.getElementById("startOnboardingButton");
 
   const applyThemePreference = () => {
     document.documentElement.dataset.theme = themePreference;
@@ -149,6 +153,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     loggingToggleButton.classList.toggle("enabled", loggingEnabled);
     loggingToggleButton.textContent = loggingEnabled ? "On" : "Off";
     loggingToggleButton.setAttribute("aria-pressed", String(loggingEnabled));
+  };
+
+  const setOnboardingVisible = (visible) => {
+    onboardingOverlay.hidden = !visible;
+  };
+
+  const completeOnboarding = async () => {
+    setOnboardingVisible(false);
+    await storage.setOnboardingCompleted(true);
   };
 
   themeToggleButton.addEventListener("click", () => {
@@ -168,6 +181,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         enabled: loggingEnabled,
       });
     });
+  });
+
+  showOnboardingButton.addEventListener("click", () => {
+    setOnboardingVisible(true);
+  });
+
+  skipOnboardingButton.addEventListener("click", () => {
+    completeOnboarding();
+  });
+
+  startOnboardingButton.addEventListener("click", async () => {
+    await completeOnboarding();
+    setActiveScreen("proxiesScreen");
   });
 
   // --- Refresh active screen helper ---
@@ -195,6 +221,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   themePreference = await storage.getThemePreference();
   applyThemePreference();
+
+  const onboardingCompleted = await storage.getOnboardingCompleted();
+  setOnboardingVisible(!onboardingCompleted);
 
   await siteRulesModule.loadProxiesForDropdown();
   await proxyControlsApi.loadMainControls();
