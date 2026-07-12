@@ -4,7 +4,7 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| IMPROVE-10 | 10. Rule sorting and filters | M3 | P2 | M | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-10-rule-sorting-filters.md) | Improve rule discovery and control | IMPROVE-07, IMPROVE-08 |
+| IMPROVE-10 | 10. Rule sorting and filters | M3 | P2 | M | 🟠 in_progress | 2026-01-25 | 2026-07-12 | - | [spec](docs/specs/improve-10-rule-sorting-filters.md) | Improve rule discovery and control | IMPROVE-07, IMPROVE-08 |
 | IMPROVE-14 | 14. UI style refresh | H5 | P2 | L | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-14-ui-style-refresh.md) | Explore a new visual style | IMPROVE-01, IMPROVE-13 |
 | REFACTOR-02 | 02. Decompose popup.html into components | R1 | P1 | M | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/refactor-02-decompose-popup-html-into-components.md) | Split popup layout into reusable sections and simplify maintenance | - |
 | FEAT-01 | 01. Settings screen in popup | N4 | P1 | M | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/feat-01-settings-screen-in-popup.md) | Add a dedicated settings screen and move technical toggles there | REFACTOR-02 |

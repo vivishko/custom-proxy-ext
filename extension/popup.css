@@ -371,27 +371,41 @@ table tr:hover {
   margin: -6px 0 12px;
 }
 
-.table-search {
+.table-controls {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(180px, 1fr) minmax(120px, auto) minmax(120px, auto);
   gap: 8px;
   align-items: center;
   margin: -6px 0 12px;
 }
 
-.table-search label {
+.table-search,
+.table-filter {
+  display: grid;
+  gap: 4px;
+}
+
+.table-search label,
+.table-filter label {
   color: #374151;
   font-size: 0.85em;
   font-weight: bold;
 }
 
-.table-search input[type="search"] {
+.table-search input[type="search"],
+.table-filter select {
   width: 100%;
   min-width: 0;
   padding: 7px 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 0.9em;
+}
+
+@media (max-width: 560px) {
+  .table-controls {
+    grid-template-columns: 1fr;
+  }
 }
 
 .empty-table-row td {
