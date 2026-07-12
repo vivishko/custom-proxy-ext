@@ -1,0 +1,29 @@
+[
+  {
+    "name": "dev-http-us",
+    "host": "127.0.0.1",
+    "port": 8080,
+    "username": "dev-user",
+    "password": "dev-password",
+    "country": "US",
+    "protocol": "http"
+  },
+  {
+    "name": "dev-socks-de",
+    "host": "127.0.0.1",
+    "port": 1080,
+    "username": "",
+    "password": "",
+    "country": "DE",
+    "protocol": "socks5"
+  },
+  {
+    "name": "dev-https-gb",
+    "host": "192.0.2.10",
+    "port": 8443,
+    "username": "gb-user",
+    "password": "gb-password",
+    "country": "GB",
+    "protocol": "https"
+  }
+]

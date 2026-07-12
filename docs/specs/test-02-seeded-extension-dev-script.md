@@ -21,7 +21,7 @@ Manual extension verification currently requires repeatedly loading the extensio
 ## Requirements
 - Must: Provide an npm script for seeded manual verification.
 - Must: Use an isolated temporary or repo-ignored browser profile so normal Chrome data is not modified.
-- Must: Load the unpacked extension from the repository root.
+- Must: Load a temporary copy of the unpacked extension generated from the repository root.
 - Must: Provide deterministic seed data for common proxy/rule scenarios.
 - Must: Document the command and what data it creates.
 - Should: Include fixture files for proxy import duplicate replace/skip/error checks.
@@ -30,7 +30,7 @@ Manual extension verification currently requires repeatedly loading the extensio
 
 ## Risks / questions
 - Chrome CLI extension loading can differ between installed Google Chrome and Playwright-managed Chromium.
-- Writing directly to `chrome.storage.sync` may require DevTools Protocol or an extension page context.
+- Writing directly to `chrome.storage.sync` requires an extension context; the implementation uses a dev-only seed module injected into a temporary extension copy.
 - Seed data must not leak into release packages.
 
 ## Plan (steps)
@@ -45,3 +45,7 @@ Prioritize developer ergonomics and reliability. This task is higher priority th
 
 ## Changelog / Decisions
 - 2026-05-06: Task created as the high-priority setup step before full browser e2e automation.
+- 2026-07-12: Started implementation; task status moved to `in_progress`.
+- 2026-07-12: Added `npm run dev:seeded`, which creates a temporary extension copy/profile, injects a dev-only seed module, and launches Chrome/Chromium without adding runtime dependencies.
+- 2026-07-12: Added deterministic seed fixtures under `examples/dev/` for proxies, site rules, duplicate replace/skip import checks, and duplicate validation-error checks.
+- 2026-07-12: Documented the seeded dev command in English and Russian READMEs; release packaging remains unaffected because scripts/examples are excluded from the release payload.

@@ -7,6 +7,10 @@
 - `ru_residence_german_proxy.json` — пример описания прокси-сервера (например, немецкий выходной IP). Импортируйте в разделе импорта прокси.
 - `ru_residence_german_proxy_rules.json` — пример правил, где часть трафика уходит через прокси, а остальное — напрямую. Импортируйте в разделе импорта правил.
 - `ru_residence_no_proxy_rules.json` — пример правил для режима без прокси (всё напрямую), можно использовать как базовый шаблон. Импортируйте в разделе импорта правил.
+- `dev/seeded-proxies.json` — детерминированные прокси для `npm run dev:seeded`.
+- `dev/seeded-site-rules.json` — детерминированные правила сайтов для `npm run dev:seeded`.
+- `dev/import-proxies-duplicate-replace-skip.json` — fixture импорта прокси с конфликтом к seed-данным для проверки replace/skip.
+- `dev/import-proxies-duplicate-error.json` — fixture импорта прокси с case-insensitive дублями внутри одного файла для проверки ошибки валидации.
 
 ## Как применять
 
