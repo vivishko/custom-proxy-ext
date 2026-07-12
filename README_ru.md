@@ -77,7 +77,7 @@ Seed-данные и fixtures для проверки импорта лежат 
 npm run e2e:extension
 ```
 
-E2E runner создаёт изолированный профиль Chrome/Chromium, загружает этот репозиторий как unpacked extension, управляет popup через Chrome DevTools Protocol и проверяет сценарии импорта прокси с replace/skip/error через `chrome.storage.sync`. Если браузер по умолчанию не загружает unpacked extensions из command-line flags, используйте `CHROME_PATH=/path/to/chrome npm run e2e:extension` или `npm run e2e:extension -- --browser /path/to/chrome`.
+E2E runner создаёт изолированный профиль Chrome/Chromium, загружает этот репозиторий как unpacked extension, управляет popup через Chrome DevTools Protocol и проверяет сценарии импорта прокси с replace/skip/error через `chrome.storage.sync`. Если браузер по умолчанию не загружает unpacked extensions из command-line flags, используйте `CHROME_PATH=/path/to/chrome npm run e2e:extension` или `npm run e2e:extension -- --browser /path/to/chrome`. Предпочтительнее Chrome for Testing или Chromium, если брендированный Google Chrome показывает только встроенные extension targets.
 
 ---
 

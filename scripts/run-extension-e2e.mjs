@@ -13,6 +13,9 @@ import {
 const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(SCRIPT_DIR, "..");
 const DEV_FIXTURES_DIR = path.join(REPO_ROOT, "examples", "dev");
+const EXTENSION_MANIFEST = JSON.parse(
+  fs.readFileSync(path.join(REPO_ROOT, "manifest.json"), "utf8")
+);
 const DEFAULT_TIMEOUT_MS = 10000;
 const CDP_COMMAND_TIMEOUT_MS = 5000;
 
@@ -269,6 +272,66 @@ async function getExtensionIdFromPreferences(profileDir, extensionRoot) {
   }, "extension id in Chrome preferences");
 }
 
+function getExtensionIdFromUrl(url) {
+  const match = String(url || "").match(/^chrome-extension:\/\/([^/]+)\//);
+  return match ? match[1] : null;
+}
+
+async function getExtensionIdFromTargets(debugPort) {
+  const targets = await waitFor(async () => {
+    const items = await fetchJson(`http://127.0.0.1:${debugPort}/json/list`);
+    const extensionTargets = items.filter(
+      (target) =>
+        target.url?.startsWith("chrome-extension://") &&
+        target.webSocketDebuggerUrl
+    );
+    return extensionTargets.length > 0 ? extensionTargets : null;
+  }, "extension targets");
+
+  const inspectedTargets = [];
+  for (const target of targets) {
+    const extensionId = getExtensionIdFromUrl(target.url);
+    if (!extensionId) {
+      continue;
+    }
+
+    const session = new CdpSession(target.webSocketDebuggerUrl);
+    try {
+      await session.connect();
+      await session.send("Runtime.enable");
+      const manifest = await evaluate(
+        session,
+        "globalThis.chrome?.runtime?.getManifest?.() || null"
+      );
+      inspectedTargets.push({
+        id: extensionId,
+        url: target.url,
+        name: manifest?.name || "",
+      });
+
+      if (
+        manifest?.name === EXTENSION_MANIFEST.name &&
+        manifest?.background?.service_worker ===
+          EXTENSION_MANIFEST.background.service_worker
+      ) {
+        return extensionId;
+      }
+    } catch (error) {
+      inspectedTargets.push({
+        id: extensionId,
+        url: target.url,
+        error: error.message,
+      });
+    } finally {
+      session.close();
+    }
+  }
+
+  throw new Error(
+    `Could not identify target extension. Inspected targets: ${JSON.stringify(inspectedTargets)}`
+  );
+}
+
 async function getExtensionId(debugPort, profileDir, extensionRoot) {
   const extensionId = await getExtensionIdFromPreferences(
     profileDir,
@@ -276,6 +339,15 @@ async function getExtensionId(debugPort, profileDir, extensionRoot) {
   ).catch(() => null);
   if (extensionId) {
     return extensionId;
+  }
+
+  const targetExtensionId = await getExtensionIdFromTargets(debugPort)
+    .catch((error) => {
+      console.warn(error.message);
+      return null;
+    });
+  if (targetExtensionId) {
+    return targetExtensionId;
   }
 
   const targets = await fetchJson(`http://127.0.0.1:${debugPort}/json/list`)

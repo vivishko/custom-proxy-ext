@@ -81,7 +81,7 @@ Run browser-level extension e2e checks:
 npm run e2e:extension
 ```
 
-The e2e runner launches an isolated Chrome/Chromium profile, loads this repo as an unpacked extension, drives the popup through Chrome DevTools Protocol, and verifies proxy import duplicate replace/skip/error flows against `chrome.storage.sync`. Use `CHROME_PATH=/path/to/chrome npm run e2e:extension` or `npm run e2e:extension -- --browser /path/to/chrome` when the default browser cannot load unpacked extensions from command-line flags.
+The e2e runner launches an isolated Chrome/Chromium profile, loads this repo as an unpacked extension, drives the popup through Chrome DevTools Protocol, and verifies proxy import duplicate replace/skip/error flows against `chrome.storage.sync`. Use `CHROME_PATH=/path/to/chrome npm run e2e:extension` or `npm run e2e:extension -- --browser /path/to/chrome` when the default browser cannot load unpacked extensions from command-line flags. Chrome for Testing or Chromium is preferred if branded Google Chrome only exposes built-in extension targets.
 
 ---
 
