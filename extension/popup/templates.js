@@ -1,0 +1,295 @@
+function renderHeader() {
+  return `
+    <div class="header-bar">
+      <h1>Proxy Control</h1>
+      <button
+        id="loggingToggle"
+        class="logging-toggle"
+        title="Toggle debug logging"
+        aria-label="Toggle debug logging"
+      >
+        <svg
+          width="800px"
+          height="800px"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            d="M6.12 20.75C5.36 20.75 4.64 20.45 4.09 19.91C2.97 18.79 2.97 16.98 4.09 15.86L9.6 10.35C9.1 8.40997 9.64 6.31997 11.06 4.89997C12.49 3.46997 14.59 2.90997 16.54 3.43997C16.8 3.50997 17 3.70997 17.07 3.96997C17.14 4.22997 17.07 4.49997 16.88 4.68997L14.43 7.13997L14.95 9.04997L16.86 9.56997L19.31 7.11997C19.5 6.92997 19.78 6.85997 20.03 6.92997C20.29 6.99997 20.49 7.19997 20.56 7.45997C21.09 9.40997 20.54 11.51 19.1 12.94C17.68 14.36 15.59 14.9 13.65 14.4L8.14 19.91C7.6 20.45 6.88 20.75 6.12 20.75ZM14.68 4.76997C13.72 4.84997 12.81 5.26997 12.11 5.96997C10.97 7.10997 10.6 8.77997 11.15 10.32C11.25 10.59 11.18 10.9 10.97 11.1L5.14 16.93C4.61 17.46 4.61 18.33 5.14 18.86C5.4 19.12 5.74 19.26 6.11 19.26C6.47 19.26 6.82 19.12 7.07 18.86L12.9 13.03C13.11 12.82 13.41 12.76 13.68 12.85C15.22 13.39 16.89 13.03 18.03 11.89C18.73 11.19 19.14 10.28 19.23 9.31997L17.6 10.95C17.41 11.14 17.13 11.21 16.87 11.14L14.13 10.39C13.87 10.32 13.67 10.12 13.6 9.85997L12.85 7.11997C12.78 6.85997 12.85 6.57997 13.04 6.38997L14.67 4.75997L14.68 4.76997Z"
+            fill="#000000"
+          />
+        </svg>
+      </button>
+    </div>
+  `;
+}
+
+function renderMainScreen() {
+  return `
+    <div id="mainScreen" class="screen active">
+      <div class="status-display" id="proxyStatusDisplay"></div>
+
+      <div class="control-group" data-control-group="global">
+        <label id="proxyToggleLabel" for="proxyToggle">Global proxy</label>
+        <label class="toggle-switch" for="proxyToggle">
+          <input type="checkbox" id="proxyToggle" />
+          <span class="toggle-slider" aria-hidden="true"></span>
+        </label>
+        <select id="proxySelect" disabled></select>
+      </div>
+
+      <div class="control-group" data-control-group="page">
+        <div class="control-label-with-info">
+          <label id="pageProxyToggleLabel" for="pageProxyToggle">
+            Only this page
+          </label>
+          <span
+            id="pageProxyInfoIcon"
+            class="info-icon"
+            role="img"
+            tabindex="0"
+            aria-label="Only this page info"
+            title="Only this page applies only to this domain; Global still applies elsewhere."
+          >i</span>
+        </div>
+        <label class="toggle-switch" for="pageProxyToggle">
+          <input type="checkbox" id="pageProxyToggle" disabled />
+          <span class="toggle-slider" aria-hidden="true"></span>
+        </label>
+        <select id="pageProxySelect" disabled></select>
+      </div>
+      <div id="proxyModeHint" class="control-hint" aria-live="polite"></div>
+
+      <button id="addRuleButtonMain" data-add-rule>
+        Add rule for this site
+      </button>
+
+      <div class="screen-actions">
+        <button class="nav-button" data-screen-target="proxiesScreen">
+          Proxies
+        </button>
+        <button class="nav-button" data-screen-target="rulesScreen">
+          Rules
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderRulesScreen() {
+  return `
+    <div id="rulesScreen" class="screen">
+      <div class="screen-header">
+        <button class="back-button" data-screen-target="mainScreen">
+          Back
+        </button>
+        <h2>Rules</h2>
+        <span class="screen-header-spacer"></span>
+      </div>
+
+      <div class="site-rule-form">
+        <input
+          type="text"
+          id="siteDomainInput"
+          placeholder="Domain (e.g., example.com)"
+        />
+        <select id="siteProxySelect">
+          <option value="NO_PROXY">NO_PROXY</option>
+          <option value="RANDOM_PROXY">RANDOM_PROXY</option>
+          <option value="DIRECT_TEMPORARY">DIRECT (Temporary)</option>
+        </select>
+        <button id="addSiteRuleButtonOptions">Add Rule</button>
+        <button id="cancelSiteRuleEditButton" type="button" hidden>
+          Cancel
+        </button>
+      </div>
+
+      <div class="table-controls">
+        <div class="table-search">
+          <label for="siteRulesSearchInput">Search rules</label>
+          <input
+            type="search"
+            id="siteRulesSearchInput"
+            placeholder="Domain, rule type, or proxy"
+            autocomplete="off"
+          />
+        </div>
+        <div class="table-filter">
+          <label for="siteRulesFilterSelect">Filter</label>
+          <select id="siteRulesFilterSelect">
+            <option value="all">All rules</option>
+            <option value="proxy">Proxy rules</option>
+            <option value="no_proxy">NO_PROXY</option>
+            <option value="random_proxy">RANDOM_PROXY</option>
+            <option value="direct_temporary">DIRECT temporary</option>
+          </select>
+        </div>
+        <div class="table-filter">
+          <label for="siteRulesSortSelect">Sort</label>
+          <select id="siteRulesSortSelect">
+            <option value="storage_order">Default</option>
+            <option value="recent_first">Recently added</option>
+            <option value="domain_asc">Domain A-Z</option>
+            <option value="domain_desc">Domain Z-A</option>
+          </select>
+        </div>
+      </div>
+
+      <table id="siteRulesTable">
+        <thead>
+          <tr>
+            <th>Domain</th>
+            <th>Proxy Setting</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="table-pagination" id="siteRulesPagination">
+        <button id="siteRulesPrevPageButton" type="button">Previous</button>
+        <span id="siteRulesPageLabel" aria-live="polite">Page 1 of 1</span>
+        <button id="siteRulesNextPageButton" type="button">Next</button>
+      </div>
+      <div class="export-import">
+        <button id="exportSiteRulesButton">Export Site Rules</button>
+        <input
+          type="file"
+          id="importSiteRulesFile"
+          accept=".json"
+          class="hidden-file-input"
+        />
+        <button id="importSiteRulesButton">Import Site Rules</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderProxiesScreen() {
+  return `
+    <div id="proxiesScreen" class="screen">
+      <div class="screen-header">
+        <button class="back-button" data-screen-target="mainScreen">
+          Back
+        </button>
+        <h2>Proxies</h2>
+        <span class="screen-header-spacer"></span>
+      </div>
+
+      <div id="proxiesFeedback" class="screen-feedback" aria-live="polite"></div>
+
+      <button
+        id="openAddProxyScreen"
+        class="primary-action"
+        data-screen-target="addProxyScreen"
+      >
+        + Add Proxy
+      </button>
+
+      <h3>Available Proxies</h3>
+      <table id="proxiesTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Host:Port</th>
+            <th>Country</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="table-pagination" id="proxiesPagination">
+        <button id="proxiesPrevPageButton" type="button">Previous</button>
+        <span id="proxiesPageLabel" aria-live="polite">Page 1 of 1</span>
+        <button id="proxiesNextPageButton" type="button">Next</button>
+      </div>
+      <div class="export-import">
+        <button id="exportProxiesButton">Export Proxies</button>
+        <input
+          type="file"
+          id="importProxiesFile"
+          accept=".json"
+          class="hidden-file-input"
+        />
+        <button id="importProxiesButton">Import Proxies</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderAddProxyScreen() {
+  return `
+    <div id="addProxyScreen" class="screen">
+      <div class="screen-header">
+        <button class="back-button" data-screen-target="proxiesScreen">
+          Back
+        </button>
+        <h2>Add Proxy</h2>
+        <span class="screen-header-spacer"></span>
+      </div>
+
+      <form id="addProxyForm">
+        <div class="form-group">
+          <label for="proxyName">Proxy Name:</label>
+          <input type="text" id="proxyName" required />
+        </div>
+        <div class="form-group">
+          <label for="proxyHost">Host:</label>
+          <input
+            type="text"
+            id="proxyHost"
+            placeholder="e.g., 127.0.0.1"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="proxyPort">Port:</label>
+          <input
+            type="number"
+            id="proxyPort"
+            placeholder="e.g., 8080"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="proxyUsername">Username (optional):</label>
+          <input type="text" id="proxyUsername" />
+        </div>
+        <div class="form-group">
+          <label for="proxyPassword">Password (optional):</label>
+          <input type="password" id="proxyPassword" />
+        </div>
+        <div class="form-group">
+          <label for="proxyCountry">Country:</label>
+          <input type="text" id="proxyCountry" required />
+        </div>
+        <div class="form-group">
+          <label for="proxyProtocol">Protocol:</label>
+          <select id="proxyProtocol" required>
+            <option value="http">HTTP</option>
+            <option value="https">HTTPS</option>
+            <option value="socks4">SOCKS4</option>
+            <option value="socks5">SOCKS5</option>
+          </select>
+        </div>
+        <button type="submit">Save Proxy</button>
+      </form>
+    </div>
+  `;
+}
+
+export function renderPopupShell(rootElement) {
+  if (!rootElement) {
+    throw new Error("Popup root element is missing.");
+  }
+
+  rootElement.innerHTML = [
+    renderHeader(),
+    renderMainScreen(),
+    renderRulesScreen(),
+    renderProxiesScreen(),
+    renderAddProxyScreen(),
+  ].join("");
+}
