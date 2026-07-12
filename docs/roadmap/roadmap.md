@@ -4,7 +4,6 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| IMPROVE-05 | 05. Import proxies duplicate handling | H4 | P0 | L | 🟠 in_progress | 2026-01-25 | 2026-04-13 | - | [spec](docs/specs/improve-05-import-proxies-duplicate-handling.md) | Prevent duplicate proxy imports | IMPROVE-09 |
 | TEST-02 | Seeded extension dev script | Q3 | P0 | M | 🔵 planned | 2026-05-06 | - | - | [spec](docs/specs/test-02-seeded-extension-dev-script.md) | Open extension with deterministic seed data for faster manual verification | TEST-01 |
 | TEST-03 | Browser e2e extension tests | Q4 | P1 | L | 🔵 planned | 2026-05-06 | - | - | [spec](docs/specs/test-03-browser-e2e-extension-tests.md) | Automate browser-level popup flows with real extension storage | TEST-02 |
 | CI-02 | Main-only release tag helper | Q5 | P1 | M | 🟣 idea | 2026-05-06 | - | - | [spec](docs/specs/ci-02-main-only-release-tag-helper.md) | Automate safe release tagging from main and block package publishing for non-main tags | CI-01 |
@@ -23,6 +22,7 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 | IMPROVE-02 | 02. Warn on duplicate rule | L3 | P0 | S | 🟢 done | 2026-01-25 | 2026-02-22 | 2026-03-29 | [spec](docs/specs/improve-02-warn-duplicate-rule-manual.md) | Prevent accidental duplicate rules | - |
 | IMPROVE-03 | 03. Rule editing + duplicate warning | M4 | P0 | M | 🟢 done | 2026-01-25 | 2026-03-29 | 2026-03-30 | [spec](docs/specs/improve-03-rule-editing-duplicate-warning.md) | Enable edits while preventing duplicates | IMPROVE-02 |
 | IMPROVE-04 | 04. Import rules duplicate handling | H3 | P0 | L | 🟢 done | 2026-01-25 | 2026-04-11 | 2026-04-11 | [spec](docs/specs/improve-04-import-rules-duplicate-handling.md) | Prevent duplicate rule imports | IMPROVE-02, IMPROVE-03 |
+| IMPROVE-05 | 05. Import proxies duplicate handling | H4 | P0 | L | 🟢 done | 2026-01-25 | 2026-04-13 | 2026-07-12 | [spec](docs/specs/improve-05-import-proxies-duplicate-handling.md) | Prevent duplicate proxy imports | IMPROVE-09 |
 | IMPROVE-06 | 06. Proxy delete warning flow | H2 | P0 | L | 🟢 done | 2026-01-25 | 2026-04-11 | 2026-04-13 | [spec](docs/specs/improve-06-proxy-delete-warning-flow.md) | Handle rule dependencies on proxy delete | IMPROVE-03 |
 | IMPROVE-07 | 07. Rules table pagination | M1 | P1 | M | 🟢 done | 2026-01-25 | 2026-04-13 | 2026-05-06 | [spec](docs/specs/improve-07-rules-table-pagination.md) | Limit rules table to 10 rows | - |
 | BUG-01 | Bug-01. Enable only on this page disables proxy | B1 | P0 | M | 🟢 done | 2026-01-26 | 2026-02-01 | 2026-02-01 | [spec](docs/specs/bug-01-enable-only-on-this-page-disables-proxy.md) | Separate global/per-page enable, add per-page proxy choice | IMPROVE-11 |
