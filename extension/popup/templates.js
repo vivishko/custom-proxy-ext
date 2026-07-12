@@ -276,6 +276,21 @@ function renderSettingsScreen() {
       <div class="settings-list">
         <div class="settings-row">
           <div>
+            <h3>Theme</h3>
+            <p>Switch popup colors for bright or low-light environments.</p>
+          </div>
+          <button
+            id="themeToggle"
+            class="settings-toggle-button"
+            type="button"
+            aria-pressed="false"
+          >
+            Light
+          </button>
+        </div>
+
+        <div class="settings-row">
+          <div>
             <h3>Debug logging</h3>
             <p>Write diagnostic messages for popup and background flows.</p>
           </div>

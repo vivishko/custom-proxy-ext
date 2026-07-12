@@ -53,6 +53,12 @@ export async function getLoggingEnabled() {
   return !!(await getOne(STORAGE_KEYS.loggingEnabled));
 }
 
+/** @returns {Promise<"light"|"dark">} */
+export async function getThemePreference() {
+  const value = await getOne(STORAGE_KEYS.themePreference);
+  return value === "dark" ? "dark" : "light";
+}
+
 /**
  * Set one or more storage values. Keys must be STORAGE_KEYS values.
  * @param {Object} data - Object with STORAGE_KEYS-based keys.
@@ -95,4 +101,11 @@ export async function setTemporaryProxySites(sites) {
 /** @param {boolean} enabled */
 export async function setLoggingEnabled(enabled) {
   return setValues({ [STORAGE_KEYS.loggingEnabled]: enabled });
+}
+
+/** @param {"light"|"dark"} theme */
+export async function setThemePreference(theme) {
+  return setValues({
+    [STORAGE_KEYS.themePreference]: theme === "dark" ? "dark" : "light",
+  });
 }

@@ -19,6 +19,21 @@
   --radius-md: 6px;
 }
 
+:root[data-theme="dark"] {
+  --color-bg: #111827;
+  --color-surface: #1f2937;
+  --color-surface-muted: #273244;
+  --color-border: #3b4658;
+  --color-border-strong: #64748b;
+  --color-text: #f8fafc;
+  --color-muted: #cbd5e1;
+  --color-primary: #60a5fa;
+  --color-primary-strong: #3b82f6;
+  --color-primary-soft: #1e3a5f;
+  --color-success-soft: #14391f;
+  --shadow-panel: 0 10px 26px rgba(0, 0, 0, 0.35);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -64,9 +79,9 @@ h2 {
 
 .status-display[data-tone="active"] {
   background-color: var(--color-success-soft);
-  border-color: #86efac;
+  border-color: var(--color-success);
   border-left-color: var(--color-success);
-  color: #14532d;
+  color: var(--color-text);
 }
 
 .status-display[data-tone="inactive"] {
@@ -225,8 +240,8 @@ button:hover {
 }
 
 button:disabled {
-  background-color: #e2e8f0;
-  color: #94a3b8;
+  background-color: var(--color-border);
+  color: var(--color-muted);
   cursor: not-allowed;
 }
 
@@ -275,14 +290,14 @@ select:focus-visible {
   min-height: 18px;
   margin: -6px 0 10px;
   border-radius: var(--radius-sm);
-  color: #0f5132;
+  color: var(--color-text);
   font-size: 0.85em;
 }
 
 .screen-feedback.visible {
   padding: 8px 10px;
   background-color: var(--color-success-soft);
-  border: 1px solid #86efac;
+  border: 1px solid var(--color-success);
 }
 
 .screen-actions {
@@ -317,7 +332,7 @@ select:focus-visible {
 }
 
 .back-button:hover {
-  background-color: #e2e8f0;
+  background-color: var(--color-border);
 }
 
 .primary-action {
@@ -407,7 +422,7 @@ table td {
 }
 
 table th {
-  background-color: #eef4ff;
+  background-color: var(--color-primary-soft);
   font-weight: bold;
   color: var(--color-text);
 }
@@ -417,7 +432,7 @@ table tr:nth-child(even) {
 }
 
 table tr:hover {
-  background-color: #edf6ff;
+  background-color: var(--color-primary-soft);
 }
 
 .table-pagination {
@@ -485,7 +500,7 @@ table tr:hover {
 
 .table-pagination button:hover:not(:disabled) {
   background-color: var(--color-primary-soft);
-  border-color: #bfdbfe;
+  border-color: var(--color-primary);
   color: var(--color-primary-strong);
 }
 
@@ -548,7 +563,7 @@ table tr:hover {
 
 .export-import button:hover {
   background-color: var(--color-primary-soft);
-  border-color: #bfdbfe;
+  border-color: var(--color-primary);
   color: var(--color-primary-strong);
 }
 
@@ -613,7 +628,7 @@ table tr:hover {
 .settings-toggle-button.enabled {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-surface);
 }
 
 @media (max-width: 420px) {
