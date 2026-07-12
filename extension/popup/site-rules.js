@@ -35,6 +35,27 @@ export function getSiteRuleEntries(siteRules) {
   return Object.entries(siteRules);
 }
 
+export function getSiteRuleSearchText(domain, rule) {
+  const ruleType = String(rule?.type || "");
+  const proxyName = ruleType === "PROXY_BY_RULE" ? String(rule?.proxyName || "") : "";
+  return [domain, ruleType, proxyName].join(" ").toLowerCase();
+}
+
+export function filterSiteRuleEntries(entries, searchText) {
+  if (!Array.isArray(entries)) {
+    return [];
+  }
+
+  const normalizedSearchText = String(searchText || "").trim().toLowerCase();
+  if (!normalizedSearchText) {
+    return entries;
+  }
+
+  return entries.filter(([domain, rule]) =>
+    getSiteRuleSearchText(domain, rule).includes(normalizedSearchText)
+  );
+}
+
 export function getPageForItemIndex(itemIndex, pageSize = RULES_PAGE_SIZE) {
   if (
     !Number.isInteger(itemIndex) ||
@@ -51,17 +72,20 @@ export function getPageForItemIndex(itemIndex, pageSize = RULES_PAGE_SIZE) {
 export function getSiteRulesPage(
   siteRules,
   requestedPage,
-  pageSize = RULES_PAGE_SIZE
+  pageSize = RULES_PAGE_SIZE,
+  searchText = ""
 ) {
   const entries = getSiteRuleEntries(siteRules);
+  const filteredEntries = filterSiteRuleEntries(entries, searchText);
   const { items: pageEntries, pagination } = paginateItems(
-    entries,
+    filteredEntries,
     requestedPage,
     pageSize
   );
 
   return {
     entries,
+    filteredEntries,
     pageEntries,
     pagination,
   };
@@ -270,11 +294,20 @@ export function initSiteRules(deps) {
   const siteRulesPrevPageButton = document.getElementById("siteRulesPrevPageButton");
   const siteRulesNextPageButton = document.getElementById("siteRulesNextPageButton");
   const siteRulesPageLabel = document.getElementById("siteRulesPageLabel");
+  const siteRulesSearchInput = document.getElementById("siteRulesSearchInput");
 
   let allProxies = [];
   let ruleFormMode = RULE_FORM_MODES.add;
   let editingDomain = "";
   let currentPage = 1;
+
+  const getRulesSearchText = () => siteRulesSearchInput?.value || "";
+
+  const clearRulesSearch = () => {
+    if (siteRulesSearchInput) {
+      siteRulesSearchInput.value = "";
+    }
+  };
 
   const resetRuleEditor = ({ clearDomainInput = true } = {}) => {
     ruleFormMode = RULE_FORM_MODES.add;
@@ -306,10 +339,11 @@ export function initSiteRules(deps) {
 
   const renderSiteRules = async () => {
     const siteRules = await storage.getSiteRules();
-    const { pageEntries, pagination } = getSiteRulesPage(
+    const { entries, filteredEntries, pageEntries, pagination } = getSiteRulesPage(
       siteRules,
       currentPage,
-      RULES_PAGE_SIZE
+      RULES_PAGE_SIZE,
+      getRulesSearchText()
     );
     currentPage = pagination.currentPage;
 
@@ -323,6 +357,18 @@ export function initSiteRules(deps) {
     if (siteRulesNextPageButton) {
       siteRulesNextPageButton.disabled =
         pagination.currentPage === pagination.totalPages;
+    }
+
+    if (pageEntries.length === 0) {
+      const row = siteRulesTableBody.insertRow();
+      row.classList.add("empty-table-row");
+      const cell = row.insertCell();
+      cell.colSpan = 3;
+      cell.textContent =
+        entries.length > 0 && filteredEntries.length === 0
+          ? "No matching rules."
+          : "No rules yet.";
+      return;
     }
 
     for (const [domain, rule] of pageEntries) {
@@ -410,6 +456,7 @@ export function initSiteRules(deps) {
       nextRules[domain] = createSiteRuleFromSetting(selectedProxySetting);
 
       await storage.setSiteRules(nextRules);
+      clearRulesSearch();
       const savedRuleIndex = getSiteRuleEntries(nextRules).findIndex(
         ([entryDomain]) => entryDomain === domain
       );
@@ -433,6 +480,13 @@ export function initSiteRules(deps) {
   if (siteRulesNextPageButton) {
     siteRulesNextPageButton.addEventListener("click", () => {
       currentPage += 1;
+      renderSiteRules();
+    });
+  }
+
+  if (siteRulesSearchInput) {
+    siteRulesSearchInput.addEventListener("input", () => {
+      currentPage = 1;
       renderSiteRules();
     });
   }
