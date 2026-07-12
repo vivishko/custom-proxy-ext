@@ -71,6 +71,14 @@ npm run dev:seeded
 
 Seed-данные и fixtures для проверки импорта лежат в `examples/dev/`.
 
+Запуск браузерных e2e-проверок расширения:
+
+```bash
+npm run e2e:extension
+```
+
+E2E runner создаёт изолированный профиль Chrome/Chromium, загружает этот репозиторий как unpacked extension, управляет popup через Chrome DevTools Protocol и проверяет сценарии импорта прокси с replace/skip/error через `chrome.storage.sync`. Если браузер по умолчанию не загружает unpacked extensions из command-line flags, используйте `CHROME_PATH=/path/to/chrome npm run e2e:extension` или `npm run e2e:extension -- --browser /path/to/chrome`.
+
 ---
 
 ## Краткое руководство
