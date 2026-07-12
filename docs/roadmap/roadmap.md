@@ -4,7 +4,6 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| IMPROVE-20 | 20. Light/dark theme switch in settings | N5 | P2 | S | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/improve-20-light-dark-theme-switch-in-settings.md) | Add explicit light/dark theme toggle in settings | FEAT-01 |
 | TEST-03 | Browser e2e extension tests | Q4 | P1 | L | 🔴 blocked | 2026-05-06 | 2026-07-12 | - | [spec](docs/specs/test-03-browser-e2e-extension-tests.md) | Automate browser-level popup flows with real extension storage | TEST-02 |
 | CI-01 | CI quality gate for MV3 releases | Q2 | P0 | M | 🟢 done | 2026-02-19 | 2026-02-19 | 2026-02-19 | [spec](docs/specs/ci-01-quality-gate-for-mv3-releases.md) | Enforce pre-release CI checks: lint, tests, MV3 static validation, security, package verification | TEST-01 |
 | CI-02 | Main-only release tag helper | Q5 | P1 | M | 🟢 done | 2026-05-06 | 2026-07-12 | 2026-07-12 | [spec](docs/specs/ci-02-main-only-release-tag-helper.md) | Automate safe release tagging from main and block package publishing for non-main tags | CI-01 |
@@ -33,3 +32,4 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 | IMPROVE-17 | 17. i18n strings framework | H6 | P1 | M | 🟢 done | 2026-02-07 | 2026-04-11 | 2026-04-13 | [spec](docs/specs/improve-17-i18n-strings-framework.md) | Add multi-language string support | - |
 | IMPROVE-18 | 18. After saving proxy, open proxies table | H7 | P1 | S | 🟢 done | 2026-02-08 | 2026-02-11 | 2026-02-12 | [spec](docs/specs/improve-18-after-saving-proxy-open-proxies-table.md) | Improve post-save flow by taking users to proxy list | - |
 | IMPROVE-19 | 19. Reload current page on proxy toggle | H8 | P1 | S | 🟢 done | 2026-02-08 | 2026-02-12 | 2026-02-12 | [spec](docs/specs/improve-19-reload-current-page-on-proxy-toggle.md) | Make proxy effect visible immediately after toggle | - |
+| IMPROVE-20 | 20. Light/dark theme switch in settings | N5 | P2 | S | 🟢 done | 2026-02-20 | 2026-07-12 | 2026-07-12 | [spec](docs/specs/improve-20-light-dark-theme-switch-in-settings.md) | Add explicit light/dark theme toggle in settings | FEAT-01 |
