@@ -22,6 +22,19 @@ export const RULE_FORM_MODES = {
   edit: "edit",
 };
 export const RULES_PAGE_SIZE = 10;
+export const SITE_RULE_FILTERS = {
+  all: "all",
+  proxy: "proxy",
+  noProxy: "no_proxy",
+  randomProxy: "random_proxy",
+  directTemporary: "direct_temporary",
+};
+export const SITE_RULE_SORTS = {
+  storageOrder: "storage_order",
+  recentFirst: "recent_first",
+  domainAsc: "domain_asc",
+  domainDesc: "domain_desc",
+};
 
 export function normalizeSiteRuleDomain(domain) {
   return String(domain || "").trim().toLowerCase();
@@ -56,6 +69,59 @@ export function filterSiteRuleEntries(entries, searchText) {
   );
 }
 
+export function filterSiteRuleEntriesByType(entries, filterValue = SITE_RULE_FILTERS.all) {
+  if (!Array.isArray(entries)) {
+    return [];
+  }
+
+  if (!filterValue || filterValue === SITE_RULE_FILTERS.all) {
+    return entries;
+  }
+
+  return entries.filter(([, rule]) => {
+    const ruleType = String(rule?.type || "");
+
+    if (filterValue === SITE_RULE_FILTERS.proxy) {
+      return ruleType === "PROXY_BY_RULE";
+    }
+    if (filterValue === SITE_RULE_FILTERS.noProxy) {
+      return ruleType === "NO_PROXY";
+    }
+    if (filterValue === SITE_RULE_FILTERS.randomProxy) {
+      return ruleType === "RANDOM_PROXY";
+    }
+    if (filterValue === SITE_RULE_FILTERS.directTemporary) {
+      return ruleType === "DIRECT_TEMPORARY";
+    }
+
+    return true;
+  });
+}
+
+export function sortSiteRuleEntries(entries, sortValue = SITE_RULE_SORTS.storageOrder) {
+  if (!Array.isArray(entries)) {
+    return [];
+  }
+
+  const sortedEntries = [...entries];
+
+  if (sortValue === SITE_RULE_SORTS.recentFirst) {
+    return sortedEntries.reverse();
+  }
+  if (sortValue === SITE_RULE_SORTS.domainAsc) {
+    return sortedEntries.sort(([domainA], [domainB]) =>
+      domainA.localeCompare(domainB, undefined, { sensitivity: "base" })
+    );
+  }
+  if (sortValue === SITE_RULE_SORTS.domainDesc) {
+    return sortedEntries.sort(([domainA], [domainB]) =>
+      domainB.localeCompare(domainA, undefined, { sensitivity: "base" })
+    );
+  }
+
+  return sortedEntries;
+}
+
 export function getPageForItemIndex(itemIndex, pageSize = RULES_PAGE_SIZE) {
   if (
     !Number.isInteger(itemIndex) ||
@@ -73,19 +139,28 @@ export function getSiteRulesPage(
   siteRules,
   requestedPage,
   pageSize = RULES_PAGE_SIZE,
-  searchText = ""
+  searchText = "",
+  filterValue = SITE_RULE_FILTERS.all,
+  sortValue = SITE_RULE_SORTS.storageOrder
 ) {
   const entries = getSiteRuleEntries(siteRules);
-  const filteredEntries = filterSiteRuleEntries(entries, searchText);
+  const searchedEntries = filterSiteRuleEntries(entries, searchText);
+  const filteredEntries = filterSiteRuleEntriesByType(
+    searchedEntries,
+    filterValue
+  );
+  const sortedEntries = sortSiteRuleEntries(filteredEntries, sortValue);
   const { items: pageEntries, pagination } = paginateItems(
-    filteredEntries,
+    sortedEntries,
     requestedPage,
     pageSize
   );
 
   return {
     entries,
+    searchedEntries,
     filteredEntries,
+    sortedEntries,
     pageEntries,
     pagination,
   };
@@ -295,6 +370,8 @@ export function initSiteRules(deps) {
   const siteRulesNextPageButton = document.getElementById("siteRulesNextPageButton");
   const siteRulesPageLabel = document.getElementById("siteRulesPageLabel");
   const siteRulesSearchInput = document.getElementById("siteRulesSearchInput");
+  const siteRulesFilterSelect = document.getElementById("siteRulesFilterSelect");
+  const siteRulesSortSelect = document.getElementById("siteRulesSortSelect");
 
   let allProxies = [];
   let ruleFormMode = RULE_FORM_MODES.add;
@@ -302,10 +379,20 @@ export function initSiteRules(deps) {
   let currentPage = 1;
 
   const getRulesSearchText = () => siteRulesSearchInput?.value || "";
+  const getRulesFilterValue = () =>
+    siteRulesFilterSelect?.value || SITE_RULE_FILTERS.all;
+  const getRulesSortValue = () =>
+    siteRulesSortSelect?.value || SITE_RULE_SORTS.storageOrder;
 
-  const clearRulesSearch = () => {
+  const clearRuleListControls = () => {
     if (siteRulesSearchInput) {
       siteRulesSearchInput.value = "";
+    }
+    if (siteRulesFilterSelect) {
+      siteRulesFilterSelect.value = SITE_RULE_FILTERS.all;
+    }
+    if (siteRulesSortSelect) {
+      siteRulesSortSelect.value = SITE_RULE_SORTS.storageOrder;
     }
   };
 
@@ -343,7 +430,9 @@ export function initSiteRules(deps) {
       siteRules,
       currentPage,
       RULES_PAGE_SIZE,
-      getRulesSearchText()
+      getRulesSearchText(),
+      getRulesFilterValue(),
+      getRulesSortValue()
     );
     currentPage = pagination.currentPage;
 
@@ -456,7 +545,7 @@ export function initSiteRules(deps) {
       nextRules[domain] = createSiteRuleFromSetting(selectedProxySetting);
 
       await storage.setSiteRules(nextRules);
-      clearRulesSearch();
+      clearRuleListControls();
       const savedRuleIndex = getSiteRuleEntries(nextRules).findIndex(
         ([entryDomain]) => entryDomain === domain
       );
@@ -486,6 +575,20 @@ export function initSiteRules(deps) {
 
   if (siteRulesSearchInput) {
     siteRulesSearchInput.addEventListener("input", () => {
+      currentPage = 1;
+      renderSiteRules();
+    });
+  }
+
+  if (siteRulesFilterSelect) {
+    siteRulesFilterSelect.addEventListener("change", () => {
+      currentPage = 1;
+      renderSiteRules();
+    });
+  }
+
+  if (siteRulesSortSelect) {
+    siteRulesSortSelect.addEventListener("change", () => {
       currentPage = 1;
       renderSiteRules();
     });

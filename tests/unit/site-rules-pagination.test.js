@@ -3,10 +3,14 @@ import assert from "node:assert/strict";
 
 import {
   filterSiteRuleEntries,
+  filterSiteRuleEntriesByType,
   getPageForItemIndex,
   getSiteRuleEntries,
   getSiteRulesPage,
   RULES_PAGE_SIZE,
+  SITE_RULE_FILTERS,
+  SITE_RULE_SORTS,
+  sortSiteRuleEntries,
 } from "../../extension/popup/site-rules.js";
 
 function buildSiteRules(count) {
@@ -68,6 +72,93 @@ test("getSiteRulesPage paginates filtered search results", () => {
   assert.equal(result.pagination.totalPages, 2);
   assert.deepEqual(result.pageEntries.map(([domain]) => domain), [
     "shop-1.example.com",
+  ]);
+});
+
+test("filterSiteRuleEntriesByType filters rules by proxy usage and rule type", () => {
+  const entries = getSiteRuleEntries({
+    "shop.example.com": { type: "PROXY_BY_RULE", proxyName: "proxy-us" },
+    "news.example.com": { type: "RANDOM_PROXY" },
+    "direct.example.com": { type: "NO_PROXY" },
+    "temp.example.com": { type: "DIRECT_TEMPORARY" },
+  });
+
+  assert.deepEqual(
+    filterSiteRuleEntriesByType(entries, SITE_RULE_FILTERS.proxy).map(
+      ([domain]) => domain
+    ),
+    ["shop.example.com"]
+  );
+  assert.deepEqual(
+    filterSiteRuleEntriesByType(entries, SITE_RULE_FILTERS.noProxy).map(
+      ([domain]) => domain
+    ),
+    ["direct.example.com"]
+  );
+  assert.deepEqual(
+    filterSiteRuleEntriesByType(entries, SITE_RULE_FILTERS.randomProxy).map(
+      ([domain]) => domain
+    ),
+    ["news.example.com"]
+  );
+  assert.deepEqual(
+    filterSiteRuleEntriesByType(
+      entries,
+      SITE_RULE_FILTERS.directTemporary
+    ).map(([domain]) => domain),
+    ["temp.example.com"]
+  );
+});
+
+test("sortSiteRuleEntries sorts by recency and domain", () => {
+  const entries = getSiteRuleEntries({
+    "zeta.example.com": { type: "NO_PROXY" },
+    "Alpha.example.com": { type: "NO_PROXY" },
+    "middle.example.com": { type: "NO_PROXY" },
+  });
+
+  assert.deepEqual(
+    sortSiteRuleEntries(entries, SITE_RULE_SORTS.recentFirst).map(
+      ([domain]) => domain
+    ),
+    ["middle.example.com", "Alpha.example.com", "zeta.example.com"]
+  );
+  assert.deepEqual(
+    sortSiteRuleEntries(entries, SITE_RULE_SORTS.domainAsc).map(
+      ([domain]) => domain
+    ),
+    ["Alpha.example.com", "middle.example.com", "zeta.example.com"]
+  );
+  assert.deepEqual(
+    sortSiteRuleEntries(entries, SITE_RULE_SORTS.domainDesc).map(
+      ([domain]) => domain
+    ),
+    ["zeta.example.com", "middle.example.com", "Alpha.example.com"]
+  );
+});
+
+test("getSiteRulesPage combines search, filter, sort, and pagination", () => {
+  const rules = {
+    "zeta-shop.example.com": { type: "PROXY_BY_RULE", proxyName: "proxy-us" },
+    "alpha-shop.example.com": { type: "PROXY_BY_RULE", proxyName: "proxy-eu" },
+    "news.example.com": { type: "RANDOM_PROXY" },
+  };
+  const result = getSiteRulesPage(
+    rules,
+    1,
+    1,
+    "shop",
+    SITE_RULE_FILTERS.proxy,
+    SITE_RULE_SORTS.domainAsc
+  );
+
+  assert.equal(result.entries.length, 3);
+  assert.equal(result.searchedEntries.length, 2);
+  assert.equal(result.filteredEntries.length, 2);
+  assert.equal(result.sortedEntries.length, 2);
+  assert.equal(result.pagination.totalPages, 2);
+  assert.deepEqual(result.pageEntries.map(([domain]) => domain), [
+    "alpha-shop.example.com",
   ]);
 });
 

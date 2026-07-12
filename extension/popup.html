@@ -105,14 +105,35 @@
           <button id="addSiteRuleButtonOptions">Add Rule</button>
           <button id="cancelSiteRuleEditButton" type="button" hidden>Cancel</button>
         </div>
-        <div class="table-search">
-          <label for="siteRulesSearchInput">Search rules</label>
-          <input
-            type="search"
-            id="siteRulesSearchInput"
-            placeholder="Domain, rule type, or proxy"
-            autocomplete="off"
-          />
+        <div class="table-controls">
+          <div class="table-search">
+            <label for="siteRulesSearchInput">Search rules</label>
+            <input
+              type="search"
+              id="siteRulesSearchInput"
+              placeholder="Domain, rule type, or proxy"
+              autocomplete="off"
+            />
+          </div>
+          <div class="table-filter">
+            <label for="siteRulesFilterSelect">Filter</label>
+            <select id="siteRulesFilterSelect">
+              <option value="all">All rules</option>
+              <option value="proxy">Proxy rules</option>
+              <option value="no_proxy">NO_PROXY</option>
+              <option value="random_proxy">RANDOM_PROXY</option>
+              <option value="direct_temporary">DIRECT temporary</option>
+            </select>
+          </div>
+          <div class="table-filter">
+            <label for="siteRulesSortSelect">Sort</label>
+            <select id="siteRulesSortSelect">
+              <option value="storage_order">Default</option>
+              <option value="recent_first">Recently added</option>
+              <option value="domain_asc">Domain A-Z</option>
+              <option value="domain_desc">Domain Z-A</option>
+            </select>
+          </div>
         </div>
         <table id="siteRulesTable">
           <thead>
