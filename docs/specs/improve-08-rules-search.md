@@ -49,3 +49,4 @@ Rules pagination keeps the table manageable, but finding a specific domain or pr
 - 2026-07-12: Spec created and task started; roadmap status moved to `in_progress`.
 - 2026-07-12: Search fields are domain, rule `type`, and `proxyName` for `PROXY_BY_RULE` rules; matching is case-insensitive substring search.
 - 2026-07-12: Add/edit save clears the current search so the saved rule remains visible and the existing post-save pagination behavior is preserved.
+- 2026-07-12: Implementation merged; roadmap status moved to `done`, and dependent `IMPROVE-10` unblocked.

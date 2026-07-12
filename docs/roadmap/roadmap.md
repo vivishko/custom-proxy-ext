@@ -4,13 +4,12 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| IMPROVE-08 | 08. Rules search | M5 | P1 | M | 🟠 in_progress | 2026-01-25 | 2026-07-12 | - | [spec](docs/specs/improve-08-rules-search.md) | Quickly find rules by text | IMPROVE-07 |
+| IMPROVE-10 | 10. Rule sorting and filters | M3 | P2 | M | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-10-rule-sorting-filters.md) | Improve rule discovery and control | IMPROVE-07, IMPROVE-08 |
 | IMPROVE-14 | 14. UI style refresh | H5 | P2 | L | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-14-ui-style-refresh.md) | Explore a new visual style | IMPROVE-01, IMPROVE-13 |
 | REFACTOR-02 | 02. Decompose popup.html into components | R1 | P1 | M | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/refactor-02-decompose-popup-html-into-components.md) | Split popup layout into reusable sections and simplify maintenance | - |
 | FEAT-01 | 01. Settings screen in popup | N4 | P1 | M | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/feat-01-settings-screen-in-popup.md) | Add a dedicated settings screen and move technical toggles there | REFACTOR-02 |
 | IMPROVE-20 | 20. Light/dark theme switch in settings | N5 | P2 | S | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/improve-20-light-dark-theme-switch-in-settings.md) | Add explicit light/dark theme toggle in settings | FEAT-01 |
 | TEST-03 | Browser e2e extension tests | Q4 | P1 | L | 🔴 blocked | 2026-05-06 | 2026-07-12 | - | [spec](docs/specs/test-03-browser-e2e-extension-tests.md) | Automate browser-level popup flows with real extension storage | TEST-02 |
-| IMPROVE-10 | 10. Rule sorting and filters | M3 | P2 | M | 🔴 blocked | 2026-01-25 | - | - | [spec](docs/roadmap/improve-10-rule-sorting-filters.md) | Improve rule discovery and control | IMPROVE-07, IMPROVE-08 |
 | IMPROVE-15 | 15. Dark/light theme | N3 | P2 | S | 🔴 blocked | 2026-01-25 | - | - | [spec](docs/roadmap/improve-15-dark-light-theme.md) | Add theme toggle for comfort | IMPROVE-14 |
 | IMPROVE-16 | 16. Onboarding | N2 | P2 | S | 🔴 blocked | 2026-01-25 | - | - | [spec](docs/roadmap/improve-16-onboarding.md) | Guide new users through setup | IMPROVE-01, IMPROVE-14 |
 | CI-01 | CI quality gate for MV3 releases | Q2 | P0 | M | 🟢 done | 2026-02-19 | 2026-02-19 | 2026-02-19 | [spec](docs/specs/ci-01-quality-gate-for-mv3-releases.md) | Enforce pre-release CI checks: lint, tests, MV3 static validation, security, package verification | TEST-01 |
@@ -25,6 +24,7 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 | IMPROVE-05 | 05. Import proxies duplicate handling | H4 | P0 | L | 🟢 done | 2026-01-25 | 2026-04-13 | 2026-07-12 | [spec](docs/specs/improve-05-import-proxies-duplicate-handling.md) | Prevent duplicate proxy imports | IMPROVE-09 |
 | IMPROVE-06 | 06. Proxy delete warning flow | H2 | P0 | L | 🟢 done | 2026-01-25 | 2026-04-11 | 2026-04-13 | [spec](docs/specs/improve-06-proxy-delete-warning-flow.md) | Handle rule dependencies on proxy delete | IMPROVE-03 |
 | IMPROVE-07 | 07. Rules table pagination | M1 | P1 | M | 🟢 done | 2026-01-25 | 2026-04-13 | 2026-05-06 | [spec](docs/specs/improve-07-rules-table-pagination.md) | Limit rules table to 10 rows | - |
+| IMPROVE-08 | 08. Rules search | M5 | P1 | M | 🟢 done | 2026-01-25 | 2026-07-12 | 2026-07-12 | [spec](docs/specs/improve-08-rules-search.md) | Quickly find rules by text | IMPROVE-07 |
 | BUG-01 | Bug-01. Enable only on this page disables proxy | B1 | P0 | M | 🟢 done | 2026-01-26 | 2026-02-01 | 2026-02-01 | [spec](docs/specs/bug-01-enable-only-on-this-page-disables-proxy.md) | Separate global/per-page enable, add per-page proxy choice | IMPROVE-11 |
 | IMPROVE-09 | 09. Proxies table pagination | M2 | P1 | M | 🟢 done | 2026-01-25 | 2026-03-30 | 2026-04-11 | [spec](docs/specs/improve-09-proxies-table-pagination.md) | Limit proxies table to 10 rows | - |
 | IMPROVE-11 | 11. UX: Enable Proxy controls | H0 | P0 | M | 🟢 done | 2026-02-07 | 2026-02-07 | 2026-02-08 | [spec](docs/specs/improve-11-ux-enable-proxy-controls.md) | Make proxy mode controls clear and user-friendly | - |
