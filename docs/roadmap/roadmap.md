@@ -4,7 +4,6 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| IMPROVE-15 | 15. Dark/light theme | N3 | P2 | S | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-15-dark-light-theme.md) | Add theme toggle for comfort | IMPROVE-14 |
 | IMPROVE-16 | 16. Onboarding | N2 | P2 | S | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-16-onboarding.md) | Guide new users through setup | IMPROVE-01, IMPROVE-14 |
 | IMPROVE-20 | 20. Light/dark theme switch in settings | N5 | P2 | S | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/improve-20-light-dark-theme-switch-in-settings.md) | Add explicit light/dark theme toggle in settings | FEAT-01 |
 | TEST-03 | Browser e2e extension tests | Q4 | P1 | L | 🔴 blocked | 2026-05-06 | 2026-07-12 | - | [spec](docs/specs/test-03-browser-e2e-extension-tests.md) | Automate browser-level popup flows with real extension storage | TEST-02 |
@@ -30,6 +29,7 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 | IMPROVE-12 | 12. Colorize proxy explanation | L2 | P2 | S | 🟢 done | 2026-01-25 | 2026-03-29 | 2026-04-11 | [spec](docs/specs/improve-12-colorize-proxy-explanation-row.md) | Make proxy explanation easier to scan | - |
 | IMPROVE-13 | 13. Proxies left of rules | N1 | P2 | S | 🟢 done | 2026-01-25 | 2026-04-13 | 2026-05-07 | [spec](docs/specs/improve-13-proxies-left-of-rules.md) | Reorder UI columns for proxies | IMPROVE-01 |
 | IMPROVE-14 | 14. UI style refresh | H5 | P2 | L | 🟢 done | 2026-01-25 | 2026-07-12 | 2026-07-12 | [spec](docs/specs/improve-14-ui-style-refresh.md) | Explore a new visual style | IMPROVE-01, IMPROVE-13 |
+| IMPROVE-15 | 15. Dark/light theme | N3 | P2 | S | 🟢 done | 2026-01-25 | 2026-07-12 | 2026-07-12 | [spec](docs/specs/improve-15-dark-light-theme.md) | Add theme toggle for comfort | IMPROVE-14 |
 | IMPROVE-17 | 17. i18n strings framework | H6 | P1 | M | 🟢 done | 2026-02-07 | 2026-04-11 | 2026-04-13 | [spec](docs/specs/improve-17-i18n-strings-framework.md) | Add multi-language string support | - |
 | IMPROVE-18 | 18. After saving proxy, open proxies table | H7 | P1 | S | 🟢 done | 2026-02-08 | 2026-02-11 | 2026-02-12 | [spec](docs/specs/improve-18-after-saving-proxy-open-proxies-table.md) | Improve post-save flow by taking users to proxy list | - |
 | IMPROVE-19 | 19. Reload current page on proxy toggle | H8 | P1 | S | 🟢 done | 2026-02-08 | 2026-02-12 | 2026-02-12 | [spec](docs/specs/improve-19-reload-current-page-on-proxy-toggle.md) | Make proxy effect visible immediately after toggle | - |

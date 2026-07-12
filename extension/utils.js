@@ -17,6 +17,7 @@ export const STORAGE_KEYS = {
   temporaryDirectSites: "temporaryDirectSites",
   temporaryProxySites: "temporaryProxySites",
   loggingEnabled: "loggingEnabled",
+  themePreference: "themePreference",
 };
 
 /**

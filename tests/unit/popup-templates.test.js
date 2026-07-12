@@ -19,6 +19,7 @@ test("renderPopupShell mounts popup screens and required controls", () => {
     "addProxyScreen",
     "addProxyForm",
     "settingsScreen",
+    "themeToggle",
     "loggingToggle",
   ]) {
     assert.match(root.innerHTML, new RegExp(`id="${expectedId}"`));

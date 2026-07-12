@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const logger = createLogger(false);
   let loggingEnabled = false;
+  let themePreference = "light";
 
   const logDebug = (...args) => logger.debug(...args);
   const logError = (...args) => logger.error(...args);
@@ -131,11 +132,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // --- Logging toggle ---
   const loggingToggleButton = document.getElementById("loggingToggle");
+  const themeToggleButton = document.getElementById("themeToggle");
+
+  const applyThemePreference = () => {
+    document.documentElement.dataset.theme = themePreference;
+    themeToggleButton.classList.toggle("enabled", themePreference === "dark");
+    themeToggleButton.textContent =
+      themePreference === "dark" ? "Dark" : "Light";
+    themeToggleButton.setAttribute(
+      "aria-pressed",
+      String(themePreference === "dark")
+    );
+  };
+
   const updateLoggingToggleState = () => {
     loggingToggleButton.classList.toggle("enabled", loggingEnabled);
     loggingToggleButton.textContent = loggingEnabled ? "On" : "Off";
     loggingToggleButton.setAttribute("aria-pressed", String(loggingEnabled));
   };
+
+  themeToggleButton.addEventListener("click", () => {
+    themePreference = themePreference === "dark" ? "light" : "dark";
+    applyThemePreference();
+    storage.setThemePreference(themePreference);
+  });
 
   loggingToggleButton.addEventListener("click", () => {
     loggingEnabled = !loggingEnabled;
@@ -172,6 +192,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   logger.setEnabled(loggingEnabled);
   console.info("[ProxyExt] Requested logging:", loggingEnabled);
   updateLoggingToggleState();
+
+  themePreference = await storage.getThemePreference();
+  applyThemePreference();
 
   await siteRulesModule.loadProxiesForDropdown();
   await proxyControlsApi.loadMainControls();
