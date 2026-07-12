@@ -131,12 +131,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // --- Logging toggle ---
   const loggingToggleButton = document.getElementById("loggingToggle");
+  const updateLoggingToggleState = () => {
+    loggingToggleButton.classList.toggle("enabled", loggingEnabled);
+    loggingToggleButton.textContent = loggingEnabled ? "On" : "Off";
+    loggingToggleButton.setAttribute("aria-pressed", String(loggingEnabled));
+  };
+
   loggingToggleButton.addEventListener("click", () => {
     loggingEnabled = !loggingEnabled;
     logger.setEnabled(loggingEnabled);
-
-    if (loggingEnabled) loggingToggleButton.classList.add("enabled");
-    else loggingToggleButton.classList.remove("enabled");
+    updateLoggingToggleState();
 
     storage.setLoggingEnabled(loggingEnabled).then(() => {
       chrome.runtime.sendMessage({
@@ -167,8 +171,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   loggingEnabled = await storage.getLoggingEnabled();
   logger.setEnabled(loggingEnabled);
   console.info("[ProxyExt] Requested logging:", loggingEnabled);
-  if (loggingEnabled) loggingToggleButton.classList.add("enabled");
-  else loggingToggleButton.classList.remove("enabled");
+  updateLoggingToggleState();
 
   await siteRulesModule.loadProxiesForDropdown();
   await proxyControlsApi.loadMainControls();

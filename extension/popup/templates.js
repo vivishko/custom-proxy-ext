@@ -2,27 +2,6 @@ function renderHeader() {
   return `
     <div class="header-bar">
       <h1>Proxy Control</h1>
-      <button
-        id="loggingToggle"
-        class="logging-toggle"
-        title="Toggle debug logging"
-        aria-label="Toggle debug logging"
-      >
-        <svg
-          width="800px"
-          height="800px"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-          focusable="false"
-        >
-          <path
-            d="M6.12 20.75C5.36 20.75 4.64 20.45 4.09 19.91C2.97 18.79 2.97 16.98 4.09 15.86L9.6 10.35C9.1 8.40997 9.64 6.31997 11.06 4.89997C12.49 3.46997 14.59 2.90997 16.54 3.43997C16.8 3.50997 17 3.70997 17.07 3.96997C17.14 4.22997 17.07 4.49997 16.88 4.68997L14.43 7.13997L14.95 9.04997L16.86 9.56997L19.31 7.11997C19.5 6.92997 19.78 6.85997 20.03 6.92997C20.29 6.99997 20.49 7.19997 20.56 7.45997C21.09 9.40997 20.54 11.51 19.1 12.94C17.68 14.36 15.59 14.9 13.65 14.4L8.14 19.91C7.6 20.45 6.88 20.75 6.12 20.75ZM14.68 4.76997C13.72 4.84997 12.81 5.26997 12.11 5.96997C10.97 7.10997 10.6 8.77997 11.15 10.32C11.25 10.59 11.18 10.9 10.97 11.1L5.14 16.93C4.61 17.46 4.61 18.33 5.14 18.86C5.4 19.12 5.74 19.26 6.11 19.26C6.47 19.26 6.82 19.12 7.07 18.86L12.9 13.03C13.11 12.82 13.41 12.76 13.68 12.85C15.22 13.39 16.89 13.03 18.03 11.89C18.73 11.19 19.14 10.28 19.23 9.31997L17.6 10.95C17.41 11.14 17.13 11.21 16.87 11.14L14.13 10.39C13.87 10.32 13.67 10.12 13.6 9.85997L12.85 7.11997C12.78 6.85997 12.85 6.57997 13.04 6.38997L14.67 4.75997L14.68 4.76997Z"
-            fill="#000000"
-          />
-        </svg>
-      </button>
     </div>
   `;
 }
@@ -73,6 +52,9 @@ function renderMainScreen() {
         </button>
         <button class="nav-button" data-screen-target="rulesScreen">
           Rules
+        </button>
+        <button class="nav-button" data-screen-target="settingsScreen">
+          Settings
         </button>
       </div>
     </div>
@@ -280,6 +262,37 @@ function renderAddProxyScreen() {
   `;
 }
 
+function renderSettingsScreen() {
+  return `
+    <div id="settingsScreen" class="screen">
+      <div class="screen-header">
+        <button class="back-button" data-screen-target="mainScreen">
+          Back
+        </button>
+        <h2>Settings</h2>
+        <span class="screen-header-spacer"></span>
+      </div>
+
+      <div class="settings-list">
+        <div class="settings-row">
+          <div>
+            <h3>Debug logging</h3>
+            <p>Write diagnostic messages for popup and background flows.</p>
+          </div>
+          <button
+            id="loggingToggle"
+            class="settings-toggle-button"
+            type="button"
+            aria-pressed="false"
+          >
+            Off
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 export function renderPopupShell(rootElement) {
   if (!rootElement) {
     throw new Error("Popup root element is missing.");
@@ -291,5 +304,6 @@ export function renderPopupShell(rootElement) {
     renderRulesScreen(),
     renderProxiesScreen(),
     renderAddProxyScreen(),
+    renderSettingsScreen(),
   ].join("");
 }
