@@ -71,3 +71,4 @@ Rules pagination and text search make the rules table easier to use, but users s
 - 2026-07-12: Default sort keeps storage order; recently added is reverse storage order to avoid a storage migration.
 - 2026-07-12: Implemented Rules screen filter and sort controls, with helper unit coverage for search/filter/sort pagination.
 - 2026-07-12: Browser-level verification could not be completed in the local Codex environment because Chrome did not expose the target extension to the e2e runner.
+- 2026-07-12: Implementation merged; roadmap status moved to `done`.
