@@ -4,7 +4,6 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TEST-02 | Seeded extension dev script | Q3 | P0 | M | 🟠 in_progress | 2026-05-06 | 2026-07-12 | - | [spec](docs/specs/test-02-seeded-extension-dev-script.md) | Open extension with deterministic seed data for faster manual verification | TEST-01 |
 | TEST-03 | Browser e2e extension tests | Q4 | P1 | L | 🔵 planned | 2026-05-06 | - | - | [spec](docs/specs/test-03-browser-e2e-extension-tests.md) | Automate browser-level popup flows with real extension storage | TEST-02 |
 | CI-02 | Main-only release tag helper | Q5 | P1 | M | 🟣 idea | 2026-05-06 | - | - | [spec](docs/specs/ci-02-main-only-release-tag-helper.md) | Automate safe release tagging from main and block package publishing for non-main tags | CI-01 |
 | IMPROVE-08 | 08. Rules search | M5 | P1 | M | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-08-rules-search.md) | Quickly find rules by text | IMPROVE-07 |
@@ -17,6 +16,7 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 | IMPROVE-16 | 16. Onboarding | N2 | P2 | S | 🔴 blocked | 2026-01-25 | - | - | [spec](docs/roadmap/improve-16-onboarding.md) | Guide new users through setup | IMPROVE-01, IMPROVE-14 |
 | CI-01 | CI quality gate for MV3 releases | Q2 | P0 | M | 🟢 done | 2026-02-19 | 2026-02-19 | 2026-02-19 | [spec](docs/specs/ci-01-quality-gate-for-mv3-releases.md) | Enforce pre-release CI checks: lint, tests, MV3 static validation, security, package verification | TEST-01 |
 | TEST-01 | Extension test coverage baseline | Q1 | P0 | M | 🟢 done | 2026-02-19 | 2026-02-19 | 2026-02-19 | [spec](docs/specs/test-01-extension-test-coverage.md) | Establish unit/integration test baseline for critical extension logic and flows | REFACTOR-01 |
+| TEST-02 | Seeded extension dev script | Q3 | P0 | M | 🟢 done | 2026-05-06 | 2026-07-12 | 2026-07-12 | [spec](docs/specs/test-02-seeded-extension-dev-script.md) | Open extension with deterministic seed data for faster manual verification | TEST-01 |
 | REFACTOR-01 | Codebase decomposition | - | P1 | L | 🟢 done | 2026-02-13 | 2026-02-13 | 2026-02-13 | [spec](docs/specs/refactor-01-codebase-decomposition.md) | Decompose monolithic popup.js and background.js into focused modules for maintainability and testability | - |
 | IMPROVE-01 | 01. Separate main screens | H1 | P0 | L | 🟢 done | 2026-01-25 | 2026-01-25 | 2026-01-25 | [spec](docs/specs/improve-01-separate-main-screens.md) | Simplify main screen and split views | - |
 | IMPROVE-02 | 02. Warn on duplicate rule | L3 | P0 | S | 🟢 done | 2026-01-25 | 2026-02-22 | 2026-03-29 | [spec](docs/specs/improve-02-warn-duplicate-rule-manual.md) | Prevent accidental duplicate rules | - |

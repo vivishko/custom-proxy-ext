@@ -49,3 +49,4 @@ Prioritize developer ergonomics and reliability. This task is higher priority th
 - 2026-07-12: Added `npm run dev:seeded`, which creates a temporary extension copy/profile, injects a dev-only seed module, and launches Chrome/Chromium without adding runtime dependencies.
 - 2026-07-12: Added deterministic seed fixtures under `examples/dev/` for proxies, site rules, duplicate replace/skip import checks, and duplicate validation-error checks.
 - 2026-07-12: Documented the seeded dev command in English and Russian READMEs; release packaging remains unaffected because scripts/examples are excluded from the release payload.
+- 2026-07-12: Marked task done after the implementation MR was merged; verification checks passed in the implementation branch (`dev:seeded -- --dry-run`, tests, lint, MV3, package).
