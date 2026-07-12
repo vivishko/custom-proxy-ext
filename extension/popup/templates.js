@@ -303,6 +303,46 @@ function renderSettingsScreen() {
             Off
           </button>
         </div>
+
+        <div class="settings-row">
+          <div>
+            <h3>Setup guide</h3>
+            <p>Open the initial setup guide again.</p>
+          </div>
+          <button
+            id="showOnboardingButton"
+            class="settings-action-button"
+            type="button"
+          >
+            Open
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderOnboardingOverlay() {
+  return `
+    <div
+      id="onboardingOverlay"
+      class="onboarding-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="onboardingTitle"
+      hidden
+    >
+      <div class="onboarding-panel">
+        <h2 id="onboardingTitle">Set up Proxy Control</h2>
+        <ol class="onboarding-steps">
+          <li>Add or import proxies.</li>
+          <li>Create rules for domains that need a specific proxy behavior.</li>
+          <li>Use Global proxy or Only this page for temporary routing.</li>
+        </ol>
+        <div class="onboarding-actions">
+          <button id="skipOnboardingButton" type="button">Skip</button>
+          <button id="startOnboardingButton" type="button">Start setup</button>
+        </div>
       </div>
     </div>
   `;
@@ -320,5 +360,6 @@ export function renderPopupShell(rootElement) {
     renderProxiesScreen(),
     renderAddProxyScreen(),
     renderSettingsScreen(),
+    renderOnboardingOverlay(),
   ].join("");
 }

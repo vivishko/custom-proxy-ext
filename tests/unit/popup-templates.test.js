@@ -21,6 +21,10 @@ test("renderPopupShell mounts popup screens and required controls", () => {
     "settingsScreen",
     "themeToggle",
     "loggingToggle",
+    "showOnboardingButton",
+    "onboardingOverlay",
+    "skipOnboardingButton",
+    "startOnboardingButton",
   ]) {
     assert.match(root.innerHTML, new RegExp(`id="${expectedId}"`));
   }
