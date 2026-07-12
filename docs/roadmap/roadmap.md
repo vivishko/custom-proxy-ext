@@ -4,7 +4,6 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 
 | ID | Title | Tag | Priority | Complexity | Status | created_date | started_date | done_date | Spec | Goal/Value | Dependencies |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| REFACTOR-02 | 02. Decompose popup.html into components | R1 | P1 | M | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/refactor-02-decompose-popup-html-into-components.md) | Split popup layout into reusable sections and simplify maintenance | - |
 | FEAT-01 | 01. Settings screen in popup | N4 | P1 | M | 🟣 idea | 2026-02-20 | - | - | [spec](docs/roadmap/feat-01-settings-screen-in-popup.md) | Add a dedicated settings screen and move technical toggles there | REFACTOR-02 |
 | IMPROVE-15 | 15. Dark/light theme | N3 | P2 | S | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-15-dark-light-theme.md) | Add theme toggle for comfort | IMPROVE-14 |
 | IMPROVE-16 | 16. Onboarding | N2 | P2 | S | 🟣 idea | 2026-01-25 | - | - | [spec](docs/roadmap/improve-16-onboarding.md) | Guide new users through setup | IMPROVE-01, IMPROVE-14 |
@@ -15,6 +14,7 @@ Single tracking table. Each feature links to a detail file in `docs/roadmap/`.
 | TEST-01 | Extension test coverage baseline | Q1 | P0 | M | 🟢 done | 2026-02-19 | 2026-02-19 | 2026-02-19 | [spec](docs/specs/test-01-extension-test-coverage.md) | Establish unit/integration test baseline for critical extension logic and flows | REFACTOR-01 |
 | TEST-02 | Seeded extension dev script | Q3 | P0 | M | 🟢 done | 2026-05-06 | 2026-07-12 | 2026-07-12 | [spec](docs/specs/test-02-seeded-extension-dev-script.md) | Open extension with deterministic seed data for faster manual verification | TEST-01 |
 | REFACTOR-01 | Codebase decomposition | - | P1 | L | 🟢 done | 2026-02-13 | 2026-02-13 | 2026-02-13 | [spec](docs/specs/refactor-01-codebase-decomposition.md) | Decompose monolithic popup.js and background.js into focused modules for maintainability and testability | - |
+| REFACTOR-02 | 02. Decompose popup.html into components | R1 | P1 | M | 🟢 done | 2026-02-20 | 2026-07-12 | 2026-07-12 | [spec](docs/specs/refactor-02-decompose-popup-html-into-components.md) | Split popup layout into reusable sections and simplify maintenance | - |
 | IMPROVE-01 | 01. Separate main screens | H1 | P0 | L | 🟢 done | 2026-01-25 | 2026-01-25 | 2026-01-25 | [spec](docs/specs/improve-01-separate-main-screens.md) | Simplify main screen and split views | - |
 | IMPROVE-02 | 02. Warn on duplicate rule | L3 | P0 | S | 🟢 done | 2026-01-25 | 2026-02-22 | 2026-03-29 | [spec](docs/specs/improve-02-warn-duplicate-rule-manual.md) | Prevent accidental duplicate rules | - |
 | IMPROVE-03 | 03. Rule editing + duplicate warning | M4 | P0 | M | 🟢 done | 2026-01-25 | 2026-03-29 | 2026-03-30 | [spec](docs/specs/improve-03-rule-editing-duplicate-warning.md) | Enable edits while preventing duplicates | IMPROVE-02 |

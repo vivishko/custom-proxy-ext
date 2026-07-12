@@ -3,8 +3,11 @@ import * as storage from "../shared/storage.js";
 import { initProxyControls } from "./proxy-controls.js";
 import { initSiteRules } from "./site-rules.js";
 import { initProxyCrud } from "./proxy-crud.js";
+import { renderPopupShell } from "./templates.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
+  renderPopupShell(document.getElementById("popupRoot"));
+
   // --- Shared state ---
   let currentTabDomain = "";
 

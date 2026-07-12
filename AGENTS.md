@@ -388,7 +388,7 @@ When the user says "pause / not now" or work cannot proceed:
 # Files to know
 
 Extension root (extension/)
-- extension/popup.html: popup shell.
+- extension/popup.html: popup shell root that loads popup CSS and JS.
 - extension/popup.css: popup styles.
 - extension/utils.js: shared helpers and logging.
 - extension/strings.js: UI text strings.
@@ -411,6 +411,7 @@ Background (extension/background/)
 
 Popup (extension/popup/)
 - extension/popup/popup.js: entry point, screen routing, init wiring.
+- extension/popup/templates.js: static popup screen/header markup rendered into the popup shell.
 - extension/popup/proxy-controls.js: global/per-page toggles + control handlers.
 - extension/popup/proxy-crud.js: proxy CRUD + import/export.
 - extension/popup/site-rules.js: rules CRUD + import/export.
