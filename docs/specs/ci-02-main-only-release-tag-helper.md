@@ -60,4 +60,8 @@ Implement an npm-based release tag helper and a GitHub Actions main-ancestry gua
 ## Changelog / Decisions
 
 - 2026-05-06: Spec created from discussion. Decision: use npm script as the user-facing helper, with GitHub Actions remaining the source of truth for package publication.
-
+- 2026-07-12: Started implementation; task status moved to `in_progress`.
+- 2026-07-12: Added `npm run release:tag -- vX.Y.Z` backed by `scripts/release-tag.mjs`; it validates tag format, requires a clean working tree, fetches `origin/main` with an explicit remote-tracking refspec, rejects existing local/remote tags, creates an annotated tag on `origin/main`, and pushes only that tag.
+- 2026-07-12: Added release workflow guard after checkout with full history; it fetches `origin/main` with an explicit remote-tracking refspec and blocks release packaging unless `$GITHUB_SHA` is contained in `origin/main`.
+- 2026-07-12: Documented the release tag command in English and Russian READMEs and added unit coverage for helper validation/failure paths.
+- 2026-07-12: Verified with `npm test`, `npm run lint`, `npm run check:mv3`, `npm run check:package`, and a negative CLI smoke test (`npm run release:tag -- bad-tag`); task marked done.
