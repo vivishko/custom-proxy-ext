@@ -85,6 +85,18 @@ The e2e runner launches an isolated Chrome/Chromium profile, loads this repo as 
 
 ---
 
+## 🚢 Release
+
+After preparing release notes and bumping `manifest.json`, create the release tag from the latest `origin/main`:
+
+```bash
+npm run release:tag -- vX.Y.Z
+```
+
+The helper requires a clean working tree, fetches `origin/main`, refuses existing local/remote tags, creates an annotated tag on `origin/main`, and pushes only that tag. The GitHub release workflow also verifies that the tag commit is contained in `origin/main` before package verification or release creation.
+
+---
+
 ## 🔩 Usage Overview
 
 1. **Add proxies** in the _Proxies_ tab.

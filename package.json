@@ -5,6 +5,7 @@
   "scripts": {
     "dev:seeded": "node scripts/seeded-extension-dev.mjs",
     "e2e:extension": "node scripts/run-extension-e2e.mjs",
+    "release:tag": "node scripts/release-tag.mjs",
     "test": "node --test",
     "lint": "eslint .",
     "check:mv3": "node scripts/check-mv3.mjs",

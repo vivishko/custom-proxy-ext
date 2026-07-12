@@ -81,6 +81,18 @@ E2E runner создаёт изолированный профиль Chrome/Chrom
 
 ---
 
+## Релиз
+
+После подготовки release notes и обновления версии в `manifest.json` создайте релизный тег от актуального `origin/main`:
+
+```bash
+npm run release:tag -- vX.Y.Z
+```
+
+Helper требует чистое рабочее дерево, выполняет fetch `origin/main`, запрещает уже существующие локальные/remote теги, создаёт annotated tag на `origin/main` и пушит только этот тег. GitHub release workflow дополнительно проверяет, что commit тега входит в `origin/main`, до проверки package payload и создания релиза.
+
+---
+
 ## Краткое руководство
 
 1. **Добавьте прокси** во вкладке _Proxies_.
