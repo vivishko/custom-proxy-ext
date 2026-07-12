@@ -51,3 +51,4 @@ Proxy import currently overwrites existing entries only on exact-case name match
 - 2026-04-13: Implemented duplicate-aware import helpers in `extension/popup/proxy-crud.js`: conflict detection, case-insensitive matching, and deterministic merge with `replace/skip` strategy.
 - 2026-04-13: Import completion now always shows explicit counters (`Added`, `Replaced`, `Skipped`) to avoid silent data loss.
 - 2026-04-13: Added unit coverage for proxy import duplicate handling and edge-cases in `tests/unit/proxy-crud.test.js` and updated `tests/unit/validation.test.js`.
+- 2026-07-12: Marked task done after the implementation MR was already merged; no code changes in this status-only update.
