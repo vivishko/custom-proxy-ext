@@ -45,3 +45,7 @@ Keep the first e2e suite narrow and high-signal. Prefer stable storage assertion
 
 ## Changelog / Decisions
 - 2026-05-06: Task created after identifying the need for browser-level extension automation beyond Node unit/integration tests.
+- 2026-07-12: Started implementation; task status moved to `in_progress`.
+- 2026-07-12: Added `npm run e2e:extension` with a dependency-free Chrome DevTools Protocol runner that targets real popup import flows and `chrome.storage.sync` state.
+- 2026-07-12: Added initial e2e coverage for proxy import duplicate replace, skip, and invalid duplicate payload flows using `examples/dev/` fixtures.
+- 2026-07-12: Local system Chrome in this environment did not load the repo's unpacked extension via command-line flags; runner now fails fast with loaded target diagnostics instead of selecting unrelated built-in extension IDs. Task remains `in_progress` until a Chrome/Chromium binary that loads the unpacked extension is verified.

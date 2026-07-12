@@ -4,6 +4,7 @@
   "main": "extension/background/background.js",
   "scripts": {
     "dev:seeded": "node scripts/seeded-extension-dev.mjs",
+    "e2e:extension": "node scripts/run-extension-e2e.mjs",
     "test": "node --test",
     "lint": "eslint .",
     "check:mv3": "node scripts/check-mv3.mjs",

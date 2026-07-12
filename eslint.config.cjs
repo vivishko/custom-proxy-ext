@@ -12,6 +12,7 @@ module.exports = [
         location: "readonly",
         URL: "readonly",
         URLSearchParams: "readonly",
+        WebSocket: "readonly",
         fetch: "readonly",
         FileReader: "readonly",
         Blob: "readonly",
