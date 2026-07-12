@@ -63,6 +63,20 @@ Toggle detailed debugging output for background proxy logic.
 
 ---
 
+## 🛠️ Development
+
+Run a seeded browser profile for manual popup checks:
+
+```bash
+npm run dev:seeded
+```
+
+The command creates an isolated temporary Chrome/Chromium profile, loads a temporary copy of the unpacked extension, and seeds deterministic proxy/rule data into `chrome.storage.sync`. Use `CHROME_PATH=/path/to/chrome npm run dev:seeded` or `npm run dev:seeded -- --browser /path/to/chrome` if Chrome is not auto-detected.
+
+Seed and import-test fixtures live in `examples/dev/`.
+
+---
+
 ## 🔩 Usage Overview
 
 1. **Add proxies** in the _Proxies_ tab.

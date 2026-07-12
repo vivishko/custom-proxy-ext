@@ -1,0 +1,15 @@
+{
+  "example.com": {
+    "type": "NO_PROXY"
+  },
+  "shop.example.test": {
+    "type": "PROXY_BY_RULE",
+    "proxyName": "dev-socks-de"
+  },
+  "news.example.test": {
+    "type": "RANDOM_PROXY"
+  },
+  "checkout.example.test": {
+    "type": "DIRECT_TEMPORARY"
+  }
+}

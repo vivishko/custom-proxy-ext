@@ -1,0 +1,20 @@
+[
+  {
+    "name": "DEV-HTTP-US",
+    "host": "198.51.100.10",
+    "port": 8081,
+    "username": "replacement-user",
+    "password": "replacement-password",
+    "country": "US",
+    "protocol": "http"
+  },
+  {
+    "name": "dev-new-fr",
+    "host": "203.0.113.20",
+    "port": 3128,
+    "username": "",
+    "password": "",
+    "country": "FR",
+    "protocol": "http"
+  }
+]

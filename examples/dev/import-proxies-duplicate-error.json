@@ -1,0 +1,20 @@
+[
+  {
+    "name": "duplicate-dev",
+    "host": "198.51.100.21",
+    "port": 8080,
+    "username": "",
+    "password": "",
+    "country": "NL",
+    "protocol": "http"
+  },
+  {
+    "name": "DUPLICATE-DEV",
+    "host": "198.51.100.22",
+    "port": 8080,
+    "username": "",
+    "password": "",
+    "country": "NL",
+    "protocol": "http"
+  }
+]
