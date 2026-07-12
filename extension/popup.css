@@ -556,11 +556,10 @@ table tr:hover {
   display: none;
 }
 
-/* Header row: title left, toggle right */
 .header-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
   margin: 0 0 10px;
 }
@@ -573,57 +572,48 @@ table tr:hover {
   flex: 1 1 auto;
 }
 
-/* Tiny toggle button pinned to the right */
-.logging-toggle {
-  width: auto !important;
-  min-width: 0 !important;
-  flex: 0 0 auto;
-  display: inline-flex;
+.settings-list {
+  display: grid;
+  gap: 10px;
+}
+
+.settings-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
   align-items: center;
-  justify-content: center;
-  padding: 4px;
-  line-height: 0;
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  cursor: pointer;
-  opacity: 0.6;
-  transition: opacity 0.2s ease, transform 0.1s ease, filter 0.2s ease;
-}
-
-.logging-toggle:focus-visible {
-  outline: 2px solid #93c5fd;
-  outline-offset: 2px;
-}
-
-.logging-toggle:hover {
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
   background-color: var(--color-surface-muted);
-  opacity: 1;
 }
 
-.logging-toggle.enabled {
-  opacity: 1;
-  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.15));
+.settings-row h3 {
+  margin: 0 0 4px;
+  color: var(--color-text);
+  font-size: 0.95em;
 }
 
-.logging-toggle:active {
-  transform: scale(0.96);
+.settings-row p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.85em;
+  line-height: 1.35;
 }
 
-.logging-toggle svg {
-  width: 18px;
-  height: 18px;
-  display: block;
+.settings-toggle-button {
+  width: 56px;
+  margin-top: 0;
+  padding: 7px 10px;
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-muted);
 }
 
-.logging-toggle.enabled svg path {
-  stroke: var(--color-primary);
-  fill: #2563eb1a;
-}
-
-.logging-toggle:not(.enabled) svg path {
-  stroke: var(--color-muted);
-  fill: transparent;
+.settings-toggle-button.enabled {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
 }
 
 @media (max-width: 420px) {
@@ -641,13 +631,19 @@ table tr:hover {
   }
 
   .site-rule-form,
-  .export-import {
+  .export-import,
+  .settings-row {
     flex-direction: column;
     align-items: stretch;
   }
 
+  .settings-row {
+    grid-template-columns: 1fr;
+  }
+
   .site-rule-form button,
-  .export-import button {
+  .export-import button,
+  .settings-toggle-button {
     width: 100%;
   }
 
